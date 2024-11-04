@@ -1121,7 +1121,6 @@ async function getTracksData(api, id, isAlbum) {
             data = await callAnghami(id, '/track')
             break;
     }
-    console.log(data)
     return data;
 }
 

@@ -104,6 +104,9 @@ async function connectWebSocket(session,token,channel_id) {
                     parent.setAttribute('dataid', channel_id)
                     parent.className = 'body page player player2 live center minimized'
                 }
+                try {
+                    fireJoinMethod()
+                }catch(e){}
             }
             if (typeof Android !== 'undefined') {
                 Android.connectChatWebSocket(url)

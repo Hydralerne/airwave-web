@@ -142,7 +142,36 @@ app.get('/music',blockWeb, (req, res) => {
 app.get('/profile', (req, res) => {
     res.render('profile', { req: req })
 });
-app.get('/radio/:id', (req, res) => {
+
+const performMeta = (data) => {
+    return `
+      ${data.description ? `<meta name="description"
+        content="${data.description}">` : ''}
+    <meta property="og:title" content="${data.title}" />
+    <meta property="og:image" content="${data.image}" />
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@oave_me">
+    <meta name="twitter:title" content="${data.title}">
+    <meta name="twitter:image" content="${data.image}">
+    `
+}
+
+app.get('/radio/:id',async (req, res) => {
+    try {
+        const response = await fetch(`https://api.onvo.me/music/channels?id=${req.params.id}`,{
+            headers: {
+                Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJodHRwczovL2FwaS5vbnZvLm1lIiwiZXhwIjoxODMwNzMzMTg5LCJpZCI6ImpyMWdyNTM0MHQ1aHFrM2Fjc2Q3cDYwOTNyIiwidnIiOiIxLjIifQ.5Gz91ZE-CJT3bHQphOjrn0Lp0lc8qYwi5Z2WOs6tNWc`
+            }
+        })
+        const data = await response.json();
+        req.radio = JSON.stringify(data)
+        req.meta = performMeta({
+            title: `Join ${data.owner.fullname}'s Live party`,
+            image: data.owner.image?.replace('/profile/','/profile_frame/')
+        })
+    }catch(e){
+        console.error(e)
+    }
     res.render('index', { req: req })
 });
 app.get('/soundcloud/playlist', async (req, res) => {
@@ -414,9 +443,38 @@ app.get('/check_audio',blockWeb, (req, res) => {
 
 app.get('/sound_api', soundcloud.soundcloudThread)
 
-app.get('/:endpoint', async (req, res) => {
+function getApiCut(api) {
+    switch (api) {
+        case 'apple':
+            return 'ap'
+        case 'spotify':
+            return 'sp'
+        case 'soundcloud':
+            return 'sc'
+        case 'anghami':
+            return 'an'
+        case 'youtube':
+            return 'yt'
+        case 'ap':
+            return 'anghami'
+        case 'sp':
+            return 'spotify'
+        case 'yt':
+            return 'youtube'
+        case 'ap':
+            return 'apple'
+    }
+    return;
+}
+
+app.get('/:endpoint/:id?', async (req, res) => {
     try {
-        const { endpoint } = req.params
+        const { endpoint, id } = req.params
+        const isCut = getApiCut(endpoint)
+        if(isCut){
+            req.track = {api: isCut, id}
+            return res.render('index', { req: req })
+        }
         if (!endpoint) {
             throw new Error('ass')
             return

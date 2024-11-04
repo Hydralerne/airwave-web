@@ -951,7 +951,7 @@ async function printHome(data) {
         return;
     }
 
-    const list = await getSpotifyList(data.home.trending,0,20);
+    const list = await getSpotifyList(data.home.trending, 0, 20);
     const tracks = (list.tracks)
     const songsData = printSongsRegular(tracks, 5);
     document.querySelector('.main-inset-hits').innerHTML = songsData.html
@@ -976,16 +976,15 @@ async function miniDialog(text) {
     }, 3000)
 }
 
-function printLives(data) {
-    let html = ''
-    if (!data?.home?.lives || data?.home?.lives?.length == 0) {
-        return
-    }
-    data?.home?.lives.forEach(live => {
-        try {
-            const isJoined = liveBody.getAttribute('dataid') == live.live_id
-            const poster = pI(live?.playing?.poster?.url || live?.playing?.poster)
-            html += `
+function printLiveCard(live){
+    const isJoined = liveBody.getAttribute('dataid') == live.live_id
+    const poster = pI(live?.playing?.poster?.url || live?.playing?.poster)
+    getColors(poster, 5).then(colors => {
+        const parent = document.querySelector(`.live-card[dataid="${live.live_id}"]`)
+        parent.querySelector('.fseclord').style.backgroundColor = colors.shades[2]
+        parent.querySelector('.sseclord').style.backgroundColor = colors.shades[4]
+    })
+    return `
         <div class="live-card ${isJoined ? 'joined' : ''}" dataid="${live.live_id}">
             <div class="blured-live-wedgit">
                 <span style="background-image: url('${poster}');"></span>
@@ -1016,12 +1015,17 @@ function printLives(data) {
                 <div class="join-live-btn" onclick="joinLive(this)"><span ${touchPackage}></span></div>
             </div>
             <div class="about-live" onclick="liveMenu(this);"></div>
-        </div>`;
-            getColors(poster, 5).then(colors => {
-                const parent = document.querySelector(`.live-card[dataid="${live.live_id}"]`)
-                parent.querySelector('.fseclord').style.backgroundColor = colors.shades[2]
-                parent.querySelector('.sseclord').style.backgroundColor = colors.shades[4]
-            })
+        </div>`
+}
+
+function printLives(data) {
+    let html = ''
+    if (!data?.home?.lives || data?.home?.lives?.length == 0) {
+        return
+    }
+    data?.home?.lives.forEach(live => {
+        try {
+            html += printLiveCard(live);
         } catch (e) {
             console.error(e)
         }
@@ -1135,6 +1139,11 @@ getHome().then(async data => {
     } catch (e) {
         log(e)
     }
+    if (data.user?.status !== 'signed') {
+        return window.location.assign('/?login=true')
+    } else {
+        document.querySelector('.loadermain')?.remove()
+    }
     if (!safeMode) {
         setTimeout(() => {
             getMainApple().then(data => {
@@ -1197,7 +1206,7 @@ document.querySelectorAll('.generes-section').forEach(btn => {
             loaders += songLoaderEffect;
         }
         document.querySelector('.main-inset-hits').innerHTML = loaders
-        const list = await getSpotifyList(this.getAttribute('dataid'),0,20)
+        const list = await getSpotifyList(this.getAttribute('dataid'), 0, 20)
         const songsData = printSongsRegular(list.tracks, 5);
         document.querySelector('.main-inset-hits').innerHTML = songsData.html
         sectionsParent.classList.remove('disabled')
@@ -1702,7 +1711,7 @@ function editFavs() {
 function addScriptIfNotPresent(src) {
     // Check if the script with the given src already exists
     var existingScript = document.querySelector(`script[src="${src}"]`);
-    
+
     // If no such script exists, create and append it
     if (!existingScript) {
         var script = document.createElement('script');
@@ -1715,7 +1724,7 @@ function addScriptIfNotPresent(src) {
     }
 }
 
-if(!window.webkit){
+if (!window.webkit) {
     addScriptIfNotPresent('/js/libs/hls.js');
 }
 
@@ -1723,7 +1732,7 @@ if(!window.webkit){
 
 let ongoingList
 async function fetchList(id, type, userid, offset) {
-    if(ongoingList == id){
+    if (ongoingList == id) {
         return
     }
     ongoingList = id
@@ -2066,7 +2075,7 @@ async function createLive(el) {
         }
     } catch (e) {
         el.classList.remove('disabled')
-        dialog('Error occured','Error while connecting to server, please wait or restart your app')
+        dialog('Error occured', 'Error while connecting to server, please wait or restart your app')
     }
 }
 

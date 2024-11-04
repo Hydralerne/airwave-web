@@ -7477,7 +7477,78 @@ body.importing-list .body {
     opacity: 0.5;
     font-weight: 300;
 }
+.huge-join {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999999;
+}
 
+.huge-join .live-card {
+    position: absolute;
+    right: 0;
+    left: 0;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+}
+
+.huge-join:before {
+    background: hsl(0deg 0% 0% / 75%);
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+}
+
+.huge-join .join-live-btn span {
+    display: none;
+}
+
+.join-now-live {
+    height: 45px;
+    width: 80vw;
+    border: 1px solid hsl(0deg 0% 100% / 10%);
+    border-radius: 50px;
+    right: 0;
+    left: 0;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    max-width: 350px;
+    transform: translateY(130px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #fff;
+}
+
+.join-now-live:before {
+    content: 'Join now';
+}
+
+.join-now-live.in-app {
+    transform: translateY(190px);
+    background: #fff;
+    color: #000;
+    border-color: transparent;
+}
+
+.join-now-live.in-app:before {
+    content: 'Open in app';
+}
+
+.huge-join .close-premium-banner {
+    margin-right: 10%;
+    background: hsl(0deg 0% 100% / 5%);
+}
 .page .importing-tag a {
     display: none;
 }
