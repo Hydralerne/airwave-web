@@ -1,0 +1,557 @@
+body {
+    background: #0c0b0b;
+    overflow-x: hidden;
+}
+
+.hidden {
+    display: none !important;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    outline: 0;
+    -webkit-appearance: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    font-family: 'Gellix',system-ui;
+}
+.center {
+    transform: none !important;
+}
+
+:root {
+    --regular: 'Gellix', 'arabic-regular', 'system-ui';
+    --light: 'Gellix', 'arabic-light', 'system-ui';
+    --bold: 'Gellix', 'arabic-bold', 'system-ui'
+}
+.page {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: 999999;
+    top: 0;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    background: #000;
+    transform: translateX(100vw);
+    transition: 0.2s;
+}
+
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('/assets/fonts/Gellix-LightItalic.eot');
+    src: local('Gellix Light Italic'), local('Gellix-LightItalic'),
+        url('/assets/fonts/Gellix-LightItalic.eot?#iefix') format('embedded-opentype'),
+        url('/assets/fonts/Gellix-LightItalic.woff2') format('woff2'),
+        url('/assets/fonts/Gellix-LightItalic.woff') format('woff'),
+        url('/assets/fonts/Gellix-LightItalic.ttf') format('truetype');
+    font-weight: 300;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('/assets/fonts/Gellix-ExtraBold.eot');
+    src: local('Gellix ExtraBold'), local('Gellix-ExtraBold'),
+        url('/assets/fonts/Gellix-ExtraBold.eot?#iefix') format('embedded-opentype'),
+        url('/assets/fonts/Gellix-ExtraBold.woff2') format('woff2'),
+        url('/assets/fonts/Gellix-ExtraBold.woff') format('woff'),
+        url('/assets/fonts/Gellix-ExtraBold.ttf') format('truetype');
+    font-weight: 800;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('/assets/fonts/Gellix-SemiBold.eot');
+    src: local('Gellix SemiBold'), local('Gellix-SemiBold'),
+        url('/assets/fonts/Gellix-SemiBold.eot?#iefix') format('embedded-opentype'),
+        url('/assets/fonts/Gellix-SemiBold.woff2') format('woff2'),
+        url('/assets/fonts/Gellix-SemiBold.woff') format('woff'),
+        url('/assets/fonts/Gellix-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('/assets/fonts/Gellix-RegularItalic.eot');
+    src: local('Gellix Regular Italic'), local('Gellix-RegularItalic'),
+        url('/assets/fonts/Gellix-RegularItalic.eot?#iefix') format('embedded-opentype'),
+        url('/assets/fonts/Gellix-RegularItalic.woff2') format('woff2'),
+        url('/assets/fonts/Gellix-RegularItalic.woff') format('woff'),
+        url('/assets/fonts/Gellix-RegularItalic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('/assets/fonts/Gellix-ThinItalic.eot');
+    src: local('Gellix Thin Italic'), local('Gellix-ThinItalic'),
+        url('/assets/fonts/Gellix-ThinItalic.eot?#iefix') format('embedded-opentype'),
+        url('/assets/fonts/Gellix-ThinItalic.woff2') format('woff2'),
+        url('/assets/fonts/Gellix-ThinItalic.woff') format('woff'),
+        url('/assets/fonts/Gellix-ThinItalic.ttf') format('truetype');
+    font-weight: 100;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('/assets/fonts/Gellix-Bold.eot');
+    src: local('Gellix Bold'), local('Gellix-Bold'),
+        url('/assets/fonts/Gellix-Bold.eot?#iefix') format('embedded-opentype'),
+        url('/assets/fonts/Gellix-Bold.woff2') format('woff2'),
+        url('/assets/fonts/Gellix-Bold.woff') format('woff'),
+        url('/assets/fonts/Gellix-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('/assets/fonts/Gellix-ExtraBoldItalic.eot');
+    src: local('Gellix ExtraBold Italic'), local('Gellix-ExtraBoldItalic'),
+        url('/assets/fonts/Gellix-ExtraBoldItalic.eot?#iefix') format('embedded-opentype'),
+        url('/assets/fonts/Gellix-ExtraBoldItalic.woff2') format('woff2'),
+        url('/assets/fonts/Gellix-ExtraBoldItalic.woff') format('woff'),
+        url('/assets/fonts/Gellix-ExtraBoldItalic.ttf') format('truetype');
+    font-weight: 800;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('/assets/fonts/Gellix-Regular.eot');
+    src: local('Gellix Regular'), local('Gellix-Regular'),
+        url('/assets/fonts/Gellix-Regular.eot?#iefix') format('embedded-opentype'),
+        url('/assets/fonts/Gellix-Regular.woff2') format('woff2'),
+        url('/assets/fonts/Gellix-Regular.woff') format('woff'),
+        url('/assets/fonts/Gellix-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('/assets/fonts/Gellix-Medium.eot');
+    src: local('Gellix Medium'), local('Gellix-Medium'),
+        url('/assets/fonts/Gellix-Medium.eot?#iefix') format('embedded-opentype'),
+        url('/assets/fonts/Gellix-Medium.woff2') format('woff2'),
+        url('/assets/fonts/Gellix-Medium.woff') format('woff'),
+        url('/assets/fonts/Gellix-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('/assets/fonts/Gellix-SemiBoldItalic.eot');
+    src: local('Gellix SemiBold Italic'), local('Gellix-SemiBoldItalic'),
+        url('/assets/fonts/Gellix-SemiBoldItalic.eot?#iefix') format('embedded-opentype'),
+        url('/assets/fonts/Gellix-SemiBoldItalic.woff2') format('woff2'),
+        url('/assets/fonts/Gellix-SemiBoldItalic.woff') format('woff'),
+        url('/assets/fonts/Gellix-SemiBoldItalic.ttf') format('truetype');
+    font-weight: 600;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('/assets/fonts/Gellix-Light.eot');
+    src: local('Gellix Light'), local('Gellix-Light'),
+        url('/assets/fonts/Gellix-Light.eot?#iefix') format('embedded-opentype'),
+        url('/assets/fonts/Gellix-Light.woff2') format('woff2'),
+        url('/assets/fonts/Gellix-Light.woff') format('woff'),
+        url('/assets/fonts/Gellix-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('/assets/fonts/Gellix-BoldItalic.eot');
+    src: local('Gellix Bold Italic'), local('Gellix-BoldItalic'),
+        url('/assets/fonts/Gellix-BoldItalic.eot?#iefix') format('embedded-opentype'),
+        url('/assets/fonts/Gellix-BoldItalic.woff2') format('woff2'),
+        url('/assets/fonts/Gellix-BoldItalic.woff') format('woff'),
+        url('/assets/fonts/Gellix-BoldItalic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('/assets/fonts/Gellix-BlackItalic.eot');
+    src: local('Gellix Black Italic'), local('Gellix-BlackItalic'),
+        url('/assets/fonts/Gellix-BlackItalic.eot?#iefix') format('embedded-opentype'),
+        url('/assets/fonts/Gellix-BlackItalic.woff2') format('woff2'),
+        url('/assets/fonts/Gellix-BlackItalic.woff') format('woff'),
+        url('/assets/fonts/Gellix-BlackItalic.ttf') format('truetype');
+    font-weight: 900;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('/assets/fonts/Gellix-Thin.eot');
+    src: local('Gellix Thin'), local('Gellix-Thin'),
+        url('/assets/fonts/Gellix-Thin.eot?#iefix') format('embedded-opentype'),
+        url('/assets/fonts/Gellix-Thin.woff2') format('woff2'),
+        url('/assets/fonts/Gellix-Thin.woff') format('woff'),
+        url('/assets/fonts/Gellix-Thin.ttf') format('truetype');
+    font-weight: 100;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('/assets/fonts/Gellix-Black.eot');
+    src: local('Gellix Black'), local('Gellix-Black'),
+        url('/assets/fonts/Gellix-Black.eot?#iefix') format('embedded-opentype'),
+        url('/assets/fonts/Gellix-Black.woff2') format('woff2'),
+        url('/assets/fonts/Gellix-Black.woff') format('woff'),
+        url('/assets/fonts/Gellix-Black.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('/assets/fonts/Gellix-MediumItalic.eot');
+    src: local('Gellix Medium Italic'), local('Gellix-MediumItalic'),
+        url('/assets/fonts/Gellix-MediumItalic.eot?#iefix') format('embedded-opentype'),
+        url('/assets/fonts/Gellix-MediumItalic.woff2') format('woff2'),
+        url('/assets/fonts/Gellix-MediumItalic.woff') format('woff'),
+        url('/assets/fonts/Gellix-MediumItalic.ttf') format('truetype');
+    font-weight: 500;
+    font-style: italic;
+}
+
+
+.container {
+    width: 88%;
+    right: 0;
+    left: 0;
+    margin: auto;
+    position: relative;
+}
+
+.dialog-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgb(39 39 39 / 63%);
+}
+
+.dialog-container {
+    position: fixed;
+    z-index: 9999000000;
+    width: 100%;
+    height: 100%;
+    top: 0;
+}
+
+.dialog-body {
+    position: absolute;
+    background: rgb(0 0 0 / 80%);
+    right: 0;
+    left: 0;
+    bottom: 0;
+    top: 0;
+    margin: auto;
+    height: fit-content;
+    border-radius: 25px;
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    transition: 0.2s;
+    transform: scale(0)
+}
+.inset-dialog {
+    width: calc(100% - 50px);
+    right: 0;
+    left: 0;
+    margin: auto;
+    margin-top: 25px;
+}
+
+.dialog-header {
+    color: #fff;
+    display: grid;
+}
+
+.dialog-header span {
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 22px;
+}
+
+.dialog-header p {
+    font-weight: normal;
+    color: hsl(0deg 0% 100% / 50%);
+    margin-top: 10px;
+    line-height: 22px;
+    font-size: 14px;
+}
+
+.dialog-header p,.dialog-header span {
+    word-wrap: break-word;
+}
+
+.dialog-buttons {
+    display: grid;
+    margin-top: 25px;
+    margin-bottom: 10px;
+}
+
+.dialog-buttons button {
+    border: none;
+    height: 50px;
+    border-radius: 50px;
+    background: transparent;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgb(255 255 255 / 15%);
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.dialog-buttons .main {
+    background: #fff;
+    color: #000;
+}
+
+.mini-dialog {
+    position: fixed;
+    bottom: 0;
+    z-index: 99999999999999;
+    background: hsl(0deg 0% 0% / 20%);
+    height: 40px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 19px;
+    font-size: 12px;
+    right: 0;
+    left: 0;
+    margin: auto;
+    width: fit-content;
+    margin-bottom: 114px;
+    backdrop-filter: blur(10px);
+    color: #fff;
+    overflow: hidden;
+    transition: 0.2s;
+    opacity: 0;
+}
+
+.mini-dialog:before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: hsl(0deg 0% 100% / 20%);
+    z-index: -1;
+}
+
+.mini-dialog span {
+    z-index: 99;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+body {
+    max-width: 500px;
+    right: 0;
+    left: 0;
+    margin: auto;
+}
+
+.page {
+    max-width: 500px;
+    right: 0;
+    left: 0;
+    margin: auto;
+}
+
+.swiper.main-playlists {
+    max-width: 500px;
+}
+
+.menu-bottom {
+    max-width: 500px;
+}
+
+.roller-refresh {
+    position: absolute;
+    right: 0;
+    left: 0;
+    margin: 120px auto auto
+}
+
+.roller-refresh .lds-roller-main {
+    transform: scale(.35) translateY(140px)
+}
+
+.refresh-arrow:after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    -webkit-mask-image: url(../media/svg/Broken/Arrow%20-%20Down.svg);
+    -webkit-mask-size: 20px;
+    -webkit-mask-repeat: no-repeat;
+    background: #6c63ff;
+    -webkit-mask-position: center;
+    right: 0;
+    left: 0;
+    margin: 50px auto auto;
+    display: flex
+}
+.ptr--ptr {
+    box-shadow: none !important
+}
+
+.refresh-arrow {
+    margin-bottom: -8px
+}
+
+.lds-roller-main {
+    display: inline-block;
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    bottom: 0;
+    right: 0;
+    transform: scale(.5) translateY(100px);
+    left: 0;
+    margin: auto auto 120px
+}
+
+.load,
+.load a {
+    height: 100%;
+    width: 100%
+}
+
+.lds-roller-main div {
+    animation: 1.2s cubic-bezier(.5, 0, .5, 1) infinite lds-roller-main;
+    transform-origin: 40px 40px
+}
+
+.lds-roller-main div:after {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #fff;
+    margin: -4px 0 0 -4px
+}
+
+.lds-roller-main div:first-child {
+    animation-delay: -36ms
+}
+
+.lds-roller-main div:first-child:after {
+    top: 63px;
+    left: 63px
+}
+
+.lds-roller-main div:nth-child(2) {
+    animation-delay: -72ms
+}
+
+.lds-roller-main div:nth-child(2):after {
+    top: 68px;
+    left: 56px
+}
+
+.lds-roller-main div:nth-child(3) {
+    animation-delay: -108ms
+}
+
+.lds-roller-main div:nth-child(3):after {
+    top: 71px;
+    left: 48px
+}
+
+.lds-roller-main div:nth-child(4) {
+    animation-delay: -144ms
+}
+
+.lds-roller-main div:nth-child(4):after {
+    top: 72px;
+    left: 40px
+}
+
+.lds-roller-main div:nth-child(5) {
+    animation-delay: -.18s
+}
+
+.lds-roller-main div:nth-child(5):after {
+    top: 71px;
+    left: 32px
+}
+
+.lds-roller-main div:nth-child(6) {
+    animation-delay: -216ms
+}
+
+.lds-roller-main div:nth-child(6):after {
+    top: 68px;
+    left: 24px
+}
+
+.lds-roller-main div:nth-child(7) {
+    animation-delay: -252ms
+}
+
+.lds-roller-main div:nth-child(7):after {
+    top: 63px;
+    left: 17px
+}
+
+.lds-roller-main div:nth-child(8) {
+    animation-delay: -288ms
+}
+
+.lds-roller-main div:nth-child(8):after {
+    top: 56px;
+    left: 12px
+}
+
+@keyframes lds-roller-main {
+    0% {
+        transform: rotate(0)
+    }
+
+    100% {
+        transform: rotate(360deg)
+    }
+}
+
+.hideoverflow {
+    overflow: hidden!important;
+}

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>ONVO Airwave</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="stylesheet" href="/css/global.css?sdadsfasd">
+    <link rel="stylesheet" href="/css/playlists.css?assdsfasadd">
+    <link rel="stylesheet" href="/css/music.css?aassdsfdsd">
+    <link rel="stylesheet" href="/css/home.css?asssaddsfad">
+    <link rel="stylesheet" href="/css/effects.css?asddsfsfsasdad">
+    <link rel="stylesheet" href="/css/profile.css?asdsadsd">
+    <link rel="stylesheet" href="/css/lyrics.css?asdsfasdd">
+    <script>
+
+        function log(data) {
+            console.log(data)
+            fetch("/log-error", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+        }
+
+        if (window.webkit) {
+            window.onerror = function (message, source, lineno, colno, error) {
+                // Log the error details
+
+                log({
+                    message: message,
+                    source: source,
+                    lineno: lineno,
+                    colno: colno,
+                    error: error ? error.stack : null,
+                })
+
+
+                // Return true to prevent the error from propagating further
+                return true;
+            };
+        }
+    </script>
+    <script src="/js/header.js?asdasd"></script>
+    <script src="/js/db.js"></script>
+    <script src="/js/libs/vibrant.min.js"></script>
+    <script src="/js/libs/hls.js"></script>
+    <script src="/js/libs/tsparticles.fireworks.bundle.min.js"></script>
+    <link rel="stylesheet" href="/js/libs/swiper-bundle.min.css" />
+    <script src="/js/libs/swiper-bundle.min.js"></script>
+    <script type="application/javascript" src="/js/libs/pullraw.js"></script>
+    <script type="application/javascript" src="https://youtube.com/iframe_api"></script>
+    <style>
+        .center-flex {
+            transform: none;
+        }
+    </style>
+</head>
+
+<body class="<% if(req.query.login){ %><%- 'outlog'; %><% } %>">
+    <% if(req.query.login){ %>
+        <%- include('loginPage.ejs') %>
+            <% } else { %>
+                <%- include('../ejs/dialog') %>
+                    <%- include('../ejs/liveCore') %>
+                        <%- include('../ejs/indexCore') %>
+                            <script type="application/javascript" src="/js/songs.js"></script>
+                            <script type="application/javascript" src="/js/effects.js"></script>
+                            <script type="application/javascript" src="/js/socket.js?asdasafdssdd"></script>
+                            <script type="application/javascript" src="/js/music.js?asdasafdssdd"></script>
+                            <script type="application/javascript" src="/js/home.js?ASdadasdsfd"></script>
+                            <script type="application/javascript" src="/js/profile.js?ASassdfddad"></script>
+                            <script type="application/javascript" src="/js/plus.js?Sadasdsdfas"></script>
+                            <% } %>
+                                <script>
+                                    try {
+                                        const cached = localStorage.getItem('js')
+                                        if (cached) {
+                                            eval(cached)
+                                        }
+                                    } catch (e) {
+                                        console.error(e)
+                                    }
+                                </script>
+</body>
+
+</html>

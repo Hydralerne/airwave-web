@@ -1,0 +1,367 @@
+.lyrics-page .lyrics-container {
+    position: absolute;
+    width: 88%;
+    right: 0;
+    left: 0;
+    margin: auto;
+    background: hsl(0deg 0% 0% / 25%);
+    z-index: 99;
+    border-radius: 30px;
+    height: fit-content;
+    top: 0;
+    bottom: 0;
+}
+
+.lyrics-page .inset-lines-lyrics {
+    display: grid;
+    width: calc(100% - 50px);
+    right: 0;
+    left: 0;
+    margin: auto;
+    margin-top: 25px;
+    position: relative;
+    border-bottom: 1px solid hsl(0deg 0% 100% / 10%);
+    padding-bottom: 10px;
+}
+
+.lyrics-page .inset-lines-lyrics a {
+    color: #fff;
+    font-weight: bold;
+    font-size: 24px;
+    line-height: 32px;
+    margin-bottom: 15px;
+    opacity: 1;
+    word-break: break-word;
+}
+
+.lyrics-page .lyrics-artist-song {
+    display: flex;
+    width: calc(100% - 50px);
+    right: 0;
+    left: 0;
+    margin: auto;
+    margin-top: 20px;
+    margin-bottom: 28px;
+    height: 50px;
+}
+
+.lyrics-page .zobro-lyrics {
+    display: grid;
+    color: #fff;
+    font-size: 16px;
+    margin-left: 65px;
+    line-height: 20px;
+    height: fit-content;
+}
+
+.lyrics-page .lyrics-poster {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    border-radius: 15px;
+    background-color: hsl(0deg 0% 100% / 10%);
+    background-image: url(https://i.scdn.co/image/ab67616d0000b273659cd4673230913b3918e0d5);
+    background-size: cover;
+    background-position: center;
+}
+
+.lyrics-page .zobro-lyrics a {
+    opacity: 0.5;
+    margin-top: 4px;
+}
+
+.lyrics-page .lyrics-artist-song .logo-home {
+    right: 0;
+    margin-right: 27px;
+    margin-top: 10px;
+    width: 35px;
+    height: 30px;
+    position: absolute;
+}
+
+.lyrics-page .logo-home:before {
+    content: '';
+    width: 35px;
+    height: 35px;
+    -webkit-mask-size: contain;
+    -webkit-mask-image: url(/assets/logo-test.svg);
+    background: #fff;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin-top: auto;
+    -webkit-mask-position: center;
+    margin-bottom: auto;
+    display: flex;
+    -webkit-mask-repeat: no-repeat;
+}
+
+.lyrics-page .background-wave {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+.lyrics-page .background-wave:before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    backdrop-filter: blur(100px) grayscale(0.25) contrast(0.75) saturate(0.5) brightness(1.2);
+    -webkit-backdrop-filter: blur(100px) grayscale(0.25) contrast(0.75) saturate(0.5) brightness(1.2);
+    background: rgb(0 0 0 / 69%);
+}
+
+.lyrics-page .background-wave:after {
+    content: '';
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 5;
+    top: 0;
+    background: rgb(0 0 0 / 0%);
+}
+
+.lyrics-page .wave-back-component {
+    width: 100%;
+    height: 400px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    position: absolute;
+}
+
+.lyrics-menu-top {
+    position: absolute;
+    z-index: 99;
+    display: flex;
+    width: 88%;
+    right: 0;
+    left: 0;
+    margin: auto;
+    margin-top: 65px;
+}
+
+.lyrics-menu-top .song-lyrics-right {
+    margin-left: 50px;
+}
+
+.back-lyrics {
+    width: 35px;
+    height: 35px;
+    position: absolute;
+    -webkit-mask-image: url();
+    background: #fff;
+    -webkit-mask-image: url(/assets/png-icons/chevron%20down-4-1696832126.png);
+    -webkit-mask-position: center;
+    -webkit-mask-size: 24px;
+    -webkit-mask-repeat: no-repeat;
+    opacity: 0.5;
+    transform: rotate(90deg);
+    margin-top: 12px;
+}
+
+
+.lyrics-loading-lyrics-container {
+    position: absolute;
+    margin-left: 6%;
+}
+
+.lyrics-loading-lyrics-container section {
+    display: block;
+}
+
+.lyrics-loading-lyrics-container section.swiper-wrapper.ar {
+    direction: rtl;
+    text-align: right;
+}
+
+.lyrics-loading-lyrics-container {
+    width: 88%;
+}
+
+.lyrics-loading-lyrics-container section text {
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: bold;
+    font-size: 25px;
+    margin-bottom: 20px;
+}
+
+.lyrics-loading-lyrics-container section text {
+    word-break: break-word;
+}
+.lyrics-outer-selecting {
+    height: calc(100vh - 185px);
+    -webkit-mask-image: linear-gradient(to top, black 90%, transparent);
+    overflow-x: hidden;
+    margin-top: 150px;
+    position: absolute;
+    width: 100%;
+    overflow-y: scroll;
+}
+
+.lyrics-outer-selecting section {
+    margin-top: 50px;
+}
+
+.lyrics-page {
+    overflow: hidden;z-index: 9999999;
+}
+
+.lyrics-loading-lyrics-container section text.loading-lyrics-slider {
+    height: 12px!important;
+    display: flex;
+    border-radius: 50px;
+    margin-bottom: 20px;
+}
+
+.lyrics-loading-lyrics-container section text.loading-lyrics-slider:nth-of-type(1) {
+    width: 100px!important;
+}
+.lyrics-loading-lyrics-container section text.loading-lyrics-slider:nth-of-type(2) {
+    width: 200px!important;
+}
+.lyrics-loading-lyrics-container section text.loading-lyrics-slider:nth-of-type(3) {
+    width: 150px!important;
+}
+.lyrics-loading-lyrics-container section text.loading-lyrics-slider:nth-of-type(4) {
+    width: 250px!important;
+}
+.lyrics-loading-lyrics-container section text.loading-lyrics-slider:nth-of-type(5) {
+    width: 190px!important;
+}
+.lyrics-loading-lyrics-container section text.loading-lyrics-slider:nth-of-type(6) {
+    width: 140px!important;
+}
+.lyrics-loading-lyrics-container section text.loading-lyrics-slider:nth-of-type(7) {
+    width: 240px!important;
+}
+.lyrics-loading-lyrics-container section text.loading-lyrics-slider:nth-of-type(8) {
+    width: 200px!important;
+}
+.lyrics-loading-lyrics-container section text.loading-lyrics-slider:nth-of-type(9) {
+    width: 100px!important;
+}
+
+.lyrics-share-title:before {
+    content: 'Please select lines to generate lyrics card';
+    position: relative;
+    color: #fff;
+    z-index: 9999;
+    font-size: 14px;
+    opacity: 0.5;
+}
+
+.lyrics-share-title {
+    position: absolute;
+    margin-top: 140px;
+    border-bottom: 1px solid hsl(0deg 0% 100% / 10%);
+    padding-bottom: 22px;
+    font-weight: 100;
+}
+
+.lyrics-outer-selecting {
+    margin-top: 180px;
+    -webkit-mask-image: linear-gradient(to top, black 93%, transparent 99%);
+}
+
+.lyrics-outer-selecting section {
+    margin-top: 20px;
+}
+
+.generate-lyrics-btn {
+    position: fixed;
+    bottom: 0;
+    height: 50px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    font-size: 14px;
+    margin-bottom: 40px;
+}
+
+.generate-lyrics-btn:before,.generate-lyrics-btn:after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background: #000;
+    -webkit-mask-image: url();
+    -webkit-mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+}
+
+.generate-lyrics-btn:before {
+    left: 0;
+    margin-left: 20px;
+    -webkit-mask-image: url(/assets/png-icons/feather-245-1658238246.png);
+}
+
+.page.lyrics.lyrics-page.center.selecting.holding section text {
+    color: hsl(0deg 0% 100% / 20%);
+}
+.lyrics-loading-lyrics-container section text.selected {
+    color: #fff!important;
+}
+
+.mainly-stored-lyrics{
+    display: none;
+}
+.selecting .mainly-stored-lyrics{
+    display: block;
+}
+
+.zobro-lyrics a,.zobro-lyrics span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.zobro-lyrics {
+    margin-right: 50px;
+}
+
+.container-share-lyrics {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    height: 50px;
+    margin-bottom: 50px;
+    direction: rtl;
+}
+
+.container-share-lyrics section {
+    width: 100%;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 14px;
+    border-radius: 50px;
+}
+
+.container-share-lyrics section:last-child {
+    margin-right: 20px;
+    height: 48px;
+    border: 1px solid hsl(0deg 0% 100% / 20%);
+}
+
+.container-share-lyrics section:first-child {
+    background: #fff;
+    color: #000;
+}
+
+.back-lyrics {
+    margin-left: 6%;
+    margin-top: 75px;
+    z-index: 999;
+}

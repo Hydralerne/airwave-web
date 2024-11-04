@@ -1,0 +1,799 @@
+<div class="home-header">
+    <div class="logo-home"></div>
+    <div class="morning-home">
+        <span>Good morning</span>
+        <a>Hydra de lerne</a>
+    </div>
+    <div class="nssf-icon notifications-icon" onclick="showMainMenu()">
+        <span></span>
+    </div>
+    <div class="nssf-icon back-home-icon" onclick="document.body.classList.remove('searching')">
+        <span></span>
+    </div>
+</div>
+<div class="search-index-core">
+    <div class="search-home">
+        <input type="text" class="search-input" onfocus="showBrowse(this)" oninput="searchInput(this,event)"
+            placeholder="Search for track or artist or user">
+    </div>
+    <div class="search-generes">
+        <div class="grid-inset-lists">
+        </div>
+    </div>
+</div>
+<div class="subscriptions-section">
+    <div class="subscriptions page hidden">
+        <div class="back-premium" onclick="this.closest('.subscriptions').classList.remove('center')"></div>
+        <div class="container-vvs">
+            <div class="premium-back">
+                <!-- <div class="video-plus-banner">
+                        <video src="/assets/p.mp4" playsinline="" muted="" loop="" autoplay=""></video>
+                    </div> -->
+                <div class="video-back-main">
+                    <video id="premiumrail" playsinline="" muted="" loop=""></video>
+                </div>
+                <div class="main-first-premim"><span></span></div>
+                <!-- <div class="hero_bg-video">
+                        <div data-autoplay="true" data-loop="true" data-wf-ignore="true" class="background-video" style=""><video id="01e3fa1f-89fb-11b3-3cb2-45b716341b5e-video" autoplay="" loop="" style="" muted="" playsinline=""
+                                data-wf-ignore="true" data-object-fit="cover">
+                                <source
+                                    src="https://cdn.prod.website-files.com/65c9cbb4a14617f43e1db5c1/65e04f6d0a0a0ac175e70535_Telescope-top-gradient-01-compressed-transcode.mp4"
+                                    data-wf-ignore="true">
+                                <source
+                                    src="https://cdn.prod.website-files.com/65c9cbb4a14617f43e1db5c1/65e04f6d0a0a0ac175e70535_Telescope-top-gradient-01-compressed-transcode.webm"
+                                    data-wf-ignore="true">
+                            </video></div><img
+                            src="https://cdn.prod.website-files.com/65c9cbb4a14617f43e1db5c1/65f0b4562e5e4c85bfe31dc1_bg_mobile.webp"
+                            loading="lazy" sizes="100vw"
+                            srcset="https://cdn.prod.website-files.com/65c9cbb4a14617f43e1db5c1/65f0b4562e5e4c85bfe31dc1_bg_mobile-p-500.webp 500w, https://cdn.prod.website-files.com/65c9cbb4a14617f43e1db5c1/65f0b4562e5e4c85bfe31dc1_bg_mobile-p-800.webp 800w, https://cdn.prod.website-files.com/65c9cbb4a14617f43e1db5c1/65f0b4562e5e4c85bfe31dc1_bg_mobile-p-1080.webp 1080w, https://cdn.prod.website-files.com/65c9cbb4a14617f43e1db5c1/65f0b4562e5e4c85bfe31dc1_bg_mobile.webp 1125w"
+                            alt="" class="background_image">
+                    </div> -->
+            </div>
+            <div class="premium-body">
+                <div class="premium-head container">
+                    <div class="premimu-tag">
+                        <span>Premium</span>
+                        <p>Premium unlocks endless possibilities</p>
+                        <a>For more informations, tap right arrow below</a>
+                    </div>
+                </div>
+                <div class="premium-explain container">
+                    <div class="header-pexplain"><span>Why join Premium?</span>
+                        <a onclick="this.closest('.premium-explain').classList.toggle('detailed')"></a>
+                    </div>
+                    <div class="body-pexplain">
+                        <section>
+                            <span
+                                style="-webkit-mask-image: url(/assets/png-icons/speaker%20megaphone-59-1662452248.png);"></span>
+                            <a>Ad-Free Music Experience</a>
+                            <p>Listen to music without any interruptions or ads.</p>
+                        </section>
+                        <section>
+                            <span style="-webkit-mask-image: url(/assets/png-icons/hotspot-37-1658436340.png);"></span>
+                            <a>Live Radio with Friends</a>
+                            <p>Create live radio sessions with friends and chat in real-time.</p>
+                        </section>
+                        <section>
+                            <span style="
+    -webkit-mask-image: url(/assets/png-icons/cloud%20download-60-1658236831.png);
+"></span>
+                            <a>Offline Music Downloads</a>
+                            <p>Download music for offline listening anytime, anywhere.</p>
+                        </section>
+                        <section>
+                            <span style="
+    -webkit-mask-image: url(/assets/png-icons/headphone-22-1663753435.png);
+"></span>
+                            <a>High-Quality Audio</a>
+                            <p>Enjoy music with enhanced sound quality and clean audio.</p>
+                        </section>
+                        <section>
+                            <span style="
+    -webkit-mask-image: url(/assets/png-icons/playlist-54-1663753435.png);
+"></span>
+                            <a>Import Playlists from Any Platform</a>
+                            <p>Easily import playlists from YouTube, Spotify, SoundCloud, and Anghami.</p>
+                        </section>
+                        <section>
+                            <span style="
+    -webkit-mask-image: url(/assets/png-icons/switch%20list-119-1692683696.png);
+"></span>
+                            <a>Manage Your Queue</a>
+                            <p>Organize and control your music queue effortlessly.</p>
+                        </section>
+                    </div>
+
+                </div>
+                <div class="plans-container container">
+                    <div class="plans-head"><span>Available plans</span></div>
+                    <div class="plan-container mini-plus">
+                        <div class="premimu-tag">
+                            <span>Premium</span>
+                        </div>
+                        <div class="premium-card-body">
+                            <div class="ptag-card"><span>Mini</span></div>
+                            <div class="pricing-plan"><span>EGP 9.99 for 1 week</span></div>
+                            <section>
+                                <span>1 Premium account</span>
+                                <span>No refund</span>
+                                <span>One-time payment only</span>
+                            </section>
+                            <div class="subscipe-button" type="mini" price="9.99">
+                                <span>Get primuem Mini</span>
+                            </div>
+                            <div class="terms-apply"><span>Terms apply</span></div>
+                        </div>
+                    </div>
+                    <div class="plan-container individual-plus">
+                        <div class="premimu-tag">
+                            <span>Premium</span>
+                        </div>
+                        <div class="premium-card-body">
+                            <div class="ptag-card"><span>Individual</span></div>
+                            <div class="pricing-plan"><span>EGP 29.99 for 1 month</span></div>
+                            <section>
+                                <span>1 Premium account</span>
+                                <span>Cancel anytime</span>
+                                <span>Subscibe or one-time payment</span>
+                            </section>
+                            <div class="subscipe-button" type="individual" price="29.99">
+                                <span>Get primuem Individual</span>
+                            </div>
+                            <div class="terms-apply"><span>Terms apply</span></div>
+                        </div>
+                    </div>
+                    <div class="plan-container">
+                        <div class="premimu-tag">
+                            <span>Premium</span>
+                        </div>
+                        <div class="premium-card-body">
+                            <div class="ptag-card"><span>Duo</span></div>
+                            <div class="pricing-plan"><span>EGP 44.99 for 1 month</span></div>
+                            <section>
+                                <span>2 Premium accounts</span>
+                                <span>Cancel anytime</span>
+                                <span>Subscibe or one-time payment</span>
+                            </section>
+                            <div class="subscipe-button" type="duo" price="44.99">
+                                <span>Get primuem Duo</span>
+                            </div>
+                            <div class="terms-apply"><span>Terms apply</span></div>
+                        </div>
+                    </div>
+                    <div class="plan-container">
+                        <div class="premimu-tag">
+                            <span>Premium</span>
+                        </div>
+                        <div class="premium-card-body">
+                            <div class="ptag-card"><span>Family</span></div>
+                            <div class="pricing-plan"><span>EGP 69.99 for 1 month</span></div>
+                            <section>
+                                <span>6 Premium account</span>
+                                <span>5 Coupon generate</span>
+                                <span>Cancel anytime</span><span>Subscibe or one-time payment</span>
+                            </section>
+                            <div class="subscipe-button" type="family" price="69.99">
+                                <span>Get primuem Family</span>
+                            </div>
+                            <div class="terms-apply"><span>Terms apply</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="premium-productions container">
+                    <div class="we-accept-header"><span>We accept</span></div>
+                    <div class="flex-payment-icons"><span
+                            style="background-image: url(/assets/png-icons/visa-logo-800x450.jpg);background-size: cover;"></span><span
+                            style="background-image: url(/assets/png-icons/1616622953822.png);"></span>
+                        <span style="background-image: url(/asset/png-icons/mezza.png);"></span><span
+                            style="background-image: url(/asset/png-icons/com.egyptianbanks.instapay.icon_.2022-12-14-21-37-26.png);background-size: cover;"></span><span
+                            style="background-image: url(/asset/png-icons/1024px-Apple_Pay_logo.svg.png);background-size: 30px;"></span><span
+                            style="background-image: url(/asset/png-icons/1024px-Google_Pay_Logo.svg.png);background-size: 30px;"></span><span
+                            style="background-image: url(/asset/png-icons/Vodafone-Symbol.png);background-size: 25px;"></span>
+                    </div>
+                    <div class="warranty-plus">
+                        <span></span>
+
+                        <p>
+                            All our plans include a warranty covering any technical issues. You will be
+                            compensated
+                            for any damages that occur during the subscription period.</p>
+                    </div>
+                </div>
+                <div class="invited-section">
+                    <div class="glow-effect"></div>
+                    <div class="title-promo-invite"><span>Invited by a friend ?</span></div>
+                    <div class="promo-code container">
+                        <div class="inner-promo-code"><input type="text" placeholder="Enter coboun code">
+                        </div>
+                        <button class="see-plans promocode disabled" price="79" type="premium">Apply</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="switcher-plus-container hidden">
+        <div class="switcher-plus-back"></div>
+        <div class="switcher-plus-body">
+            <div class="product-perview container">
+                <div class="left-handed-product">
+                    <span>Airwave Premium</span>
+                    <a>1 month</a>
+                </div>
+                <div class="right-handed-product">
+                    <span>29.99 EGP</span>
+                    <a></a>
+                </div>
+            </div>
+            <div class="paymen-methods container">
+                <div class="payment-method" method="apple">
+                    <div class="selector"></div>
+                    <div class="pay-posters">
+                        <div class="flex-payment-icons">
+                            <span
+                                style="-webkit-mask-image: url(/asset/png-icons/976px-Apple_logo_black.svg.png);-webkit-mask-size: contain;-webkit-mask-position: center;-webkit-mask-repeat: no-repeat;"></span>
+                        </div>
+                    </div>
+                    <section>
+                        <span>Pay with apple</span>
+                        <a>Use your apple account to pay</a>
+                    </section>
+                </div>
+                <div class="payment-method" method="card">
+                    <div class="selector"></div>
+
+                    <div class="pay-posters">
+                        <div class="flex-payment-icons"><span
+                                style="background-image: url(/asset/png-icons/visa-logo-800x450.jpg);background-size: cover;"></span><span
+                                style="background-image: url(/asset/png-icons/1616622953822.png);"></span>
+                            <span style="background-image: url(/asset/png-icons/mezza.png);"></span>
+                        </div>
+                    </div>
+
+                    <section>
+                        <span>Pay with Credit card</span>
+                        <a>Mezza, Master card, visa</a>
+                    </section>
+                </div>
+                <div class="payment-method" method="wallet">
+                    <div class="selector"></div>
+
+                    <div class="pay-posters">
+                        <div class="flex-payment-icons">
+                            <span
+                                style="background-image: url(/asset/png-icons/etisalat-cash-logo.png);background-size: 22px;"></span>
+                            <span
+                                style="background-image: url(/asset/png-icons/Vodafone-Symbol.png);background-size: 22px;"></span>
+                        </div>
+                    </div>
+
+                    <section>
+                        <span>Pay with Mobile wallet</span>
+                        <a>Vodafone,Etisalat,We cash</a>
+                    </section>
+                </div>
+            </div>
+            <div class="waiting-description container">
+                <section>
+                    <span></span>
+                    <p>We are waiting for you to complete the payment. Once it's done, This page will be
+                        updated.</p>
+                </section>
+            </div>
+            <div class="subscriptions-btns container">
+                <div class="plus-subs-btn main" onclick="pay(this)"><span>Subscripe &amp; pay 29.99
+                        EGP</span></div>
+                <div class="plus-subs-btn" onclick="backPlus()">Cancel</div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="page profile">
+    <%- include('../ejs/profileCore') %>
+</div>
+<div class="timeline">
+    <div class="going-live">
+        <div class="inset-going-live"></div>
+    </div>
+    <div class="most-terinding-hits home-section">
+        <div class="head-tag container"><span>Explore by genre</span><a onclick="showBrowse()"></a></div>
+        <div class="generes-by-generes">
+            <div class="inset-generes-search home-main-genres">
+                <div class="generes-section switcher-tap bgwf-effect selected trending" dataid="37i9dQZF1DXcBWIGoYBM5M">
+                    <span>Trending</span></div>
+                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DWVuV87wUBNwc">
+                    <span>Pop</span>
+                </div>
+                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DX1X23oiQRTB5">
+                    <span>Hip Hop</span>
+                </div>
+                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DWWSuZL7uNdVA">
+                    <span>Rock</span>
+                </div>
+                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DX1S1NduGwpsa">
+                    <span>Jazz</span>
+                </div>
+                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DWWEJlAGA9gs0">
+                    <span>Classical</span>
+                </div>
+                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DX10zKzsJ2jva">
+                    <span>Latin</span>
+                </div>
+                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DX1lVhptIYRda">
+                    <span>Country</span>
+                </div>
+                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DXd9rSDyQguIk">
+                    <span>Blues</span>
+                </div>
+                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DX2LoIIQLAhdb">
+                    <span>RNB</span>
+                </div>
+                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DX4iPyiZG8RHQ">
+                    <span>Reggae</span>
+                </div>
+                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DX06ea0x0qwKU">
+                    <span>Metal</span>
+                </div>
+                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DXdOAw8BT7AHt">
+                    <span>Punk</span>
+                </div>
+                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DWXncK9DGeLh7">
+                    <span>Soul</span>
+                </div>
+                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DWSrj7tqQ9IOu">
+                    <span>Indie</span>
+                </div>
+                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DX9tPFwDMOaN1">
+                    <span>Kpop</span>
+                </div>
+                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DWXncK9DGeLh7">
+                    <span>Funk</span>
+                </div>
+                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DWZSdcRHMl2tT">
+                    <span>House</span>
+                </div>
+            </div>
+        </div>
+        <div class="trendings-inset-hits main-inset-hits"></div>
+        <div class="bottom-rows-trending"
+            onclick="openPlaylist(document.querySelector('.generes-section.selected').getAttribute('dataid'),'spotify')">
+            <span>Explore more</span>
+        </div>
+    </div>
+    <div class="home-section banner-home">
+        <div class="inner-banner-home">
+            <div class="live-radio-descriotion">
+                <span>Make the party</span>
+                <p>Start listen with your freinds in same time in live party</p>
+            </div>
+            <div class="join-now" onclick="document.querySelector('.live-flex').click()"><span>Start
+                    now</span></div>
+        </div>
+    </div>
+    <div class="recently-played outset-recently-played home-section">
+
+    </div>
+    
+</div>
+<div class="music-stream-search hidden">
+    <div class="back-music-search"></div>
+    <div class="music-search-main" dataid="spotify">
+        <div class="search-title"><span>Search for music</span>
+            <p>Chose platform you want search in, or insert playlist from anywhere</p>
+        </div>
+        <div class="flex-search-platforms">
+            <div class="inset-search-shit">
+                <div class="platform apple selected" dataid="apple">
+                    <div class="platform-icon apple"></div><span>Apple</span>
+                </div>
+                <div class="platform spotify" dataid="spotify">
+                    <div class="platform-icon spotify"></div><span>Spotify</span>
+                </div>
+                <div class="platform" dataid="soundcloud" dtload="25">
+                    <div class="platform-icon soundcloud"></div><span>Soundcloud</span>
+                </div>
+                <div class="platform anghami" dataid="anghami">
+                    <div class="platform-icon anghami"></div><span>Anghami</span>
+                </div>
+                <div class="platform youtube" dataid="youtube">
+                    <div class="platform-icon youtube"></div><span>Youtube</span>
+                </div>
+                <div class="platform users" dataid="users">
+                    <div class="platform-icon users"></div><span>Search for users</span>
+                </div>
+                <div class="platform users" dataid="artists">
+                    <div class="platform-icon users"></div><span>Search for Artists</span>
+                </div>
+            </div>
+        </div>
+        <div class="input-text-search">
+            <input type="text" placeholder="Search for track or insert playlist link">
+            <a onclick="hideKeyboard()"></a>
+        </div>
+        <div class="search-container-songs">
+            <div class="inset-search-songs"></div>
+        </div>
+    </div>
+</div>
+
+<div class="playlists-page page hidden">
+    <div class="top-header-wave">
+        <div class="real-top-wave">
+            <div class="logo-set-wave">
+                <div class="logo-wave"></div>
+                <div class="imgs-colls-bv list-perview">
+                    <section>
+                    </section>
+                </div>
+                <div class="text-live-wave"><span>ONVO Airwave</span>
+                    <p class="playlist-name-header">Playlist name </p>
+                </div>
+                <div class="minimize-live sw-effect"
+                    onclick="closePlaylist()"></div>
+            </div>
+        </div>
+    </div>
+    <div class="playlist-body">
+        <div class="playlist-head">
+            <div class="blured-backdrop-list">
+                <div class="inset-playlist-posters shower">
+                    <div class="playlist-poster" style="background-image: url('https://i.scdn.co/image/ab67616d00004851754b2fddebe7039fdb912837')"></div>
+                    <div class="playlist-poster" style="background-image: url('https://i.scdn.co/image/ab67616d00004851d6d24aee7b49a2db98a76856')"></div>
+                    <div class="playlist-poster" style="background-image: url('https://i.scdn.co/image/ab67616d000048519ed5fcf212f05d55b1e61eae')"></div>
+                    <div class="playlist-poster" style="background-image: url('https://i.scdn.co/image/ab67616d000048512bfb97c135445f83927049ca')"></div>
+                </div>
+                <div class="swiper main-playlists">
+                    <div class="swiper-wrapper inset-playlist-posters-slider main-slider-wrapper"></div>
+                    <div class="songs-info-current-list"><span>Song name</span></div>
+                    <div class="panger-vgrs indecator-playlist"></div>
+                </div>
+            </div>
+            <div class="playlist-info-main">
+                <div class="playlist-name">
+                    <div class="user-list-avatar"></div><span>Song name</span>
+                    <section><a class="tracks-numbers-count">22 Tracks</a><a class="saved-numbers-count">12
+                            Saved</a><a class="duration-numbers-count">1hr 23m</a>
+                    </section>
+                    <div class="flex-buttons-playlists">
+                        <div class="playlist-action save-playlist"></div>
+                        <div class="playlist-action download-playlist"></div>
+                        <div class="playlist-action shuffle-playlist"></div>
+                        <div class="playlist-action share-playlist"></div>
+                        <div class="playlist-action more-playlist"></div>
+                    </div>
+                </div>
+                <div class="run-playlist"></div>
+            </div>
+        </div>
+        <div class="music-section main-slider"></div>
+    </div>
+</div>
+<div class="liberary page hidden">
+    <div class="top-header-wave">
+        <div class="real-top-wave">
+            <div class="logo-set-wave">
+                <div class="logo-wave"></div>
+                <div class="host-image">
+                </div>
+                <div class="text-live-wave"><span>ONVO Airwave</span>
+                    <p>Your library</p>
+                </div>
+                <div class="right-lib-wave sw-effect" onclick="showCreation()"><span></span></div>
+            </div>
+        </div>
+    </div>
+    <div class="profile-background library-background">
+        <span style="margin-top: 500px; left: 0px; opacity: 0.5;"></span>
+        <span></span><span style="right: 0px; left: 0px; margin: 150px auto auto; opacity: 0.5;"></span>
+    </div>
+    <div class="library-body">
+        <div class="generes-by-generes lib-genres">
+            <div class="inset-generes-search">
+                <div class="libgnre-section switcher-tap bgwf-effect" action="saved">
+                    <span>Saved</span>
+                </div>
+                <div class="libgnre-section switcher-tap bgwf-effect" action="playlists">
+                    <span>Playlists</span>
+                </div>
+                <div class="libgnre-section switcher-tap bgwf-effect" action="artists"><span>Artists</span>
+                </div>
+                <div class="libgnre-section switcher-tap bgwf-effect" action="downloads">
+                    <span>Downloads</span>
+                </div>
+            </div>
+        </div>
+        <div class="recent-library">
+            <div class="favorites-head" onclick="document.querySelector('.library-flex').click()">
+                <span>Recently played</span>
+            </div>
+            <div class="recently-played-container">
+                <div class="inset-recently-played library-recent">
+
+                </div>
+            </div>
+        </div>
+        <div class="libraries-lists-container">
+            <div class="favorites-head">
+                <span>Playlists<a>12</a></span>
+            </div>
+            <div class="outset-playlists-slider-square">
+                <div class="inset-playlists-slider-square">
+                    <div class="playlist-component-square" onclick="openPlaylist('RbU1DUHIRv','wave')">
+                        <div class="perview-lists">
+                            <section></section>
+                        </div>
+                        <div class="playlist-description-square">
+                            <span>Top all time for me</span>
+                            <a>15 Tracks</a>
+                        </div>
+                        <div class="more-list"></div>
+                    </div>
+                    <div class="playlist-component-square" onclick="openPlaylist('Qv12mAqrkO','wave')">
+                        <div class="perview-lists">
+                            <section></section>
+                        </div>
+                        <div class="playlist-description-square">
+                            <span>shit trash</span>
+                            <a>22 Tracks</a>
+                        </div>
+                        <div class="more-list"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="features-artists-lib">
+            <div class="favorites-head">
+                <span>Followed artists<a>22</a></span>
+            </div>
+            <div class="artists-container">
+                <div class="inset-artists"></div>
+            </div>
+        </div>
+        <div class="libraries-container saved-tracks-container">
+            <div class="favorites-head">
+                <span>Saved tracks</span>
+            </div>
+            <div class="outset-playlists-container owner"></div>
+        </div>
+        <div class="libraries-container downloads-tracks-container">
+            <div class="favorites-head">
+                <span>Downloaded tracks<a>12</a></span>
+            </div>
+            <div class="outset-playlists-container downloads-container owner"></div>
+        </div>
+    </div>
+</div>
+<!-- <div class="host-image"></div> -->
+<div class="playing-music">
+    <div class="background-playing-music"><span></span></div>
+    <div class="left-playing-music">
+        <div class="song-poster-playing"></div>
+        <section>
+            <span>So far away</span>
+            <a>Martin grix</a>
+        </section>
+    </div>
+    <div class="pottom-width-slider"><span></span></div>
+    <div class="right-playing-music">
+        <div class="play-pause-playing"></div>
+    </div>
+</div>
+<div class="playlist-create page">
+    <div class="top-header-wave">
+        <div class="real-top-wave">
+            <div class="logo-set-wave">
+                <div class="logo-wave"></div>
+                <div class="host-image"></div>
+                <div class="text-live-wave"><span>ONVO Airwave</span>
+                    <p>Create playlist</p>
+                </div>
+                <div class="minimize-live sw-effect"
+                    onclick="document.querySelector('.playlist-create').classList.remove('center')"></div>
+            </div>
+        </div>
+    </div>
+    <div class="body-create-list">
+        <div class="list-creat-container">
+            <div class="playlist-name-input">
+                <input type="text" placeholder="Enter playlist name">
+            </div>
+            <div class="list-creat-btn" onclick="submitPlaylist(this)"></div>
+        </div>
+        <div class="add-song-plist container" onclick="addFavorites('list')">
+            <span></span>
+            <a>Add song</a>
+        </div>
+        <div class="playlist-container-create owner"></div>
+    </div>
+</div>
+
+<div class="messages page">
+    <div class="top-header-wave">
+        <div class="real-top-wave">
+            <div class="logo-set-wave">
+                <div class="logo-wave"></div>
+                <div class="host-image"></div>
+                <div class="text-live-wave"><span>ONVO Airwave</span>
+                    <p>Your inbox</p>
+                </div>
+                <div class="minimize-live sw-effect"></div>
+            </div>
+        </div>
+    </div>
+    <div class="inbox-container"></div>
+</div>
+<div class="switching-replyer hidden">
+    <div class="back-replyer-switching"></div>
+    <div class="body-replyer-switching owner">
+        <div class="container body-replyer-inner">
+            <div class="song-potintial-send sender-potintial"></div>
+            <div class="textarea-msg">
+                <textarea placeholder="Add comment or message"></textarea>
+            </div>
+            <div class="anonymous-on-box box checked"><a></a></div>
+            <div class="buttons-negrisco">
+                <div class="button-negrisco main" onclick="sendMsg(this)"><span>Send the song</span></div>
+                <div class="button-negrisco"><span>Cancel</span></div>
+            </div>
+        </div>
+        <div class="container body-replyer-options"></div>
+    </div>
+</div>
+<div class="live-page">
+    <div class="background-live-ass hidden" onclick="closeLiveSettings()"></div>
+    <div class="live-perview page hidden">
+        <div class="live-background-header">
+            <div class="back-live-wing"></div>
+            <div class="logo-live-wing"></div>
+            <div class="inset-background-header">
+                <div class="blured-host-wing hidden"><span></span></div>
+            </div>
+            <div class="header-live-titles"><span>Feel the beat together</span><a>Turn into a synced live radio
+                </a>
+            </div>
+            <div class="middle-viewport-live-image"><a></a></div>
+            <div class="left-wing-avatar"></div>
+            <div class="right-wing-avatar"></div>
+        </div>
+        <div class="centered-body">
+            <div class="middle-desctiption-live">
+                <span>Tune In, Jam as One!</span>
+                <p>Discover new tracks with friends from Apple Music, YouTube, SoundCloud, Spotify, and Anghami with live chat!</p>
+            </div>
+            <div class="flex-live-name-insert">
+                <div class="live-name-insert"><input type="text" placeholder="Add for your live"></div><div onclick="changeLiveName()" class="submit-lvnm-btn"><text>Change name</text></div>
+            </div>
+            <div class="privacy-select unlock">
+                <div class="public-private-party">
+                    <div class="selecting-privacy public"
+                        onclick="lockLive(false);document.querySelector('.privacy-select').className = 'privacy-select unlock'">
+                        <a>Public</a>
+                    </div>
+                    <div class="selecting-privacy private"
+                        onclick="lockLive();document.querySelector('.privacy-select').className = 'privacy-select lock'">
+                        <a>Private</a>
+                    </div>
+                </div>
+                <span></span>
+            </div>
+            <div class="users-live-container">
+                <div class="inset-shit-live"></div>
+                <div class="exit-live" onclick="goExit()"></div>
+            </div>
+        </div>
+        <div class="submit-livego">
+            <a>Start live radio</a>
+        </div>
+    </div>
+</div>
+<div class="switcher-menu hidden">
+    <div class="switcher-menu-back"></div>
+    <div class="switcher-menu-body blured">
+        <div class="container switch-select-container">
+            <div class="song-potintial-send switcher-potintial"></div>
+            <div class="switch-component sw-effect saving-ssc"><span style="
+    -webkit-mask-image: url(/assets/png-icons/bookmark-44-1658235288.png);
+"></span><a>Save to library</a></div>
+            <div class="switch-component sw-effect adding-list-ssc"><span style="
+    -webkit-mask-image: url(/assets/png-icons/plus%202-47-1658433844.png);
+"></span><a>Add to playlist</a></div>
+            <div class="switch-component sw-effect lyrics-share"><span style="
+    -webkit-mask-image: url(/assets/png-icons/lyrics-263-1658234823.png);
+"></span><a>View &amp; share lyrics</a></div>
+            <div class="switch-component sw-effect sending-to-friend"><span style="
+    -webkit-mask-image: url(/assets/png-icons/send%20message-184-1658433902.png);
+"></span><a>Send to friends</a></div>
+            <div class="switch-component sw-effect live-ssc"><span style="
+    -webkit-mask-image: url(/assets/png-icons/hotspot-37-1658436340.png);
+"></span><a>Start live radio</a></div>
+            <div class="switch-component sw-effect download-ssc"><span></span><a></a></div>
+            <div class="switch-component sw-effect share-ssc"><span style="
+    -webkit-mask-image: url(/assets/png-icons/upload-206-1663754948.png);
+"></span><a>Share track link</a></div>
+            <div class="switch-component sw-effect artist-profile-view"><span style="
+    -webkit-mask-image: url(/assets/png-icons/user%20music-203-1658436042.png);
+"></span><a>View artist profile</a></div>
+        </div>
+    </div>
+</div>
+<div class="artist-page page hidden">
+    <div class="artist-header">
+        <div class="back-premium" onclick="this.closest('.artist-page').classList.remove('center')"></div>
+        <div class="artist-back"></div>
+        <div class="artist-infos container">
+            <div class="artist-avatar"></div>
+            <section>
+                <div class="artist-name"><span>Taylor swift</span></div>
+                <div class="btns-artist">
+                    <div class="artist-follow" onclick="followArtist(this)"><span></span></div>
+                    <div class="more-artist"></div>
+                    <div class="run-artist"></div>
+                </div>
+            </section>
+        </div>
+        <div class="artist-body">
+            <div class="artist-categories container">
+                <span>Popular</span>
+            </div>
+            <div class="top-artist-btns">
+                <div class="run-artist"></div>
+                <div class="run-artist shuffle"></div>
+            </div>
+            <div class="artist-popular container"></div>
+            <div class="artist-categories container">
+                <span>Albums</span>
+            </div>
+            <div class="albums-popular">
+                <div class="inset-albums-popular"></div>
+            </div>
+            <div class="features-artists">
+                <div class="artist-categories container">
+                    <span>Related artists</span>
+                </div>
+                <div class="artists-container">
+                    <div class="inset-artists similar-artist-artist"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="menu-bottom">
+    <div class="inset-menu-bottom">
+        <div class="button-page home-flex selected"><span></span></div>
+        <div class="button-page live-flex"><span></span></div>
+        <div class="button-page inbox-flex"><span></span></div>
+        <div class="button-page library-flex"><span></span></div>
+        <div class="button-page profile-flex"><span></span></div>
+    </div>
+</div>
+<div class="page lyrics lyrics-page">
+    <div class="background-wave">
+        <div class="wave-back-component"
+            style="background-image: url(https://i.scdn.co/image/ab67616d0000b273659cd4673230913b3918e0d5);">
+        </div>
+        <div class="wave-back-component secound"
+            style="background-image: url(https://i.scdn.co/image/ab67616d0000b273659cd4673230913b3918e0d5);">
+        </div>
+    </div>
+    <div class="back-lyrics" onclick="backLyricsShare()"></div>
+    <div class="mainly-stored-lyrics">
+        <div class="lyrics-menu-top">
+            <div class="song-lyrics-right">
+            </div>
+        </div>
+
+        <div class="lyrics-share-title container"></div>
+        <div class="lyrics-outer-selecting"></div>
+    </div>
+    <div class="lyrics-body-main"></div>
+    <div class="generate-lyrics-btn container hidden" onclick="submitLyrics()"><span>Generate lyrics
+            card</span></div>
+    <div class="container-share-lyrics container hidden">
+        <section onclick="shareLyricCard()"><span>Share card</span></section>
+        <section onclick="resetLyricsCard()"><span>Edit card</span></section>
+    </div>
+</div>
+<div class="mini-dialog hidden"></div>
+<div class="styling-helper"></div>

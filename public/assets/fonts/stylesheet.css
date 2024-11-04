@@ -1,0 +1,192 @@
+@font-face {
+    font-family: 'Gellix';
+    src: url('Gellix-LightItalic.eot');
+    src: local('Gellix Light Italic'), local('Gellix-LightItalic'),
+        url('Gellix-LightItalic.eot?#iefix') format('embedded-opentype'),
+        url('Gellix-LightItalic.woff2') format('woff2'),
+        url('Gellix-LightItalic.woff') format('woff'),
+        url('Gellix-LightItalic.ttf') format('truetype');
+    font-weight: 300;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('Gellix-ExtraBold.eot');
+    src: local('Gellix ExtraBold'), local('Gellix-ExtraBold'),
+        url('Gellix-ExtraBold.eot?#iefix') format('embedded-opentype'),
+        url('Gellix-ExtraBold.woff2') format('woff2'),
+        url('Gellix-ExtraBold.woff') format('woff'),
+        url('Gellix-ExtraBold.ttf') format('truetype');
+    font-weight: 800;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('Gellix-SemiBold.eot');
+    src: local('Gellix SemiBold'), local('Gellix-SemiBold'),
+        url('Gellix-SemiBold.eot?#iefix') format('embedded-opentype'),
+        url('Gellix-SemiBold.woff2') format('woff2'),
+        url('Gellix-SemiBold.woff') format('woff'),
+        url('Gellix-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('Gellix-RegularItalic.eot');
+    src: local('Gellix Regular Italic'), local('Gellix-RegularItalic'),
+        url('Gellix-RegularItalic.eot?#iefix') format('embedded-opentype'),
+        url('Gellix-RegularItalic.woff2') format('woff2'),
+        url('Gellix-RegularItalic.woff') format('woff'),
+        url('Gellix-RegularItalic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('Gellix-ThinItalic.eot');
+    src: local('Gellix Thin Italic'), local('Gellix-ThinItalic'),
+        url('Gellix-ThinItalic.eot?#iefix') format('embedded-opentype'),
+        url('Gellix-ThinItalic.woff2') format('woff2'),
+        url('Gellix-ThinItalic.woff') format('woff'),
+        url('Gellix-ThinItalic.ttf') format('truetype');
+    font-weight: 100;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('Gellix-Bold.eot');
+    src: local('Gellix Bold'), local('Gellix-Bold'),
+        url('Gellix-Bold.eot?#iefix') format('embedded-opentype'),
+        url('Gellix-Bold.woff2') format('woff2'),
+        url('Gellix-Bold.woff') format('woff'),
+        url('Gellix-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('Gellix-ExtraBoldItalic.eot');
+    src: local('Gellix ExtraBold Italic'), local('Gellix-ExtraBoldItalic'),
+        url('Gellix-ExtraBoldItalic.eot?#iefix') format('embedded-opentype'),
+        url('Gellix-ExtraBoldItalic.woff2') format('woff2'),
+        url('Gellix-ExtraBoldItalic.woff') format('woff'),
+        url('Gellix-ExtraBoldItalic.ttf') format('truetype');
+    font-weight: 800;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('Gellix-Regular.eot');
+    src: local('Gellix Regular'), local('Gellix-Regular'),
+        url('Gellix-Regular.eot?#iefix') format('embedded-opentype'),
+        url('Gellix-Regular.woff2') format('woff2'),
+        url('Gellix-Regular.woff') format('woff'),
+        url('Gellix-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('Gellix-Medium.eot');
+    src: local('Gellix Medium'), local('Gellix-Medium'),
+        url('Gellix-Medium.eot?#iefix') format('embedded-opentype'),
+        url('Gellix-Medium.woff2') format('woff2'),
+        url('Gellix-Medium.woff') format('woff'),
+        url('Gellix-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('Gellix-SemiBoldItalic.eot');
+    src: local('Gellix SemiBold Italic'), local('Gellix-SemiBoldItalic'),
+        url('Gellix-SemiBoldItalic.eot?#iefix') format('embedded-opentype'),
+        url('Gellix-SemiBoldItalic.woff2') format('woff2'),
+        url('Gellix-SemiBoldItalic.woff') format('woff'),
+        url('Gellix-SemiBoldItalic.ttf') format('truetype');
+    font-weight: 600;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('Gellix-Light.eot');
+    src: local('Gellix Light'), local('Gellix-Light'),
+        url('Gellix-Light.eot?#iefix') format('embedded-opentype'),
+        url('Gellix-Light.woff2') format('woff2'),
+        url('Gellix-Light.woff') format('woff'),
+        url('Gellix-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('Gellix-BoldItalic.eot');
+    src: local('Gellix Bold Italic'), local('Gellix-BoldItalic'),
+        url('Gellix-BoldItalic.eot?#iefix') format('embedded-opentype'),
+        url('Gellix-BoldItalic.woff2') format('woff2'),
+        url('Gellix-BoldItalic.woff') format('woff'),
+        url('Gellix-BoldItalic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('Gellix-BlackItalic.eot');
+    src: local('Gellix Black Italic'), local('Gellix-BlackItalic'),
+        url('Gellix-BlackItalic.eot?#iefix') format('embedded-opentype'),
+        url('Gellix-BlackItalic.woff2') format('woff2'),
+        url('Gellix-BlackItalic.woff') format('woff'),
+        url('Gellix-BlackItalic.ttf') format('truetype');
+    font-weight: 900;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('Gellix-Thin.eot');
+    src: local('Gellix Thin'), local('Gellix-Thin'),
+        url('Gellix-Thin.eot?#iefix') format('embedded-opentype'),
+        url('Gellix-Thin.woff2') format('woff2'),
+        url('Gellix-Thin.woff') format('woff'),
+        url('Gellix-Thin.ttf') format('truetype');
+    font-weight: 100;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('Gellix-Black.eot');
+    src: local('Gellix Black'), local('Gellix-Black'),
+        url('Gellix-Black.eot?#iefix') format('embedded-opentype'),
+        url('Gellix-Black.woff2') format('woff2'),
+        url('Gellix-Black.woff') format('woff'),
+        url('Gellix-Black.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gellix';
+    src: url('Gellix-MediumItalic.eot');
+    src: local('Gellix Medium Italic'), local('Gellix-MediumItalic'),
+        url('Gellix-MediumItalic.eot?#iefix') format('embedded-opentype'),
+        url('Gellix-MediumItalic.woff2') format('woff2'),
+        url('Gellix-MediumItalic.woff') format('woff'),
+        url('Gellix-MediumItalic.ttf') format('truetype');
+    font-weight: 500;
+    font-style: italic;
+}
+

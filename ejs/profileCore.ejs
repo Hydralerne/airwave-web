@@ -1,0 +1,69 @@
+<div class="profile-music">
+    <div class="profile-background">
+        <span style="
+        margin-top: 500px;
+        left: 0;
+        opacity: 0.5;
+    "></span>
+        <span style="
+    "></span><span style="
+        right: 0;
+        left: 0;
+        margin: auto;
+        margin-top: 150px;
+        opacity: 0.5;
+    "></span>
+    </div>
+    <div class="profile-header container">
+        <div class="right-wing-profile" onclick="shareProfile()"></div>
+        <div class="middle-wing-profile" onclick="infoProfile()"></div>
+        <div class="left-wing-profile" onclick="document.querySelector('.profile').classList.remove('center')"></div>
+    </div>
+    <div class="profile-widget">
+        <div class="profile-image"></div>
+        <div class="profile-widget-background"></div>
+        <div class="profile-info-main">
+            <div class="top-profile-info"><span>Airwave user</span><a>Hey there, iam using airwave</a>
+            </div>
+            <div class="followers-following">
+                <section><span class="following-value">0</span><a>Followers</a></section>
+                <section><span class="followers-value">0</span><a>Following</a></section>
+                <section><span class="score-value">0</span><a>Artists</a></section>
+            </div>
+            <div class="buttons-section">
+                <div class="profile-button settings" onclick="showSettings()"><span>Settings</span></div>
+                <div class="profile-button follow-btn" onclick="follow(this)"><span></span></div>
+                <div class="profile-button send-msg" onclick="sendSong('msg')"><span>Send music</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="favorites">
+        <div class="favorites-head">
+            <span>Favorites</span>
+        </div>
+        <div class="favorites-container">
+            <div class="inset-favorites"></div>
+        </div>
+        <div class="save-cancel-section">
+            <div class="save-button save-action" onclick="saveFavorites()"></div>
+            <div class="save-button cancel-action" onclick="document.querySelector('.favorites').classList.remove('editing');document.querySelector('.adding-fav').remove()"></div>
+        </div>
+    </div>
+    <div class="music-timeline">
+
+        <div class="playlists">
+            <div class="playlists-sections">
+                <span style="
+        background: #ffffff2b;
+    ">Playlists</span>
+                <span onclick="showLibrary()">Library</span><span>Timeline</span>
+            </div>
+            <div class="outset-playlists-slider-square">
+                <div class="inset-playlists-slider-square">
+                     
+                </div>
+            </div>
+            <div class="playlist-content"></div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%- data.fullname %> (@<%- data.username %>) • Airwave profile</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="stylesheet" href="/css/global.css?asd">
+    <link rel="stylesheet" href="/css/profile.css?asd">
+    <link rel="stylesheet" href="/css/playlists.css?assad">
+    <meta property="og:url" content="https://oave.me" />
+    <meta property="og:site_name" content="Airwave" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="<%- data.fullname %> (@<%- data.username %>) • Airwave profile" />
+    <meta property="og:image" content="<%- data.image?.replace('/profile/','/profile_frame/') %>" />
+    <meta property="og:description" content="<%- data.bio %>" />
+    <link rel="icon" type="image/x-icon" href="">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@onvo_me">
+    <meta name="twitter:title" content="<%- data.fullname %> (@<%- data.username %>) • Airwave profile">
+    <meta name="twitter:description" content="<%- data.bio %>">
+    <meta name="twitter:image" content="<%- data.image?.replace('/profile/','/profile_frame/') %>">
+    <script src="/js/header.js"></script>
+    <script type="application/javascript" src="https://onvo.me/js/pullraw.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/node-vibrant/dist/vibrant.min.js"></script>
+    <style>.center-flex {transform: none;}</style>
+</head>
+<body>
+    <script type="application/javascript" src="/js/profile.js?ASdad"></script>
+    <script type="application/javascript" src="/js/songs.js?ASdad"></script>
+
+    <%- include('../ejs/profileCore') %>
+    <script type="application/javascript">printProfile(<%- JSON.stringify(data) %>)</script>
+
+</body>
+</html>
