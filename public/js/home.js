@@ -153,7 +153,6 @@ async function performTracks(id, type, userid, offset = listOffset, limit = 25) 
     let list, tracks;
     if (type == 'wave') {
         list = await fetchList(id, type, userid, offset)
-        console.log(list)
         tracks = list.tracks
         if (Array.isArray(currentList.tracks) && currentList.tracks?.length > 0) {
             currentList.tracks.push(...tracks)
@@ -1882,7 +1881,7 @@ function printQoute(qoute) {
 }
 function printMusic(musicraw) {
     if (musicraw) {
-        return '<div dataid="' + musicraw.id + '" trackurl="' + musicraw.url + '" class="post-music audio-element textarea-music-element"><audio class="hidden" controls><source src="' + musicraw.lnk + '" type="audio/mp3"></audio><div class="inner-post-music song"><div class="post-music-image song-poster" style="background-image: url(' + pI(musicraw.img) + ');"></div><div class="info-music-post artist-title" onclick="openTrack($(this))"><span>' + musicraw.nm + '</span><a>' + musicraw.art + '</a></div><div class="play-music" onclick="srswAudio($(this));"></div></div></div>';
+        return '<div trackurl="' + musicraw.url + '" class="post-music audio-element textarea-music-element"></audio><div class="inner-post-music song" trackid="' + musicraw.id + '" ><div class="post-music-image song-poster" data-poster="'+pI(musicraw.img)+'" data-poster-large="'+pI(musicraw.bimg)+'" style="background-image: url(' + pI(musicraw.img) + ');"></div><div class="info-music-post artist-title" onclick="playTrack(this)"><span>' + musicraw.nm + '</span><a>' + musicraw.art + '</a></div><div class="play-music" onclick="srswAudio($(this));"></div></div></div>';
     } else {
         return '';
     }

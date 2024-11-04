@@ -384,12 +384,10 @@ async function openLiveSettings() {
     await delay(10)
     parent.classList.add('center')
     let html = ''
+    let offset = 0;
     for (let [key, user] of party.usersData) {
         html += printLiveUser(user.info, key)
         offset++;
-        if (offset >= 20) {
-            break
-        }
     }
     document.querySelector('.inset-shit-live').innerHTML = html
 }
@@ -1182,7 +1180,6 @@ async function playTrack(el, e) {
     if (rawSongObj.kind == 'album') {
         currentSong = await getAlbumData(id, true);
         let albumIndex = queueTracks.findIndex(item => item.id === id);
-        console.log(albumIndex)
         if (!queueTracks.includes(currentSong)) {
             queueTracks[albumIndex] = currentSong
         }
@@ -1564,7 +1561,9 @@ function getSource(id, retries = 3) {
 function playSource(source) {
     currentSong.source = source
     if (!window.webkit?.messageHandlers) {
-        
+        if(typeof Android !== 'undefined'){
+            return Android.startPlayer(source.url)
+        }
         if(currentSong.api == 'soundcloud'){
             if (Hls.isSupported()) {
                 const hls = new Hls();
@@ -1579,7 +1578,7 @@ function playSource(source) {
             } else {
                 console.error('HLS not supported in this browser.');
             }
-            return
+            // return
         }
         audioPlayer.src = source.url
         audioPlayer.load();
@@ -2210,7 +2209,15 @@ function getAppleMusicPlaylistId(url) {
 
 function changeLiveName() {
     const name = document.querySelector('.live-name-insert input').value
+    if(name.replace(/ g/,'').length < 1){
+        return miniDialog('Too short name')
+    }
+    miniDialog('Live name updated')
+    document.querySelector('.live .text-live-wave p').innerText = name
     sendSocket({ ct: 'update_name', name })
+    document.querySelector('.submit-lvnm-btn').classList.add('disabled')
+    setTimeout(() => {document.querySelector('.submit-lvnm-btn').classList.remove('disabled')},5000)
+    appendAlert({text: 'Live name has been updated to'+name})
 }
 
 async function fetchListFilter(q, limit, offset, with_tracks) {
@@ -2965,7 +2972,7 @@ async function handleIncomingVideoStatus(data) {
             break;
         case 'play':
             if (currentSong.id !== data.track?.id && data.track) {
-                playTrack(data.track, true)
+                await playTrack(data.track, true)
             }
             if (Math.abs(audioPlayer.currentTime - data.time) > 2) {
                 seek(data.time);

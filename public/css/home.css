@@ -7552,3 +7552,14 @@ body.importing-list .body {
 .page .importing-tag a {
     display: none;
 }
+
+.list-view-importing-outset.container:empty:before {
+    content: 'Please insert your playlist link, make sure playlist is public before importing';
+    color: #fff;
+    font-size: 14px;
+    margin-top: 20px;
+    display: flex;
+    line-height: 20px;
+    opacity: 0.5;
+    font-weight: 300;
+}

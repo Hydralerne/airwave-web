@@ -488,6 +488,7 @@ app.get('/:endpoint/:id?', async (req, res) => {
             }
         });
         const data = await response.json()
+        console.log(data)
         res.render('profileIndex', { req: req, data });
     } catch (e) {
         console.log(e)

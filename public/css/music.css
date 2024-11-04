@@ -6,16 +6,32 @@ body {
     display: none !important;
 }
 
-* {
-    padding: 0;
-    margin: 0;
-    outline: 0;
-    -webkit-appearance: none;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    -webkit-user-select: none
-}
-
+.android .searching .music-search-main.search-fired {
+    background: #000;
+    backdrop-filter: none;
+}  
+    * {
+        padding: 0;
+        margin: 0;
+        outline: 0;
+        -webkit-appearance: none;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-user-select: none
+    }
+    input,text {
+        outline: none;
+        border: none;
+        user-select: text;
+        display: block;
+        box-sizing: border-box;
+        -webkit-user-select: text;
+    }
+        input {
+        -webkit-appearance: none;
+        appearance: none;
+        box-sizing: border-box   
+    }
 .body {
     position: fixed;
     top: 0;
