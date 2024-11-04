@@ -269,6 +269,9 @@
                                         <% if(req.radio){ %>
                                             <script>
                                                 function fireJoinMethod() {
+                                                    if(liveJSON.owner.id == localStorage.getItem('userid')){
+                                                        return
+                                                    }
                                                     const liveJSON = <%- req.radio %>
                                                     const html = printLiveCard(liveJSON);
                                                     document.body.insertAdjacentHTML('beforeend',`

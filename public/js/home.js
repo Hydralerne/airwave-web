@@ -153,6 +153,7 @@ async function performTracks(id, type, userid, offset = listOffset, limit = 25) 
     let list, tracks;
     if (type == 'wave') {
         list = await fetchList(id, type, userid, offset)
+        console.log(list)
         tracks = list.tracks
         if (Array.isArray(currentList.tracks) && currentList.tracks?.length > 0) {
             currentList.tracks.push(...tracks)
@@ -1745,8 +1746,7 @@ async function fetchList(id, type, userid, offset) {
         }
     })
     const data = await response.json()
-    console.log(data.tracks)
-
+    ongoingList = null
     return data
 }
 
