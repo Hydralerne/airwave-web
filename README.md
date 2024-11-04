@@ -10,7 +10,7 @@ Experience the ultimate music-sharing social app that lets you connect with frie
 - **Unified Playlists**: Manage all your playlists in one place.
 
 ## Installation
-Available for download on the [App Store](https://apps.apple.com).
+Available for download on the [App Store](https://apps.apple.com/us/app/airwave-join-the-party/id6701996557) [Google Play](https://play.google.com/store/apps/details?id=me.onvo.wave).
 
 ## Contributing
 Contributions are welcome! To contribute:
