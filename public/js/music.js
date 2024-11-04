@@ -1192,7 +1192,9 @@ async function playTrack(el, e) {
     onGoingId = currentSong.id
     let source = {}
 
-    if (!safeMode) {
+    if(!window.webkit?.messageHandlers && typeof Android == 'undefined' && currentSong.source){
+        source = currentSong.source
+    } else if (!safeMode) {
         if (globalNext.id == currentSong.id && globalNext.source) {
             currentSong.yt = globalNext.yt
             currentSong.source = globalNext.source

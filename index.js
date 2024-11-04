@@ -112,7 +112,7 @@ app.get('/append',blockWeb, async (req, res) => {
         res.json({ error: e.message })
     }
 })
-app.get('/spotify/:method',blockWeb, async (req, res) => {
+app.get('/spotify/:method',cors(),  async (req, res) => {
     try {
         let json = {}
         if (req.params.method == 'playlist') {
