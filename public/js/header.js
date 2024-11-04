@@ -119,7 +119,14 @@ function isArabic(text) {
     return arabic.test(text)
 }
 
+function isWeb(){
+    return window.webkit?.message && typeof Android == 'undefined' 
+}
+
 const pI = (url,e) => {
+    if(isWeb()){
+        return url
+    }
     return `${origin}/proxy?url=${encodeURIComponent(url)}${e ? '&nocache=true' : ''}`
 }
 
