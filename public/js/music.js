@@ -1127,7 +1127,10 @@ async function getTracksData(api, id, isAlbum) {
 function decodeEntities(songName) {
     return songName.replace(/&#(\d+);/g, (match, dec) => String.fromCharCode(dec));
 }
-
+function isSafari() {
+    const ua = navigator.userAgent;
+    return /^((?!chrome|android).)*safari/i.test(ua);
+}
 async function playTrack(el, e) {
     playerLoading()
     if (isParty && !e) {
@@ -1193,6 +1196,9 @@ async function playTrack(el, e) {
 
     if(!window.webkit?.messageHandlers && typeof Android == 'undefined' && currentSong.source){
         source = currentSong.source
+        if(isSafari() && currentSong.source.aac){
+            source.url = source.aac
+        }
     } else if (!safeMode) {
         if (globalNext.id == currentSong.id && globalNext.source) {
             currentSong.yt = globalNext.yt
