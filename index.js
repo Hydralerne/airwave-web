@@ -66,7 +66,8 @@ if (fs.existsSync(remotePath)) {
 app.set('trust proxy', true);
 
 let allowed = {}
-const isWeb = true
+
+const isWeb = false
 
 const accessControlBlock = (req, res, next) => {
     if (req.query.token == 'sjaiidlklqa' || Object.keys(allowed).includes(req.headers['x-real-ip'])) {
