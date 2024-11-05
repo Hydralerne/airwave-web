@@ -198,6 +198,7 @@ function play() {
 
     audioPlayer.play();
 }
+let ytInitialized = false;
 function resetPlayer(id) {
     try {
         pause()
@@ -205,7 +206,7 @@ function resetPlayer(id) {
         videoPlayer.src = ''
         sliderEl.value = 0;
         liveBody.classList.remove('no-lyrics')
-
+        ytInitialized = false
         currentMove.style.width = 0
 
         document.querySelector('.styling').innerHTML = ''
@@ -982,7 +983,7 @@ function printCopyrights(data) {
     <a>${data.copyright}</a>
     <p>This track is hosted from soundcloud Inc using authorized api, to view it on soundcloud <text onclick="interface('open','')">Tap here</text></p>
     ` : `
-    <p>This track copyrighted to original artist, track source fetched from youtube using search of track informations from ${currentSong.api}, for more see our <text onclick="policy()">Policy</text></p>
+    <p>This track is copyrighted to the original artist. The track source is fetched from YouTube using search information from ${currentSong.api}, For more details, see our <text onclick="policy()">Policy</text></p>
     `
     document.querySelector('.artist-info-player section span').innerText = data.artist_data?.name
 
@@ -1191,9 +1192,9 @@ async function playTrack(el, e) {
     onGoingId = currentSong.id
     let source = {}
 
-    if(!window.webkit?.messageHandlers && typeof Android == 'undefined' && currentSong.source){
+    if (!window.webkit?.messageHandlers && typeof Android == 'undefined' && currentSong.source) {
         source = currentSong.source
-        if(isSafari() && currentSong.source.aac){
+        if (isSafari() && currentSong.source.aac) {
             source.url = source.aac
         }
     } else if (!safeMode) {
@@ -1239,7 +1240,7 @@ async function playTrack(el, e) {
     if (queueTracks.length > 0) {
         prepareNext()
     }
-    if (isInline() && !isParty && api !== 'soundcloud') {
+    if (isInline() && !isParty && api !== 'soundcloud' && !liveBody.classList.contains('minimized')) {
         initializeYoutube(currentSong.yt)
     }
     try {
@@ -1385,7 +1386,11 @@ function playerLoaded() {
 let safeMode = false
 
 function initializeYoutube(id, e) {
+    if (ytInitialized) {
+        return
+    }
     try {
+        ytInitialized = true
         activeSource = { id };
         if (YTplayer) {
             YTplayer.loadVideoById(id)
@@ -1525,17 +1530,17 @@ function getSource(id, retries = 3) {
         const fetchData = async (attempts) => {
             let data = {};
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 4000); // 6 seconds timeout
+            const timeoutId = setTimeout(() => controller.abort(), 4000);
 
             try {
                 const response = await fetch(`/get-source?id=${id}`, { signal: controller.signal });
                 data = await response.json();
 
                 if (data.url) {
-                    resolve(data); // Resolve if we have a URL in the data
+                    resolve(data); 
                 } else if (attempts > 0) {
                     console.log(`Retrying... Attempts left: ${attempts}`);
-                    fetchData(attempts - 1); // Retry if URL not found
+                    fetchData(attempts - 1);
                 } else {
                     miniDialog('Failed to load track');
                     reject(new Error("Data not found"));
@@ -1543,17 +1548,17 @@ function getSource(id, retries = 3) {
             } catch (e) {
                 if (attempts > 0) {
                     console.log(`Retrying due to error... Attempts left: ${attempts}`);
-                    fetchData(attempts - 1); // Retry on error
+                    fetchData(attempts - 1);
                 } else {
                     miniDialog('Failed to load track');
-                    reject(e); // Reject after final attempt
+                    reject(e);
                 }
             } finally {
-                clearTimeout(timeoutId); // Clear timeout
+                clearTimeout(timeoutId);
             }
         };
 
-        fetchData(retries); // Start fetching with retries
+        fetchData(retries);
     });
 }
 
@@ -1561,10 +1566,14 @@ function getSource(id, retries = 3) {
 function playSource(source) {
     currentSong.source = source
     if (!window.webkit?.messageHandlers) {
-        if(typeof Android !== 'undefined'){
+        if (typeof Android !== 'undefined') {
             return Android.startPlayer(source.url)
         }
-        if(currentSong.api == 'soundcloud'){
+        if (currentSong.api == 'soundcloud') {
+            audioPlayer.src = source.url
+            audioPlayer.load();
+            audioPlayer.play();
+
             if (Hls.isSupported()) {
                 const hls = new Hls();
                 hls.loadSource(source.url);
@@ -1580,9 +1589,6 @@ function playSource(source) {
             }
             // return
         }
-        audioPlayer.src = source.url
-        audioPlayer.load();
-        audioPlayer.play();
     } else {
         window.webkit.messageHandlers.loadPlayer.postMessage({ type: 'vlc', url: source.url, id: currentSong.id, withSync: false });
     }
@@ -1614,6 +1620,9 @@ async function loadNative(id, e, d) {
 }
 
 async function prepareNext() {
+    if(currentSong.api == 'song'){
+        return
+    }
     globalNext = getNext(currentSong.id);
     if (globalNext.kind == 'album') {
         const oldId = globalNext.id
@@ -1762,6 +1771,7 @@ function showThePlayer(page = liveBody) {
         history.pushState({ page: 'player' }, null, `/radio/${page.getAttribute('dataid')}`)
     }
     parseRelated()
+    initializeYoutube(currentSong.yt)
 }
 
 async function showPlayer() {
@@ -2074,7 +2084,7 @@ function callAnghami(query, dir) {
     });
 }
 
-async function getSpotifyList(id,offset,limit){
+async function getSpotifyList(id, offset, limit) {
     const response = await fetch(`/spotify/playlist?id=${id}&offset=${offset}&limit=${limit}`)
     const data = await response.json()
     return data
@@ -2209,15 +2219,15 @@ function getAppleMusicPlaylistId(url) {
 
 function changeLiveName() {
     const name = document.querySelector('.live-name-insert input').value
-    if(name.replace(/ g/,'').length < 1){
+    if (name.replace(/ g/, '').length < 1) {
         return miniDialog('Too short name')
     }
     miniDialog('Live name updated')
     document.querySelector('.live .text-live-wave p').innerText = name
     sendSocket({ ct: 'update_name', name })
     document.querySelector('.submit-lvnm-btn').classList.add('disabled')
-    setTimeout(() => {document.querySelector('.submit-lvnm-btn').classList.remove('disabled')},5000)
-    appendAlert({text: 'Live name has been updated to'+name})
+    setTimeout(() => { document.querySelector('.submit-lvnm-btn').classList.remove('disabled') }, 5000)
+    appendAlert({ text: 'Live name has been updated to' + name })
 }
 
 async function fetchListFilter(q, limit, offset, with_tracks) {
@@ -2244,11 +2254,11 @@ async function fetchListFilter(q, limit, offset, with_tracks) {
     } else if (spotify) {
         type = 'spotify';
         list = spotify
-    } 
+    }
 
     switch (type) {
         case 'spotify':
-            const spotifyListData = await getSpotifyList(list,limit,offset)
+            const spotifyListData = await getSpotifyList(list, limit, offset)
             return { ...spotifyListData };
         case 'soundcloud':
             const soundcloudListData = await getSoundcloudList(list, limit, offset, with_tracks)
@@ -2348,7 +2358,6 @@ async function search(q) {
                 }
             })
             const apdata = await apres.json();
-            console.log(apdata)
             printSongs(apdata, 'search', null)
             break;
         case 'users':

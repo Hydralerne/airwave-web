@@ -180,7 +180,7 @@ async function handleBillingCall(data) {
                 <div class="welcome-subscriptions">
                     <div class="back-welcome">
                         <div class="video-ssvp">
-                            <video autoplay="" loop="" playsinline="" muted="" src="/assets/v/3.mp4"></video>
+                            <video poster="none" autoplay="" loop="" playsinline="" muted="" src="/assets/v/3.mp4"></video>
                         </div>
                     </div>
                     <div class="welcome-badge">

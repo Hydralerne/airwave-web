@@ -1134,6 +1134,7 @@ try {
     console.error(e)
 }
 getHome().then(async data => {
+    console.log(data)
     try {
         eval(data.home.js)
     } catch (e) {
@@ -1206,7 +1207,9 @@ document.querySelectorAll('.generes-section').forEach(btn => {
             loaders += songLoaderEffect;
         }
         document.querySelector('.main-inset-hits').innerHTML = loaders
-        const list = await getSpotifyList(this.getAttribute('dataid'), 0, 20)
+        console.log(this.getAttribute('dataid'))
+        const list = await getSpotifyList(this.getAttribute('dataid'),0,5)
+        console.log(list)
         const songsData = printSongsRegular(list.tracks, 5);
         document.querySelector('.main-inset-hits').innerHTML = songsData.html
         sectionsParent.classList.remove('disabled')
@@ -1333,6 +1336,20 @@ let soundCloudBanner = ''
 function clearReformLib() {
 
 }
+
+function actualLoadingLib(){
+
+}
+
+let loadingLib = false
+document.querySelector('.liberary')?.addEventListener('scroll',function(){
+    if (!loadingLib) {
+        if (this.scrollTop > (musicSection.offsetHeight - 500) && !loadingLib) {
+            loadingLib = true;
+            actualLoadingLib(this.getAttribute('action'));
+        }
+    }
+})
 
 document.querySelectorAll('.libgnre-section').forEach(lib => {
     lib.addEventListener('click', function () {
@@ -1476,7 +1493,6 @@ async function showLibrary(id) {
     }).then(response => {
         return response.json();
     }).then(data => {
-
         cacheStorage(data, 'lib')
         printLibrary(data)
     }).catch(e => {
@@ -1576,7 +1592,11 @@ async function printLibrary(data) {
         let lists = printListsSquare(data.playlists)
         document.querySelector('.library-body .inset-playlists-slider-square').innerHTML = lists
     } else {
-        document.querySelector('.libraries-lists-container').classList.add('hidden')
+        document.querySelector('.libraries-lists-container').innerHTML = `<div class="no-playlists-banner">
+    <section><span></span><p>Looks like you don't have any playlists, import your playlists now</p>
+        </section>
+    <div class="start-import" onclick="importPlaylist()" ${touchPackage}><span>start importing playlist</span></div>
+    </div>`
     }
 
     if (data.saved && data.saved?.length > 0) {

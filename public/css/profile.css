@@ -18,7 +18,9 @@
     content: '';
     left: 0;
 }
-
+.profile-image {
+    background-color: hsl(0deg 0% 100% / 10%);
+}
 .profile-widget {
     width: 88%;
     right: 0;

@@ -123,7 +123,7 @@ function isWeb(){
     return !window.webkit?.messageHandlers && typeof Android == 'undefined' 
 }
 
-const pI = (url,e) => {
+let pI = (url,e) => {
     if(isWeb()){
         return url
     }

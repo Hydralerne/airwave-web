@@ -27,6 +27,7 @@ async function getUserData(id) {
 
 let profileTip
 async function openProfile(id) {
+    await closePages()
     const profile = document.querySelector('.profile')
     const oldData = localStorage.getItem('profile');
     if(currentSong.id && liveBody?.classList.contains('center')){
@@ -129,7 +130,7 @@ async function printProfile(data) {
     }else {
         document.querySelector('.profile').classList.remove('live')
     }
-    document.querySelector('.profile-image').style.backgroundImage = `url(${data.image.replace('/profile/', '/profile_large/')})`
+    document.querySelector('.profile-image').style.backgroundImage = `url(${data.image?.replace('/profile/', '/profile_large/')})`
     document.querySelectorAll('.profile-background span').forEach(span => {
         span.style.backgroundImage = `url(${data.image})`
     })
