@@ -66,7 +66,6 @@ async function openProfile(id) {
 
 
 function prepareLists(data) {
-    console.log(data)
     let lists = printListsSquare(data.playlists)
     document.querySelector('.inset-playlists-slider-square').innerHTML = lists
 }

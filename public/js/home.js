@@ -637,7 +637,7 @@ async function getImportings(e) {
             <div class="platform-import"><span style="background-image: url(/assets/png-icons/9f5edc36-eb4d-414a-8447-10514f2bc224-cover.png);background-size: 50px;"></span><a>Spotify</a></div>
             <div class="platform-import"><span style="background-image: url(/assets/png-icons/anghami.png);background-size: 30px;"></span><a>Anghami</a></div>
             <div class="platform-import"><span style="background-image: url(/assets/png-icons/soundcloud.svg);background-size: 25px;"></span><a>Soundcloud</a></div>
-            <div class="platform-import"><span style="background-image: url(/assets/png-icons/1024px-YouTube_full-color_icon_%282017%29.svg.png);background-size: 25px;"></span><a>Youtube</a></div>
+            <div class="platform-import"><span style="background-image: url(/assets/png-icons/YouTube_full-color_icon.webp);background-size: 25px;"></span><a>Youtube</a></div>
            <div class="platform-import"><span style="background-image: url(/assets/png-icons/Apple_Music_icon.svg);background-size: 25px;"></span><a>Apple music</a></div>
         </div>
         <div class="links-imports-section container">
@@ -2842,10 +2842,9 @@ async function goOffline(e) {
         return
     }
     const connection = await check('https://google.com');
-    console.log(connection, 'thereasdsadasd')
-    // if (connection && !e) {
-    //     return;
-    // }
+    if (connection && !e) {
+        return;
+    }
     isOffline = true
     let banner = `<div class="home-section banner-home offline-banner">
         <div class="inner-banner-home">
