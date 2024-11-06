@@ -1022,7 +1022,8 @@ function filterArtistName(artistName) {
     return firstArtist;
 }
 
-async function requestSource(api, id, title, artist, url, protocol, TIMEOUT = 1) {
+async function requestSource(song, url, protocol, TIMEOUT = 1) {
+    const { api, id, title, artist, yt } = song
     clearTimeout(playTrackTimeout)
     playTrackTime = new Promise(resolve => {
         playTrackTimeout = setTimeout(resolve, TIMEOUT);
@@ -1039,8 +1040,10 @@ async function requestSource(api, id, title, artist, url, protocol, TIMEOUT = 1)
             const data = await getTrackByUrl(soundid, 'soundcloud', soundMethod);
             resolve({ url: data.audio })
         } else {
-            const ytid = api == 'youtube' ? id : (await getYTcode(title, artist))
-            currentSong.yt = ytid
+            if (!yt) {
+                const ytid = api == 'youtube' ? id : (await getYTcode(title, artist))
+                currentSong.yt = ytid
+            }
             let source = await getSource(ytid, true)
             resolve(source)
         }
@@ -1145,22 +1148,24 @@ async function playTrack(el, e) {
         history.pushState({ page: 'player' }, null)
     }
 
-    resetPlayer(currentSong.id);
+    if (!e) {
+        resetPlayer(currentSong.id);
+    }
 
     document.querySelector('.artist-inner-song img').src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgAB/ubWFXkAAAAASUVORK5CYII='
 
-    let api, url, title, artist, protocol, id, rawSongObj, path
+    let api, url, protocol, id, rawSongObj, path
 
     if (el?.poster) {
         rawSongObj = el;
-        ({ api, url, title, artist, protocol, id, kind } = el);
+        ({ api, url, protocol, id, kind } = el);
     } else {
         const parent = el.classList.contains('song') ? el : el.closest('.song')
         id = parent.getAttribute('trackid')
         rawSongObj = getSongObject(parent, e)
         rawSongObj.protocol = el.getAttribute('protocol');
         rawSongObj.path = parent.getAttribute('path');
-        ({ api, url, title, artist, protocol, path, kind } = rawSongObj);
+        ({ api, url, protocol, path, kind } = rawSongObj);
         if (parent.closest('.playlists-page')) {
             if (currentList.id !== queueList.id) {
                 queueTracks = currentList.tracks
@@ -1204,13 +1209,14 @@ async function playTrack(el, e) {
             source = globalNext.source
             globalNext = {}
         } else if (!path && !isExist) {
-            source = await requestSource(api, id, decodeEntities(title), decodeEntities(artist), url, protocol);
+            source = await requestSource(currentSong, url, protocol);
         } else {
             try {
                 if (!path) {
                     path = (await getObject(currentSong.id, 'downloads')).path;
                 }
                 source = { url: `http://localhost:2220/retrieve?raw=${encodeURIComponent(path)}` }
+                console.log(source)
             } catch (e) {
                 console.error(e)
             }
@@ -1229,19 +1235,15 @@ async function playTrack(el, e) {
         }
         source = { url: currentSong.perview }
     }
-    if (onGoingId !== currentSong.id) {
+    if (onGoingId !== currentSong.id && !path) {
         return
     }
-
 
     playSource(source);
     handlePlayPause(id, true);
 
-    if (queueTracks.length > 0) {
+    if (queueTracks.length > 0 && !isParty || isOwner()) {
         prepareNext()
-    }
-    if (isInline() && !isParty && api !== 'soundcloud' && !liveBody.classList.contains('minimized')) {
-        initializeYoutube(currentSong.yt)
     }
     try {
         setMediaSessionMetadata();
@@ -1250,22 +1252,36 @@ async function playTrack(el, e) {
     }
 
     playerLoaded();
+
+    try {
+        addTrack(el, id, currentSong)
+    } catch (e) {
+
+    }
+
+    if (isOffline) {
+        getLyrics()
+        return
+    }
+
+    if (isInline() && !isParty && api !== 'soundcloud' && !liveBody.classList.contains('minimized')) {
+        initializeYoutube(currentSong.yt)
+    }
+
+
     printCopyrights(currentSong);
 
     if (!isParty || (isParty && isOwner())) {
         getRelated()
     }
 
-    try {
-        addTrack(el, id, currentSong)
-    } catch (e) { }
     await checkTrackData()
     updatePlaying(currentSong);
     await delay(50)
 
     if (!lyricsInitialize) {
         getLyrics()
-        if (!isParty || !liveBody.classList.contains('minimized')) {
+        if (!liveBody.classList.contains('minimized') && !isParty) {
             parseRelated()
         }
         lyricsInitialize = true;
@@ -1386,7 +1402,7 @@ function playerLoaded() {
 let safeMode = false
 
 function initializeYoutube(id, e) {
-    if (ytInitialized) {
+    if (ytInitialized || isParty) {
         return
     }
     try {
@@ -1434,7 +1450,6 @@ function updateYoutube() {
             globalPause = false;
         }
         if (Math.abs(YTplayer.getCurrentTime() - globalTime) > 0.5 && isInline()) {
-            console.log('syncing')
             YTplayer.seekTo(globalTime, true);
         }
     }
@@ -1537,7 +1552,7 @@ function getSource(id, retries = 3) {
                 data = await response.json();
 
                 if (data.url) {
-                    resolve(data); 
+                    resolve(data);
                 } else if (attempts > 0) {
                     console.log(`Retrying... Attempts left: ${attempts}`);
                     fetchData(attempts - 1);
@@ -1564,16 +1579,17 @@ function getSource(id, retries = 3) {
 
 
 function playSource(source) {
+    console.log('playing', source)
     currentSong.source = source
     if (!window.webkit?.messageHandlers) {
         if (typeof Android !== 'undefined') {
             return Android.startPlayer(source.url)
         }
-        if (currentSong.api == 'soundcloud') {
-            audioPlayer.src = source.url
-            audioPlayer.load();
-            audioPlayer.play();
 
+        audioPlayer.src = source.url
+        audioPlayer.load();
+        audioPlayer.play();
+        if (currentSong.api == 'soundcloud') {
             if (Hls.isSupported()) {
                 const hls = new Hls();
                 hls.loadSource(source.url);
@@ -1620,7 +1636,7 @@ async function loadNative(id, e, d) {
 }
 
 async function prepareNext() {
-    if(currentSong.api == 'song'){
+    if (currentSong.api == 'song') {
         return
     }
     globalNext = getNext(currentSong.id);
@@ -1770,6 +1786,10 @@ function showThePlayer(page = liveBody) {
     if (page.classList.contains('live')) {
         history.pushState({ page: 'player' }, null, `/radio/${page.getAttribute('dataid')}`)
     }
+    parseLyrics();
+    if (isOffline) {
+        return
+    }
     parseRelated()
     initializeYoutube(currentSong.yt)
 }
@@ -1809,6 +1829,7 @@ const equalizer = `<div class="equalizer">
   </div>`
 
 
+let listSorterInited
 async function actualAddTrack(el, id, dir, json) {
 
     if (!json) {
@@ -1820,6 +1841,12 @@ async function actualAddTrack(el, id, dir, json) {
 
     if (dir == 'list') {
         document.querySelector('.playlist-container-create').insertAdjacentHTML('afterbegin', html)
+        await delay(50)
+        if (!listSorterInited) {
+            listSorterInited = new SortableList('.playlist-container-create', '.music-component')
+        } else {
+            listSorterInited.update()
+        }
         return;
     }
 
@@ -1897,17 +1924,15 @@ async function addTrack(el, id = el.closest('.song')?.getAttribute('trackid'), j
 
 let isMuted = false;
 
-function callbackSource(data, e) {
+async function callbackSource(data, e) {
     if (data.ct == 'source') {
         playTrack(data.track, true)
         return
     }
     if (data.live?.playing) {
-        console.log('playing fire')
-        playTrack(data.live?.playing, true)
+        await playTrack(data.live?.playing, true)
         const time = parseInt(data.live?.playbackPosition) || 0
         seek(time);
-        console.log('seeked', time)
         if (data.live?.playbackStatus == 'pause') {
             globalPause = true
             pause()
@@ -1992,7 +2017,7 @@ async function replyRequest(el, id, text = document.querySelector('.textarea-msg
         return
     }
     el.classList.add('disabled')
-    fetch(`https://api.onvo.me/music/sendmsg.php`, {
+    fetch(`https://api.onvo.me/onvo/message/send`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -2769,6 +2794,7 @@ function joinParty(id) {
         parent.className = `body page loading ${party.owner == localStorage.getItem('userid') ? 'owner' : 'member'} live`
         await closePages()
         showThePlayer()
+        destroyYoutube()
     }
     return new Promise((resolve, reject) => {
         let failureTimeout = setTimeout(() => {
@@ -2848,13 +2874,103 @@ async function processColors(url, shco = 5) {
     return { color, hls, colors }
 }
 
+let holdTimer
+let dragging = false;
+let startX = 0;
+let holdMsg = (evt, el, phase) => {
+    clearTimeout(holdTimer);
+
+    const container = el.closest('.msg');
+    let containerWidth = container.offsetWidth;
+    let dragLimit = (containerWidth - el.offsetWidth) / 2; // Max drag distance
+
+    if (phase === 'end') {
+        // Stop dragging
+        dragging = false;
+        let moveX = el.offsetLeft;
+
+        // Check if drag distance meets threshold to trigger reply action
+        if (moveX >= 75) {
+            redRep(el); // Trigger reply function
+            interface('vibrate'); // Trigger vibration or feedback
+        }
+
+        // Reset position with magnetic effect
+        el.classList.add('magnetic');
+        el.style.left = '0px';
+        om(el)
+        return;
+    }
+
+    if (phase === 'move') {
+        if (dragging) {
+            let moveX = (evt.touches[0].pageX - startX) / 2;
+
+            // Move only if it’s within the drag limit and to the right
+            if (moveX >= 0 && moveX <= dragLimit) {
+                el.style.left = `${moveX}px`;
+                evt.preventDefault(); // Prevent vertical scrolling
+            }
+        }
+        om(el)
+        return;
+    }
+
+    if (evt?.target?.closest('.msg-reacts')) {
+        return;
+    }
+    // 'start' phase
+    dragging = true;
+    el.classList.remove('magnetic'); // Remove snap-back effect during active drag
+    startX = evt.touches[0].pageX - el.offsetLeft; // Initialize start position
+    om(el, true)
+
+    // Optional long-press logic if needed
+    holdTimer = setTimeout(() => {
+        addEmojies(el);
+    }, 1000);
+};
+
+function om(el, e) {
+    if (e) {
+        el.classList.add('msg-effect')
+        return
+    }
+    el.classList.remove('msg-effect')
+}
+function emojiesOutclick(event) {
+    if (event.target.closest('.msg-reacts')) {
+        return;
+    }
+    event.target?.classList?.remove('msg-effect')
+    document.removeEventListener('touchstart', emojiesOutclick)
+    document.querySelector('.msg-reacts').remove()
+}
+
+function callReact(el, e) {
+    document.querySelectorAll('.msg-reacts').forEach(rc => { rc.remove() })
+    sendSocket({ ct: 'chat', action: 'react', react: e, id: el.closest('.msg').getAttribute('dataid') })
+    document.removeEventListener('touchstart', emojiesOutclick)
+}
+
+let addEmojies = (el) => {
+    document.querySelectorAll('.msg-reacts').forEach(rc => { rc.remove() })
+    let html = `<div class="msg-reacts"><div onclick="callReact(this,1)"></div><div onclick="callReact(this,2)"></div><div onclick="callReact(this,3)"></div><div onclick="callReact(this,4)"></div><div onclick="callReact(this,5)"></div><div onclick="callReact(this,6)"></div></div>`
+    if (el.querySelector('.msg-reacts')) {
+        return
+    }
+    el.classList?.remove('msg-effect')
+    el.insertAdjacentHTML('afterbegin', html)
+    document.addEventListener('touchstart', emojiesOutclick)
+}
+
 let coringMessage = function (data) {
     let html = '';
     if (data.external?.type == 'song') {
         html = printLiveSong(data.external)
     } else {
         html = `
-        <div class="msg-core" dataid="${data.msgid}">
+        <div class="msg-core" ontouchstart="holdMsg(event, this)" ontouchend="holdMsg(event, this, 'end')" ontouchmove="holdMsg(event, this, 'move')" dataid="${data.msgid}">
             <p>${data.text ? encodeHtmlEntities(data.text) : ''}</p>
             <span>${data.now.getMinutes()}:${data.now.getSeconds()}</span>
             <a class="user-dt" onclick="redRep(this)"></a>
@@ -2862,6 +2978,8 @@ let coringMessage = function (data) {
     }
     return html;
 }
+
+const scrollerChatContainer = document.querySelector('.outset-chat-container');
 
 async function appendChat(id, text, msgid, repid, external) {
     const now = new Date();
@@ -2888,7 +3006,7 @@ async function appendChat(id, text, msgid, repid, external) {
     } else {
         image = (isYou) ? localStorage.getItem('image') : partyControl.get(id).info['image'];
         name = (isYou) ? localStorage.getItem('fullname') : partyControl.get(id).info['fullname'];
-        html = `<div class="msg msg-tag ${isYou ? 'you' : ''}" dataid="${id}">
+        html = `<div class="msg msg-tag ${isYou ? 'you' : ''}${repid ? ' replyed' : ''}" dataid="${id}">
         ${`<div class="msg-img" onclick="openProfile('${id}')" style="background-image: url(${image});"></div>`}
         ${!isYou ? `<a class="nmvo">${name}</a>` : ''}
         <section>
@@ -2898,9 +3016,11 @@ async function appendChat(id, text, msgid, repid, external) {
        </div>`;
         document.querySelector('.inset-chat-container').insertAdjacentHTML('beforeend', html);
     }
-
+    if (Math.abs(scrollerChatContainer.scrollTop - scrollerChatContainer.scrollHeight) > 1000 && !isYou) {
+        return
+    }
     // go to bottom
-    document.querySelector('.outset-chat-container').scrollTop = document.querySelector('.outset-chat-container').scrollHeight;
+    scrollerChatContainer.scrollTop = scrollerChatContainer.scrollHeight;
 
 }
 const chatBox = document.querySelector('.bottom-chat')
@@ -2926,8 +3046,8 @@ function redRep(element) {
     if (exist) {
         exist.remove();
     };
-    const html = `<div class="replaying-div" dataid="${element.closest('div').getAttribute('dataid')}"><a onclick="this.closest('.replaying-div').remove()"></a><span>Replying to ${element.closest('section').querySelector('.nmvo')}</span><p>${element.closest('div').querySelector('p').innerText}</p></div>`;
-    document.querySelector('.chat-text-box').insertAdjacentHTML('beforebegin', html);
+    const html = `<div class="replaying-div" dataid="${element.closest('div').getAttribute('dataid')}"><section><a onclick="this.closest('.replaying-div').remove()"></a><span>Replying to ${element.closest('.msg').querySelector('.nmvo').innerText}</span><p>${element.closest('div').querySelector('p').innerText}</p></section></div>`;
+    document.querySelector('.bottom-chat').insertAdjacentHTML('beforebegin', html);
 }
 
 function sendLiveMsg(event) {
@@ -2970,9 +3090,6 @@ const encodeHtmlEntities = (str) => {
 
 async function handleIncomingVideoStatus(data) {
     switch (data.do) {
-        case 'ready':
-            bereadyAndBack(data);
-            break;
         case 'pause':
             pause();
             break;
@@ -2986,12 +3103,7 @@ async function handleIncomingVideoStatus(data) {
             if (Math.abs(audioPlayer.currentTime - data.time) > 2) {
                 seek(data.time);
             }
-            if (globalPause == true) {
-                play();
-            }
-        case 'timing':
-
-            break;
+            play();
         case 'move':
             seek(data.time);
             seekForce(data.time)
@@ -3046,6 +3158,7 @@ let partyControl = {
         return party.usersData.get(id) || {}
     }
 }
+
 
 function control(data) {
     if (data.ct == 'signal') {
@@ -3222,6 +3335,7 @@ function createBlobURL(data) {
 }
 
 async function fetchLyrics(track, youtube) {
+    console.log(youtube)
     let data = {};
     if (youtube && track.api !== 'soundcloud') {
         const response = await fetch(`/youtube/lyrics?id=${youtube}`)
@@ -3409,7 +3523,9 @@ async function getLyrics(track = currentSong, youtube = currentSong.yt) {
     }
     jsonLyrics = data;
     jsonLyrics.track = track
-    parseLyrics(data, data.api)
+    if (!liveBody.classList.contains('minimized')) {
+        parseLyrics()
+    }
 }
 
 let currentLyricIndex;
@@ -3763,8 +3879,13 @@ function noLyrics() {
 }
 
 
-async function parseLyrics(data, api) {
+let parsedLyrics
+async function parseLyrics(data = jsonLyrics, api = jsonLyrics.api) {
     let html;
+    if (parsedLyrics == data.id) {
+        return
+    }
+    parsedLyrics = data.id
     try {
         html = renderLyrics(data)
     } catch (e) {
@@ -4243,19 +4364,22 @@ function loadGSAPAndDraggable() {
 }
 
 class SortableList {
-    constructor(rowSize = 70) {
+    constructor(container = ".inset-playlist-compine", elements = ".music-component", rowSize = 70) {
         this.rowSize = rowSize;
-        this.initialize();
+        this.initialize(container, elements);
         this.loaded = false;
+        this.containerName = container
+        this.elementsName = elements
+        this.isQueue = container == ".inset-playlist-compine"
     }
 
-    async initialize(container = ".inset-playlist-compine", elements = ".music-component") {
+    async initialize(container, elements) {
         if (!this.loaded) {
             await loadGSAPAndDraggable();
             this.loaded = true;
         }
         this.container = document.querySelector(container);
-        this.listItems = Array.from(document.querySelectorAll(elements));
+        this.listItems = Array.from(this.container.querySelectorAll(elements));
         this.sortables = this.listItems.map((element, index) => this.createSortable(element, index));
         this.total = this.sortables.length;
 
@@ -4306,7 +4430,9 @@ class SortableList {
 
     changeIndex(sortable, to) {
         this.arrayMove(this.sortables, sortable.index, to);
-        this.arrayMove(queueTracks, sortable.index, to);
+        if (this.isQueue) {
+            this.arrayMove(queueTracks, sortable.index, to);
+        }
 
         if (to === this.total - 1) {
             this.container.appendChild(sortable.element);
@@ -4332,16 +4458,22 @@ class SortableList {
 
     update() {
         this.destroy();
-        this.initialize();
+        console.log(this.containerName)
+        console.log(this.elementsName)
+        this.initialize(this.containerName, this.elementsName);
     }
     destroy() {
-        this.draggables.forEach(dragger => dragger.kill());
-        this.sortables.forEach(sortable => gsap.killTweensOf(sortable.element));
-        if (this.container) {
-            gsap.set(this.container, { autoAlpha: 0 });
-            this.container = null;
+        try {
+            this.draggables.forEach(dragger => dragger.kill());
+            this.sortables.forEach(sortable => gsap.killTweensOf(sortable.element));
+            if (this.container) {
+                gsap.set(this.container, { autoAlpha: 0 });
+                this.container = null;
+            }
+            this.listItems = []
+            this.sortables = [];
+        } catch (e) {
+            console.error(e)
         }
-        this.listItems = []
-        this.sortables = [];
     }
 }

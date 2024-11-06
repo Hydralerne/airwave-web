@@ -171,17 +171,27 @@ const getObject = async (id, storeName, dbName = 'musicDB') => {
     });
 };
 
-// Get all objects from a store (table)
-const getAllObjects = async (storeName, dbName = 'musicDB') => {
+const getAllObjects = async (storeName, dbName = 'musicDB', limit = Infinity, offset = 0) => {
     const db = await openDatabase(dbName, storeName);
     const transaction = db.transaction(storeName, 'readonly');
     const store = transaction.objectStore(storeName);
+    const results = [];
 
     return new Promise((resolve, reject) => {
-        const request = store.getAll();
-
-        request.onsuccess = () => {
-            resolve(request.result);
+        let count = 0;
+        const request = store.openCursor();
+        
+        request.onsuccess = (event) => {
+            const cursor = event.target.result;
+            if (cursor) {
+                if (count >= offset && results.length < limit) {
+                    results.push(cursor.value);
+                }
+                count++;
+                cursor.continue();
+            } else {
+                resolve(results);
+            }
         };
 
         request.onerror = (event) => {

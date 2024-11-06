@@ -5092,9 +5092,12 @@ body.searching .menu-bottom {
     margin-right: 5px;
     opacity: 0.5;
 }
-.liberary.member .right-lib-wave span {
+.liberary.hosted .right-lib-wave span {
     -webkit-mask-size: 24px;
     -webkit-mask-image: url(/assets/png-icons/more_dots.svg);
+}
+.hosted .libgnre-section[action="downloads"] {
+    display: none;
 }
 .favorites-head span {
     display: flex;
@@ -7635,4 +7638,34 @@ body.importing-list .body {
 
 .start-import span {
     margin-top: -2px;
+}
+
+.offline .visualisation {
+    display: none;
+}
+
+.favorites-components {
+    position: relative;
+}
+
+.favorites-components .equalizer {
+    margin-left: 40px!important;
+    margin-top: -55px!important;   
+}
+
+.switch-select-container .artist-title span {
+    color: #fff!important;
+
+}
+.playlist-create .top-header-wave {
+    position: absolute!important;
+}
+.playlist-container-create .music-component {
+    position: absolute;
+}
+.edit-list-tap span {
+    -webkit-mask-image: url(/assets/png-icons/pen-407-1658238246.png);
+}
+.msg.msg-tag.replyed section {
+    margin-top: -15px;
 }

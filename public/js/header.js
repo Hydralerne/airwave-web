@@ -105,10 +105,10 @@ function printData(data, e) {
         saveUserInfo(data);
     }
     if (data.image) {
-        document.querySelectorAll('.host-image').forEach(img => {img.style.backgroundImage = `url(${data.image})`})
+        document.querySelectorAll('.host-image').forEach(img => { img.style.backgroundImage = `url(${data.image})` })
     }
-    if(data.fullname){
-        document.querySelectorAll('.morning-home a').forEach(span => {span.innerText = data.fullname})
+    if (data.fullname) {
+        document.querySelectorAll('.morning-home a').forEach(span => { span.innerText = data.fullname })
     }
 }
 
@@ -119,12 +119,13 @@ function isArabic(text) {
     return arabic.test(text)
 }
 
-function isWeb(){
-    return !window.webkit?.messageHandlers && typeof Android == 'undefined' 
+function isWeb() {
+    return false
+    return !window.webkit?.messageHandlers && typeof Android == 'undefined'
 }
 
-let pI = (url,e) => {
-    if(isWeb()){
+let pI = (url, e) => {
+    if (isWeb()) {
         return url
     }
     return `${origin}/proxy?url=${encodeURIComponent(url)}${e ? '&nocache=true' : ''}`
@@ -312,74 +313,77 @@ if (window.innerWidth < 380 && window.innerWidth > 250) {
 }
 
 function interface(type, data, arr = {}) {
+    try {
+        switch (type) {
+            case 'open':
+                if (window.webkit) {
+                    window.webkit.messageHandlers.openUrl.postMessage(data);
+                } else if (typeof Android !== 'undefined') {
+                    Android.openUrlInBrowser(data)
+                } else {
+                    window.open(data)
+                }
+                break;
+            case 'login':
+                window.webkit.messageHandlers.login.postMessage("a");
+                break;
+            case 'share':
+                window.webkit.messageHandlers.share.postMessage({
+                    text: arr.text,
+                    url: arr.header
+                });
+                break;
+            case 'web':
+                if (window.webkit) {
+                    window.webkit.messageHandlers.web.postMessage(data);
+                } else if (typeof Android !== 'undefined') {
+                    Android.openUrlInBrowser(data)
+                } else {
+                    window.open(data)
+                }
+                break;
+            case 'notisets':
+                window.webkit.messageHandlers.notificationSettings.postMessage("a");
+                break;
+            case 'token':
+                try {
+                    window.webkit.messageHandlers.setUserToken.postMessage(data);
+                } catch (e) {
+                    console.error(e)
+                }
+                break;
+            case 'vibrate':
+                window.webkit.messageHandlers.vibrate.postMessage("a");
+                break;
+            case 'notitoken':
+                window.webkit.messageHandlers.notitoken.postMessage("a");
+                break;
+            case 'webview':
+                if (window.webkit) {
+                    window.webkit.messageHandlers.openWebView.postMessage(data);
+                } else {
+                    Android.displayView(data);
+                }
+                break;
+            case 'copy':
+                if (window.webkit) {
+                    window.webkit.messageHandlers.copy.postMessage(data);
+                } else if (typeof Android !== 'undefined') {
+                    Android.copyItem(data);
+                }
+            case 'paste':
+                if (window.webkit) {
+                    window.webkit.messageHandlers.pasteItem.postMessage('');
+                } else if (typeof Android !== 'undefined') {
+                    Android.pasteItem('');
+                }
+                break;
+            default:
 
-    switch (type) {
-        case 'open':
-            if (window.webkit) {
-                window.webkit.messageHandlers.openUrl.postMessage(data);
-            } else if (typeof Android !== 'undefined') {
-                Android.openUrlInBrowser(data)
-            } else {
-                window.open(data)
-            }
-            break;
-        case 'login':
-            window.webkit.messageHandlers.login.postMessage("a");
-            break;
-        case 'share':
-            window.webkit.messageHandlers.share.postMessage({
-                text: arr.text,
-                url: arr.header
-            });
-            break;
-        case 'web':
-            if (window.webkit) {
-                window.webkit.messageHandlers.web.postMessage(data);
-            } else if (typeof Android !== 'undefined') {
-                Android.openUrlInBrowser(data)
-            } else {
-                window.open(data)
-            }
-            break;
-        case 'notisets':
-            window.webkit.messageHandlers.notificationSettings.postMessage("a");
-            break;
-        case 'token':
-            try {
-                window.webkit.messageHandlers.setUserToken.postMessage(data);
-            } catch (e) {
-                console.error(e)
-            }
-            break;
-        case 'vibrate':
-            window.webkit.messageHandlers.vibrate.postMessage("a");
-            break;
-        case 'notitoken':
-            window.webkit.messageHandlers.notitoken.postMessage("a");
-            break;
-        case 'webview':
-            if (window.webkit) {
-                window.webkit.messageHandlers.openWebView.postMessage(data);
-            } else {
-                Android.displayView(data);
-            }
-            break;
-        case 'copy':
-            if (window.webkit) {
-                window.webkit.messageHandlers.copy.postMessage(data);
-            } else if (typeof Android !== 'undefined') {
-                Android.copyItem(data);
-            }
-        case 'paste':
-            if (window.webkit) {
-                window.webkit.messageHandlers.pasteItem.postMessage('');
-            } else if (typeof Android !== 'undefined') {
-                Android.pasteItem('');
-            }
-            break;
-        default:
-
-            break;
+                break;
+        }
+    } catch (e) {
+        console.error(e)
     }
 }
 
@@ -423,8 +427,8 @@ function filterUrl(data) {
             handleBillingCall({ success: true })
         }
     }
-    
-    
+
+
 }
 
 
@@ -670,7 +674,7 @@ let currentSettings = {};
 
 try {
     const stc = localStorage.getItem('settings')
-    if(stc){
+    if (stc) {
         currentSettings = JSON.parse(stc)
     }
-}catch(e){}
+} catch (e) { }

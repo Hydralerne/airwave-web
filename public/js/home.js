@@ -57,7 +57,6 @@ async function getHome() {
     }
     try {
         const info = { status: 'true', fcm: localStorage.getItem('notitoken'), osVersion: localStorage.getItem('osVersion'), deviceManufacturer: localStorage.getItem('deviceManufacturer'), androidID: localStorage.getItem('androidID'), deviceModel: localStorage.getItem('deviceModel'), version: version, url: window.location.href, page: window.location.host, path: window.location.pathname, query: window.location.search }
-
         const response = await fetch('https://api.onvo.me/music/home', {
             method: 'POST',
             headers: {
@@ -65,8 +64,6 @@ async function getHome() {
                 'Authorization': `Bearer ${await getToken()}`
             },
             body: JSON.stringify(info)
-        }).catch(e => {
-            console.error(e)
         })
         const data = await response.json();
         homeData = data;
@@ -598,9 +595,9 @@ function infoProfile() {
     let options = `
     <div class="switch-options options-profile">
     ${!isOwner ? `<div ${touchPackage} class="swtich-option-tap block-list-tap"><span></span><section><a>Block user</a></section></div>` : ''}
-        <div ${touchPackage} class="swtich-option-tap share-list-tap" onclick="document.querySelector('.back-replyer-switching').click();setTimeout(() => {share(this)},200)"><span></span><section><a>Share Link</a></section></div>
+        <div ${touchPackage} class="swtich-option-tap share-list-tap" onclick="document.querySelector('.back-replyer-switching').click();setTimeout(() => {shareProfile()},200)"><span></span><section><a>Share Link</a></section></div>
         <div ${touchPackage} class="swtich-option-tap report-list-tap" onclick="report()"><span></span><section><a>Report ${!isOwner ? 'user' : 'bug'}</a></section></div>
-        <div ${touchPackage} class="swtich-option-tap open-onvo-list-tap"><span></span><section><a>Open in ONVO</a></section></div>
+        <div ${touchPackage} class="swtich-option-tap open-onvo-list-tap" onclick="interface('web','https://onvo.me/${currentProfile.username}')"><span></span><section><a>Open in ONVO</a></section></div>
  </div>
     `
     drag('options', options)
@@ -976,7 +973,7 @@ async function miniDialog(text) {
     }, 3000)
 }
 
-function printLiveCard(live){
+function printLiveCard(live) {
     const isJoined = liveBody.getAttribute('dataid') == live.live_id
     const poster = pI(live?.playing?.poster?.url || live?.playing?.poster)
     getColors(poster, 5).then(colors => {
@@ -1129,6 +1126,11 @@ async function printCache() {
 
 try {
     topTracksApple()
+} catch (e) {
+    console.error(e)
+}
+
+try {
     printCache();
 } catch (e) {
     console.error(e)
@@ -1208,7 +1210,7 @@ document.querySelectorAll('.generes-section').forEach(btn => {
         }
         document.querySelector('.main-inset-hits').innerHTML = loaders
         console.log(this.getAttribute('dataid'))
-        const list = await getSpotifyList(this.getAttribute('dataid'),0,5)
+        const list = await getSpotifyList(this.getAttribute('dataid'), 0, 5)
         console.log(list)
         const songsData = printSongsRegular(list.tracks, 5);
         document.querySelector('.main-inset-hits').innerHTML = songsData.html
@@ -1337,16 +1339,16 @@ function clearReformLib() {
 
 }
 
-function actualLoadingLib(){
-
-}
+let offsetLib = 0
 
 let loadingLib = false
-document.querySelector('.liberary')?.addEventListener('scroll',function(){
+const libBody = document.querySelector('.library-body')
+document.querySelector('.liberary')?.addEventListener('scroll', async function () {
     if (!loadingLib) {
-        if (this.scrollTop > (musicSection.offsetHeight - 500) && !loadingLib) {
+        if (this.scrollTop > (libBody.offsetHeight - 800) && !loadingLib) {
             loadingLib = true;
-            actualLoadingLib(this.getAttribute('action'));
+            await runReformLib(this.getAttribute('action'), 20, offsetLib);
+            loadingLib = false 
         }
     }
 })
@@ -1448,6 +1450,7 @@ async function closePages() {
             closeImporting();
         }
     })
+    document.body.classList.remove('hideoverflow')
     await delay(200);
     return
 }
@@ -1477,12 +1480,15 @@ function getJson(dir) {
 }
 
 async function showLibrary(id) {
-    const data = getJson('lib')
-    if (data) {
-        printLibrary(data)
-    } else {
-        resetLib();
+    resetLib();
+    if(!id){
+        const data = getJson('lib')
+        if (data) {
+            printLibrary(data)
+        }
     }
+    
+    document.body.classList.add('hideoverflow')
     const parent = document.querySelector('.liberary')
     parent.classList.remove('hidden')
     fetch(`https://api.onvo.me/music/library${id ? `/${id}` : ''}`, {
@@ -1493,7 +1499,9 @@ async function showLibrary(id) {
     }).then(response => {
         return response.json();
     }).then(data => {
-        cacheStorage(data, 'lib')
+        if(!id){
+            cacheStorage(data, 'lib')
+        }
         printLibrary(data)
     }).catch(e => {
         console.error(e)
@@ -1577,26 +1585,35 @@ async function printLibrary(data) {
     const page = document.querySelector('.liberary')
     page.setAttribute('dataid', data.owner?.id)
     if (data.owner) {
-        page.classList.add('member');
+        page.classList.add('hosted');
         document.querySelector('.liberary .host-image').style.backgroundImage = `url('${data.owner.image}')`
         document.querySelectorAll('.profile-background.library-background span').forEach(span => { span.style.backgroundImage = `url('${(data.owner.image)}')` });
         document.querySelector('.liberary .text-live-wave p').innerText = `${data.owner.name}'s Library`
     } else {
         document.querySelector('.liberary .host-image').style.backgroundImage = `url('${pI(localStorage.getItem('image'))}')`
-        document.querySelectorAll('.profile-background.library-background span').forEach(span => { span.style.backgroundImage = `url('${localStorage.getItem('image')}')` });
+        document.querySelectorAll('.profile-background.library-background span').forEach(span => { span.style.backgroundImage = `url('${pI(localStorage.getItem('image'))}')` });
         document.querySelector('.liberary .text-live-wave p').innerText = `Your library`
 
-        page.classList.remove('member');
+        page.classList.remove('hosted');
     }
     if (data.playlists?.length > 0) {
         let lists = printListsSquare(data.playlists)
-        document.querySelector('.library-body .inset-playlists-slider-square').innerHTML = lists
+        document.querySelector('.library-body .libraries-lists-container').innerHTML = `<div class="favorites-head">
+        <span>Playlists<a>12</a></span>
+    </div>
+    <div class="outset-playlists-slider-square">
+        <div class="inset-playlists-slider-square">
+            ${lists}
+        </div>
+    </div>`;
     } else {
+        if (!data.owner) {
         document.querySelector('.libraries-lists-container').innerHTML = `<div class="no-playlists-banner">
     <section><span></span><p>Looks like you don't have any playlists, import your playlists now</p>
         </section>
     <div class="start-import" onclick="importPlaylist()" ${touchPackage}><span>start importing playlist</span></div>
     </div>`
+        }
     }
 
     if (data.saved && data.saved?.length > 0) {
@@ -1628,6 +1645,23 @@ document.querySelector('.button-page.library-flex').addEventListener('click', as
     await closePages()
     showLibrary()
 })
+
+async function deleteList(){
+    document.querySelector('.back-replyer-switching').click();
+    const response = await fetch(`https://api.onvo.me/music/playlists/${currentList.id}`,{
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${await getToken()}`
+        }
+    })
+    const data = await response.json();
+    if(data.status == 'success'){
+        dialog('Done','Playlist was deleted successfuly')
+    }
+    closePlaylist()
+    console.log(data)
+}
 
 document.querySelector('.more-playlist')?.addEventListener('click', async function () {
     let options = `
@@ -1756,9 +1790,7 @@ async function fetchList(id, type, userid, offset) {
         return
     }
     ongoingList = id
-    console.log('requesting')
     let url = `https://api.onvo.me/music/playlist/${id}?get=true${id == 'saved' ? `&id=${userid}` : ''}${offset > 0 ? `&offset=${offset}` : ''}`
-    console.log(url)
     const response = await fetch(`${url}`, {
         headers: {
             Authorization: `Bearer ${await getToken()}`
@@ -1845,15 +1877,17 @@ async function submitPlaylist(el) {
 
 
 async function deleteMessage(id) {
-    const response = await fetch('https://api.onvo.me/sendmsg.php', {
+    document.querySelector('.back-replyer-switching').click();
+    const response = await fetch('https://api.onvo.me/onvo/message/send', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
             'Authorization': `Bearer ${await getToken()}`
         },
-        body: new URLSearchParams({ delete: 'submit', id: id, dir: '' }).toString()
+        body: new URLSearchParams({ delete: 'submit', id: id, dir: 'in' }).toString()
     });
     const data = await response.json();
+    console.log(data)
     removeMessage(id)
 }
 
@@ -1862,7 +1896,7 @@ async function deleteMessage(id) {
 function menuPost(el) {
     let options = `
     <div class="switch-options options-profile">
-        <div ${touchPackage} class="swtich-option-tap delete-list-tap" onclick="deleteMessage(this)"><span></span><section><a>Delete message</a></section></div>
+        <div ${touchPackage} class="swtich-option-tap delete-list-tap" onclick="deleteMessage('${el.closest('.post').getAttribute('dataid')}')"><span></span><section><a>Delete message</a></section></div>
         <div ${touchPackage} class="swtich-option-tap report-list-tap" onclick="report()"><span></span><section><a>Report messages</a></section></div>
         <div ${touchPackage} class="swtich-option-tap block-list-tap"><span></span><section><a>Block user</a></section></div>
     </div>
@@ -1901,7 +1935,7 @@ function printQoute(qoute) {
 }
 function printMusic(musicraw) {
     if (musicraw) {
-        return '<div trackurl="' + musicraw.url + '" class="post-music audio-element textarea-music-element"></audio><div class="inner-post-music song" trackid="' + musicraw.id + '" ><div class="post-music-image song-poster" data-poster="'+pI(musicraw.img)+'" data-poster-large="'+pI(musicraw.bimg)+'" style="background-image: url(' + pI(musicraw.img) + ');"></div><div class="info-music-post artist-title" onclick="playTrack(this)"><span>' + musicraw.nm + '</span><a>' + musicraw.art + '</a></div><div class="play-music" onclick="srswAudio($(this));"></div></div></div>';
+        return '<div trackurl="' + musicraw.url + '" class="post-music audio-element textarea-music-element"></audio><div class="inner-post-music song" trackid="' + musicraw.id + '" ><div class="post-music-image song-poster" data-poster="' + pI(musicraw.img) + '" data-poster-large="' + pI(musicraw.bimg) + '" style="background-image: url(' + pI(musicraw.img) + ');"></div><div class="info-music-post artist-title" onclick="playTrack(this)"><span>' + musicraw.nm + '</span><a>' + musicraw.art + '</a></div><div class="play-music" onclick="srswAudio($(this));"></div></div></div>';
     } else {
         return '';
     }
@@ -2233,6 +2267,8 @@ async function showMenu(parent, e) {
 
     lastSelected = rawSongObj
 
+    await delay(200)
+
     const isExist = await checkObjectExists(rawSongObj.id, 'downloads')
 
     try {
@@ -2245,6 +2281,12 @@ async function showMenu(parent, e) {
         document.querySelector('.switch-component.download-ssc').classList.add('downloaded')
     } else {
         document.querySelector('.switch-component.download-ssc').classList.remove('downloaded')
+    }
+
+    if(lastSelected.id == currentSong.id){
+        document.querySelector('.play-more-related').classList.remove('hidden')
+    }else {
+        document.querySelector('.play-more-related').classList.add('hidden')
     }
 
     if (String(currentList.owner?.id) == localStorage.getItem('userid')) {
@@ -2683,34 +2725,38 @@ async function downloadSong(song = lastSelected) {
         return;
     }
     let data = {}
-    let YTCode = currentSong.yt;
+    let YTCode = song.yt;
 
     const songs = document.querySelectorAll(`.song-music-element.song[trackid="${song.id}"]`)
 
     songs.forEach(song => { song.insertAdjacentHTML('beforeend', '<div class="loader-mini"><div class="loader-3 loader-main"><span></span></div></div>') })
-    if (song.api !== 'soundcloud') {
-        if (!YTCode) {
-            const response = await fetch(`${origin}/get-id?q=${encodeURIComponent(`${song.title} ${song.artist}`)}`)
-            const data = await response.json();
-            YTCode = data.id
+    if (!song.source) {
+        if (song.api !== 'soundcloud') {
+            if (!YTCode) {
+                const response = await fetch(`${origin}/get-id?q=${encodeURIComponent(`${song.title} ${song.artist}`)}`)
+                const data = await response.json();
+                YTCode = data.id
+            }
+            if (!YTCode) {
+                dialog('Error occured', 'There\'s an error occured while downloading track, please make report by clicking here <div class="report"><span>Report</span></div>')
+                return
+            }
+            const response = await fetch(`/get-source/?id=${YTCode}`)
+            data = await response.json();
+            console.log('downloading', data)
+        } else {
+            console.log('soundclouding')
+            data = await getTrackByUrl(song.id, 'soundcloud', 'id');
         }
-        if (!YTCode) {
-            dialog('Error occured', 'There\'s an error occured while downloading track, please make report by clicking here <div class="report"><span>Report</span></div>')
-            return
-        }
-        const response = await fetch(`/get-source/?id=${YTCode}`)
-        data = await response.json();
-        console.log('downloading', data)
     } else {
-        console.log('soundclouding')
-        data = await getTrackByUrl(song.id, 'soundcloud', 'id');
+        data = song.source
     }
     downloading[song.id] = song
     downloading[song.id].yt = YTCode
     coreSocket.send(JSON.stringify({ ct: 'download', trackid: song.id, id: YTCode, url: data.audio || data.url }))
     fetch(pI(song.posterLarge))
+    fetch(pI(song.poster))
     songs.forEach(song => { song.querySelector('.loader-mini').remove() })
-
 }
 
 document.querySelector('.switcher-menu-back').addEventListener('click', function () {
@@ -2725,13 +2771,14 @@ document.querySelector('.switcher-menu-back').addEventListener('click', function
 
 let downloaded = []
 
-async function runReformLib(e) {
-    if (e == 'downloads') {
-        downloaded = await getAllObjects('downloads')
+async function runReformLib(e, limit = 20, offset = 0) {
+    if (e === 'downloads') {
+        const downloaded = await getAllObjects('downloads', 'musicDB', limit, offset);
+        offsetLib += downloaded.length
         const { html } = printSongsRegular(downloaded);
-        document.querySelector('.downloads-container').innerHTML = html
-        const count = await getObjectCount('downloads')
-        document.querySelector('.downloads-tracks-container .favorites-head span a').innerText = count
+        document.querySelector('.downloads-container').insertAdjacentHTML('beforeend',html);
+        const count = await getObjectCount('downloads');
+        document.querySelector('.downloads-tracks-container .favorites-head span a').innerText = count;
     } else {
 
     }
@@ -2743,10 +2790,10 @@ async function handleDownloadProccess(data) {
             poster.innerHTML = `<div class="loader-conter p-${data.percent}"></div>`
         })
         if (data.status == 'finished') {
+            delete downloading[data.trackid].source
             downloading[data.trackid].path = data.path
             await setObject(data.trackid, downloading[data.trackid], 'downloads')
-            const lyrics = await fetchLyrics(downloading[data.trackid], downloading[data.trackid].youtube)
-            console.log(lyrics)
+            const lyrics = await fetchLyrics(downloading[data.trackid], downloading[data.trackid].yt)
             await setObject(data.trackid, lyrics, 'lyrics')
             delete downloading[data.trackid]
             miniDialog('Download complete')
@@ -2778,9 +2825,10 @@ async function goOffline(e) {
         return
     }
     const connection = await check('https://google.com');
-    if (connection && !e) {
-        return;
-    }
+    console.log(connection, 'thereasdsadasd')
+    // if (connection && !e) {
+    //     return;
+    // }
     isOffline = true
     let banner = `<div class="home-section banner-home offline-banner">
         <div class="inner-banner-home">
@@ -2818,6 +2866,8 @@ async function goOffline(e) {
         document.querySelector('.going-live').innerHTML = banner
         document.querySelector('.home-section').remove()
     }
+    document.body.classList.add('offline')
+    document.querySelector('.loadermain')?.remove()
 }
 
 

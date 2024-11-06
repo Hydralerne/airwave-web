@@ -79,20 +79,20 @@ async function resetPlayList(e) {
     let slides = ''
     for (i = 0; i < 10; i++) {
         songs += songLoaderEffect
-        slides += slide 
+        slides += slide
     }
     doneloadList = false
     currentList = {}
     listOffset = 0
     document.querySelector('.music-section').innerHTML = songs
-    document.querySelectorAll('.playlist-name section a').forEach(a => {a.innerText = ''})
+    document.querySelectorAll('.playlist-name section a').forEach(a => { a.innerText = '' })
     document.querySelector('.playlists-page').className = `playlists-page page ${!e ? 'center' : ''} loading`
     document.querySelector('.inset-playlist-posters-slider').innerHTML = slides
     await delay(50)
-    if(e){
+    if (e) {
         mvhot.destroy();
         mvhot = null
-    }else {
+    } else {
         updateListSlider();
     }
 }
@@ -155,33 +155,36 @@ const liveCardLoad = `
 
 function resetLib() {
 
+    try {
 
-    let artists = ''
-    let lists = ''
-    let recents = ''
-    for (i = 0; i < 5; i++) {
-        recents += recentLoader
-        lists += listLoader
-        artists += artistLoaderLib
+        let artists = ''
+        let lists = ''
+        let recents = ''
+        for (i = 0; i < 5; i++) {
+            recents += recentLoader
+            lists += listLoader
+            artists += artistLoaderLib
+        }
+
+        document.querySelector('.libraries-lists-container').classList.remove('hidden')
+        document.querySelector('.saved-tracks-container').classList.remove('hidden')
+        document.querySelector('.recent-library').classList.remove('hidden')
+        document.querySelector('.features-artists-lib').classList.remove('hidden')
+
+        document.querySelector('.library-body .inset-recently-played').innerHTML = recents
+        document.querySelector('.library-body .inset-playlists-slider-square').innerHTML = lists
+        document.querySelector('.library-body .inset-artists').innerHTML = artists
+    } catch (e) {
+        console.error(e)
     }
-
-    document.querySelector('.libraries-lists-container').classList.remove('hidden')
-    document.querySelector('.saved-tracks-container').classList.remove('hidden')
-    document.querySelector('.recent-library').classList.remove('hidden')
-    document.querySelector('.features-artists-lib').classList.remove('hidden')
-
-    document.querySelector('.library-body .inset-recently-played').innerHTML = recents
-    document.querySelector('.library-body .inset-playlists-slider-square').innerHTML = lists
-    document.querySelector('.library-body .inset-artists').innerHTML = artists
-
 }
 
 
-function resetArtist(){
+function resetArtist() {
     let loaderSongs = ''
     let artists = ''
     let recents = ''
-    for(i = 0;i < 10;i++){
+    for (i = 0; i < 10; i++) {
         loaderSongs += songLoaderEffect
         artists += artistLoaderLib
         recents += recentLoader
@@ -191,8 +194,8 @@ function resetArtist(){
     document.querySelector('.similar-artist-artist').innerHTML = loaderSongs
 }
 
-function loadProfile(){
-    
+function loadProfile() {
+
 }
 
 const touchPackage = `ontouchstart="op(this,true)" ontouchend="op(this)" ontouchmove="op(this)"`
