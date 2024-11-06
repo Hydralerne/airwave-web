@@ -11,7 +11,7 @@ const core = require(path.join(__dirname, 'handler.js'));
 const spotify = require(path.join(__dirname, 'spotify.js'));
 const ytdlp = require(path.join(__dirname, 'ytdlp', 'youtube.js'));
 const { cloneRepo, createWebSocket, proxyImages, downloadHandler, removeImages } = require(path.join(__dirname, 'proxy.js'));
-
+const { getYotuubeMusicList } = require(path.join(__dirname, 'youtube.js'));
 const remotePathDir = path.join(process.argv[2], 'remote');
 const remotePath = path.join(remotePathDir, 'airwave-remote', 'main.js');
 
@@ -78,9 +78,9 @@ const accessControlBlock = (req, res, next) => {
     }
 };
 
-const blockWeb = (req,res,next) => {
-    if(isWeb){
-        return res.json({error: 'access_denied'})
+const blockWeb = (req, res, next) => {
+    if (isWeb) {
+        return res.json({ error: 'access_denied' })
     }
     next()
 }
@@ -103,7 +103,7 @@ app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-app.get('/append',blockWeb, async (req, res) => {
+app.get('/append', blockWeb, async (req, res) => {
     try {
         await cloneRepo(decodeURIComponent(req.query.url), remotePathDir, (percent) => {
             console.log(percent)
@@ -113,7 +113,7 @@ app.get('/append',blockWeb, async (req, res) => {
         res.json({ error: e.message })
     }
 })
-app.get('/spotify/:method',cors(),  async (req, res) => {
+app.get('/spotify/:method', cors(), async (req, res) => {
     try {
         let json = {}
         if (req.params.method == 'playlist') {
@@ -127,9 +127,9 @@ app.get('/spotify/:method',cors(),  async (req, res) => {
     }
 })
 
-app.get('/clear',blockWeb, removeImages);
+app.get('/clear', blockWeb, removeImages);
 
-app.get('/proxy',blockWeb, proxyImages);
+app.get('/proxy', blockWeb, proxyImages);
 
 app.get('/get-id', async (req, res) => {
     const { q } = req.query
@@ -137,7 +137,7 @@ app.get('/get-id', async (req, res) => {
     res.json({ id: videoId })
 });
 
-app.get('/music',blockWeb, (req, res) => {
+app.get('/music', blockWeb, (req, res) => {
     res.render('musicBody', { req: req })
 });
 app.get('/profile', (req, res) => {
@@ -157,9 +157,9 @@ const performMeta = (data) => {
     `
 }
 
-app.get('/radio/:id',async (req, res) => {
+app.get('/radio/:id', async (req, res) => {
     try {
-        const response = await fetch(`https://api.onvo.me/music/channels?id=${req.params.id}`,{
+        const response = await fetch(`https://api.onvo.me/music/channels?id=${req.params.id}`, {
             headers: {
                 Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJodHRwczovL2FwaS5vbnZvLm1lIiwiZXhwIjoxODMwNzMzMTg5LCJpZCI6ImpyMWdyNTM0MHQ1aHFrM2Fjc2Q3cDYwOTNyIiwidnIiOiIxLjIifQ.5Gz91ZE-CJT3bHQphOjrn0Lp0lc8qYwi5Z2WOs6tNWc`
             }
@@ -168,9 +168,9 @@ app.get('/radio/:id',async (req, res) => {
         req.radio = JSON.stringify(data)
         req.meta = performMeta({
             title: `Join ${data.owner.fullname}'s Live party`,
-            image: data.owner.image?.replace('/profile/','/profile_frame/')
+            image: data.owner.image?.replace('/profile/', '/profile_frame/')
         })
-    }catch(e){
+    } catch (e) {
         console.error(e)
     }
     res.render('index', { req: req })
@@ -269,6 +269,7 @@ app.get('/youtube/search', async (req, res) => {
     }
 });
 
+app.get('/youtube/music/playlist', getYotuubeMusicList);
 app.get('/youtube/playlist', async (req, res) => {
     try {
         const data = await getYoutubeList(req)
@@ -332,7 +333,7 @@ app.get('/raw/:body', (req, res) => {
     }
 });
 
-app.post('/download',blockWeb, async (req, res) => {
+app.post('/download', blockWeb, async (req, res) => {
     const { id, path } = req.body;
     try {
         let outputPath = path.join(process.argv[2], 'downloads', String(id));
@@ -343,7 +344,7 @@ app.post('/download',blockWeb, async (req, res) => {
     }
 });
 
-app.post('/download',blockWeb, async (req, res) => {
+app.post('/download', blockWeb, async (req, res) => {
     const { id, url, trackid } = req.body;
     try {
         if (!id || !url) {
@@ -357,7 +358,7 @@ app.post('/download',blockWeb, async (req, res) => {
     }
 });
 
-app.get('/retrieve',blockWeb, (req, res) => {
+app.get('/retrieve', blockWeb, (req, res) => {
     try {
         const { id, raw } = req.query;
 
@@ -388,7 +389,7 @@ app.get('/retrieve',blockWeb, (req, res) => {
         res.json({ error: e.message })
     }
 });
-app.post('/test',blockWeb, async (req, res) => {
+app.post('/test', blockWeb, async (req, res) => {
     try {
         const response = await fetch(req.body.url, {
             method: 'HEAD', // Change this to GET instead of HEAD
@@ -408,11 +409,11 @@ app.post('/test',blockWeb, async (req, res) => {
 app.get('/check', (req, res) => {
     res.json({ status: 'success' })
 });
-app.post('/log-error',blockWeb, (req, res) => {
+app.post('/log-error', blockWeb, (req, res) => {
     console.log(req.body)
     res.json({ status: 'success' })
 });
-app.get('/check_audio',blockWeb, (req, res) => {
+app.get('/check_audio', blockWeb, (req, res) => {
     try {
         const { id } = req.query;
 
@@ -472,8 +473,8 @@ app.get('/:endpoint/:id?', async (req, res) => {
     try {
         const { endpoint, id } = req.params
         const isCut = getApiCut(endpoint)
-        if(isCut){
-            req.track = {api: isCut, id}
+        if (isCut) {
+            req.track = { api: isCut, id }
             return res.render('index', { req: req })
         }
         if (!endpoint) {

@@ -3259,12 +3259,12 @@ document.querySelector('.control-eue.mute-song').addEventListener('click', funct
     mute(true)
 })
 
-async function saveSong(el, song = currentSong) {
+async function saveSong(el, track = currentSong) {
     if (el.classList.contains('disabled')) {
         return;
     }
-    const id = song.id
-    const api = song.api
+    const id = track.id
+    const api = track.api
     let playlist_id = 'saved';
     let e = true;
     try {
@@ -3298,7 +3298,7 @@ async function saveSong(el, song = currentSong) {
         console.error(e)
     }
     el.classList.add('disabled')
-    const body = { trackid: id, api, playlist_id, track: e ? song : {}, type: 'track' }
+    const body = { id: song.id, api: track.api, playlist_id, track, type: 'track' }
     console.log(body)
     fetch(`https://api.onvo.me/music/save`, {
         method: e ? 'POST' : 'DELETE',

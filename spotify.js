@@ -61,19 +61,23 @@ const createSpotifyUrl = (playlistId, offset = 0, limit = 100, version = 1, sha2
 const filterSpotifyTracks = (tracksRaw) => {
     let tracks = []
     tracksRaw.forEach(track => {
-        const raw = track.itemV2.data
-        tracks.push({
-            api: 'spotify',
-            id: raw.uri.replace('spotify:track:', ''),
-            title: raw.name,
-            artist: raw.artists.items.map(artist => { return artist.profile.name }).join(', '),
-            poster: raw.albumOfTrack.coverArt.sources[1].url,
-            posterLarge: raw.albumOfTrack.coverArt.sources[2].url,
-            duration: raw.trackDuration.totalMilliseconds,
-            play_count: raw.playcount,
-            album: raw.albumOfTrack.name,
-            albumID: raw.albumOfTrack.uri.replace('spotify:album:', ''),
-        })
+        try {
+            const raw = track.itemV2.data
+            tracks.push({
+                api: 'spotify',
+                id: raw.uri.replace('spotify:track:', ''),
+                title: raw.name,
+                artist: raw.artists.items.map(artist => { return artist.profile.name }).join(', '),
+                poster: raw.albumOfTrack.coverArt.sources[1].url,
+                posterLarge: raw.albumOfTrack.coverArt.sources[2].url,
+                duration: raw.trackDuration.totalMilliseconds,
+                play_count: raw.playcount,
+                album: raw.albumOfTrack.name,
+                albumID: raw.albumOfTrack.uri.replace('spotify:album:', ''),
+            })
+        } catch (e) {
+            console.error(e)
+        }
     });
     return tracks
 }
