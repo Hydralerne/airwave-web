@@ -1657,7 +1657,6 @@ let getStabledTime;
 
 async function getYTcode(title, artist, id) {
     const q = `${title} ${artist}`
-    console.log(q)
     if (!id) {
         const url = `${origin}/get-id?q=${encodeURIComponent(q)}`
         const response = await fetch(url)
@@ -1737,6 +1736,12 @@ function extractPlaylistId(url) {
 }
 
 async function minimizePlayer(page = document.querySelector('.body')) {
+    try {
+        lyricsPaused = true
+        loader.pause();
+    }catch(e){
+        console.error(e)
+    }
     document.querySelector('.timeline').classList.remove('hidden')
     window.scrollTo(0, scrollCurrent)
     page.classList.remove('center');
@@ -1762,6 +1767,12 @@ async function minimizePlayer(page = document.querySelector('.body')) {
 
 let scrollCurrent = 0;
 function showThePlayer(page = liveBody) {
+    try {
+        lyricsPaused = false
+        loader.resume();
+    }catch(e){
+        console.error(e)
+    }
     page.classList.remove('center')
     const timeline = document.querySelector('.timeline')
     scrollCurrent = window.screenY;
@@ -3639,7 +3650,11 @@ function endLyricReached() {
     console.log('ended')
 }
 
+let lyricsPaused = false
 function seekLyrics(time) {
+    if(lyricsPaused){
+        return
+    }
     try {
         const matchedLyric = jsonLyrics.lyrics?.find((lyric, index) => {
             return time >= lyric.start && time < lyric.end;

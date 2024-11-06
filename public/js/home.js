@@ -2522,13 +2522,13 @@ const printViewLists = (data) => {
 
     data.forEach(list => {
         html += `
-         <div class="playlist-inner-container" onclick="openPlaylist('${list.playlist_id}','${list.api || 'wave'}')" api="${list.api}" type="${list.type}" playlist-id="${list.playlist_id}" dataid="${list.id}">
-         <section>${list.perview.map(img => `<span style="background-image: url(${pI(img)})"></span>`).join('')}</section>
-         <div class="grid-list-info">
+         <div class="playlist-inner-container" api="${list.api}" type="${list.type}" playlist-id="${list.playlist_id}" dataid="${list.id}">
+         <section onclick="openPlaylist('${list.playlist_id}','${list.api || 'wave'}')">${list.perview.map(img => `<span style="background-image: url(${pI(img)})"></span>`).join('')}</section>
+         <div onclick="openPlaylist('${list.playlist_id}','${list.api || 'wave'}')" class="grid-list-info">
             <a>${list.name}</a>
             <p>${list.tracks_count} tracks</p>
          </div>
-         ${list.type == 'manual' ? `<div class="add-list-sub" onclick="appendToList(this,this.closest('.playlist-inner-container').getAttribute('dataid'))" ${touchPackage}></div>` : ''}
+         <div class="add-list-sub" onclick="appendToList(this,this.closest('.playlist-inner-container').getAttribute('dataid'))" ${touchPackage}></div>
          </div>
         `
     })

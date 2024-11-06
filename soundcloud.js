@@ -42,14 +42,18 @@ const getSoundListTracks = async (data, with_tracks, offset = 0, limit = 20, cli
     let pendingTracks = []
 
     data.slice(offset, offset + limit).forEach(track => {
-        if (with_tracks) {
-            if (track.artwork_url) {
-                tracks.push(trackScrap(track));
-            } else if ((tracks.length + pendingTracks.length) < limit) {
-                pendingTracks.push(track.id);
+        try {
+            if (with_tracks) {
+                if (track.artwork_url) {
+                    tracks.push(trackScrap(track));
+                } else if ((tracks.length + pendingTracks.length) < limit) {
+                    pendingTracks.push(track.id);
+                }
+            } else {
+                tracks.push(track.id);
             }
-        } else {
-            tracks.push(track.id);
+        } catch (e) {
+            console.log(e)
         }
     });
 
