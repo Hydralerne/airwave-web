@@ -630,7 +630,7 @@ input {
     margin: auto;
     min-height: 200px;
     height: fit-content;
-    margin-right: 6%;
+    margin-right: calc(6% - 8px);
     z-index: 999;
     transform: translateY(-100px);
 }
@@ -644,11 +644,6 @@ input {
     background-size: cover;
     background-position: center;
 }
-
-.inset-vertical {
-    margin-right: -8px;
-}
-
 
 
 .msg {
@@ -1647,7 +1642,7 @@ input {
     font-family: var(--regular);
     font-size: 12px;
     width: 100%;
-    margin-top: 8px;
+    margin-top: 25px;
     position: absolute;
     text-align: center;
     left: 0;
@@ -3590,6 +3585,7 @@ div#fireworks {
 .live .status-wrapper {
     width: calc(100% - 100px);
     margin-left: 50px;
+    z-index: 9;
 }
 
 .alert-chat:before {
@@ -4226,12 +4222,11 @@ input#audioStatusBar {
 .magnetic {
     transition: left 0.2s ease;
 }
-
 .msg-reacts {
     position: absolute;
     width: fit-content;
     height: 40px;
-    background: #3c3c3c;
+    background: #000;
     border-radius: 50px;
     margin-top: -82px;
     display: flex;
@@ -4247,40 +4242,35 @@ input#audioStatusBar {
     height: 24px;
     border-radius: 50px;
     margin-right: 10px;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
 }
 
 .msg-reacts div:first-child {
     margin-left: 10px;
 }
 
-.msg-reacts div:before {
-    content: '';
-    width: 100%;
-    height: 100%;
-    background-position: center;
-    background-size: contain;
-    background-repeat: no-repeat;
+.love {
     background-image: url(/assets/emoji/rh.png);
-    display: flex;
 }
-
-.msg-reacts div:nth-of-type(2):before {
+.angry {
     background-image: url(/assets/emoji/angry.png);
 }
 
-.msg-reacts div:nth-of-type(3):before {
+.haha {
     background-image: url(/assets/emoji/haha.png);
 }
 
-.msg-reacts div:nth-of-type(4):before {
+.sad {
     background-image: url(/assets/emoji/cry.png);
 }
 
-.msg-reacts div:nth-of-type(5):before {
+.onfire {
     background-image: url(/assets/emoji/fire.png);
 }
 
-.msg-reacts div:nth-of-type(6):before {
+.skull {
     background-image: url(/assets/emoji/skull.png);
 }
 .msg-core.msg-effect span,.msg-core.msg-effect p {
@@ -4289,4 +4279,50 @@ input#audioStatusBar {
 
 .msg-core.msg-effect {
     background: rgb(255 255 255 / 5%);
+}
+
+div {}
+
+.reactions-sets {
+    position: absolute;
+    display: flex;
+    bottom: 0;
+    height: fit-content;
+    margin-bottom: -20px;
+    margin-left: -5px;
+}
+
+.reacted.msg-core {
+    margin-bottom: 25px!important;
+}
+
+.msg-core .reactions-sets span {
+    width: 15px;
+    height: 15px;
+    opacity: 1;
+    border-radius: 50px;
+    margin-left: -2px!important;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    margin-top: 5px;
+    margin-right: 8px;
+}
+
+.reactions-sets div {
+    display: flex;
+    background: #000;
+    border-radius: 50px;
+    bottom: 0;
+    padding-right: 10px;
+    height: 24px;
+    top: 0;
+    position: relative;
+    padding-left: 10px;
+}
+
+.reactions-sets a {
+    font-size: 12px!important;
+    line-height: 20px;
+    opacity: 0.5;
 }

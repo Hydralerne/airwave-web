@@ -2592,6 +2592,9 @@ document.querySelector('.download-playlist')?.addEventListener('click', function
 document.querySelector('.run-playlist').addEventListener('click', function () {
     this.classList.toggle('played')
     if (!document.querySelector('.music-section .running')) {
+        if(currentList.tracks?.tracks?.length > 3){
+            queueTracks = currentList.tracks
+        }
         playTrack(document.querySelector('.music-section .song-music-element .artist-title'))
     } else {
         handlePlayPause()

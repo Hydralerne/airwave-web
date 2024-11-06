@@ -1555,7 +1555,6 @@ function getSource(id, retries = 3) {
                 if (data.url) {
                     resolve(data);
                 } else if (attempts > 0) {
-                    console.log(`Retrying... Attempts left: ${attempts}`);
                     fetchData(attempts - 1);
                 } else {
                     miniDialog('Failed to load track');
@@ -1563,7 +1562,6 @@ function getSource(id, retries = 3) {
                 }
             } catch (e) {
                 if (attempts > 0) {
-                    console.log(`Retrying due to error... Attempts left: ${attempts}`);
                     fetchData(attempts - 1);
                 } else {
                     miniDialog('Failed to load track');
@@ -1927,21 +1925,22 @@ let isMuted = false;
 
 async function callbackSource(data, e) {
     if (data.ct == 'source') {
-        playTrack(data.track, true)
+        await playTrack(data.track, true)
+    } else if (data.live?.playing) {
+        await playTrack(data.live?.playing, true)
+    } else {
         return
     }
-    if (data.live?.playing) {
-        await playTrack(data.live?.playing, true)
-        const time = parseInt(data.live?.playbackPosition) || 0
-        seek(time);
-        if (data.live?.playbackStatus == 'pause') {
-            globalPause = true
-            pause()
-        } else {
-            play();
-            globalPause = false;
-            document.querySelector('.play-pause').classList.add('played')
-        }
+
+    await delay(500)
+    const time = parseInt(data.live?.playbackPosition) || 0
+    seek(time);
+    if (data.live?.playbackStatus == 'pause') {
+        globalPause = true
+        pause()
+    } else {
+        play();
+        globalPause = false;
     }
 }
 
@@ -2839,7 +2838,7 @@ async function updateUsersInChat() {
         }
     });
 
-    document.querySelector('.user-wave.users').insertAdjacentHTML('beforebegin', html);
+    document.querySelector('.inset-vertical').insertAdjacentHTML('beforeend', html);
 
     document.querySelector('.user-wave.users a').innerText = `${data.size}`;
 
@@ -2948,15 +2947,77 @@ function emojiesOutclick(event) {
     document.querySelector('.msg-reacts').remove()
 }
 
-function callReact(el, e) {
+function setReact(id, react, reacter, parent = document.querySelector('.msg-core[dataid="' + id + '"]')) {
+    if (!reacts[id]) {
+        reacts[id] = {}
+    }
+    if (reacts[id][reacter] == react) {
+        delete reacts[id][reacter]
+        if (Object.keys(reacts[id]).length == 0) {
+            removeReact(id, react, parent)
+        } else {
+            parent.querySelector('.reactions-sets div a').innerText = (parseInt(parent.querySelector('a')) || 0) - 1
+        }
+    } else {
+        if (reacts[id][reacter]) {
+            removeReact(id, reacts[id][reacter], parent)
+        }
+        reacts[id][reacter] = react
+        addReact(id, react, parent)
+    }
+}
+
+function callReact(el, reacter = localStorage.getItem('userid')) {
+    const parent = el.closest('.msg-core')
+    const id = parent.getAttribute('dataid')
+    const react = el.className
+    setReact(id, react, reacter, parent)
     document.querySelectorAll('.msg-reacts').forEach(rc => { rc.remove() })
-    sendSocket({ ct: 'chat', action: 'react', react: e, id: el.closest('.msg').getAttribute('dataid') })
+    sendSocket({ ct: 'react', react: react, id: id })
     document.removeEventListener('touchstart', emojiesOutclick)
 }
 
+let removeReact = (id, react, el) => {
+    if (!el) {
+        el = document.querySelector('.msg-core[dataid="' + id + '"]')
+    }
+    const parent = el.querySelector('.reactions-sets div')
+    if (parent) {
+        parent.querySelector('.' + react)?.remove();
+        if (parent.querySelectorAll('span').length == 0) {
+            el.querySelector('.reactions-sets').remove();
+            el.classList.remove('reacted')
+        }
+        parent.querySelector('a').innerText = (parseInt(parent.querySelector('a')) || 0) - 1
+        return
+    }
+}
+
+let addReact = (id, react, el) => {
+    if (!el) {
+        el = document.querySelector('.msg-core[dataid="' + id + '"]')
+    }
+    const parent = el.querySelector('.reactions-sets div')
+    if (parent) {
+        if (!parent.querySelector('.' + react)) {
+            parent.insertAdjacentHTML('afterbegin', '<span class="' + react + '"></span>')
+        }
+        parent.querySelector('a').innerText = (parseInt(parent.querySelector('a')) || 0) + 1
+        return
+    }
+    let main = `
+        <div class="reactions-sets" onclick="showReactions(this)">
+            <div><span class="${react}"></span><a>1</a></div>
+        </div>`
+    el.classList.add('reacted')
+    el.insertAdjacentHTML('beforeend', main)
+}
+
+let reacts = {}
+
 let addEmojies = (el) => {
     document.querySelectorAll('.msg-reacts').forEach(rc => { rc.remove() })
-    let html = `<div class="msg-reacts"><div onclick="callReact(this,1)"></div><div onclick="callReact(this,2)"></div><div onclick="callReact(this,3)"></div><div onclick="callReact(this,4)"></div><div onclick="callReact(this,5)"></div><div onclick="callReact(this,6)"></div></div>`
+    let html = `<div class="msg-reacts"><div class="love" onclick="callReact(this)"></div><div class="angry" onclick="callReact(this)"></div><div class="haha" onclick="callReact(this)"></div><div class="sad" onclick="callReact(this)"></div><div class="onfire" onclick="callReact(this)"></div><div class="skull" onclick="callReact(this)"></div></div>`
     if (el.querySelector('.msg-reacts')) {
         return
     }
@@ -2973,8 +3034,7 @@ let coringMessage = function (data) {
         html = `
         <div class="msg-core" ontouchstart="holdMsg(event, this)" ontouchend="holdMsg(event, this, 'end')" ontouchmove="holdMsg(event, this, 'move')" dataid="${data.msgid}">
             <p>${data.text ? encodeHtmlEntities(data.text) : ''}</p>
-            <span>${data.now.getMinutes()}:${data.now.getSeconds()}</span>
-            <a class="user-dt" onclick="redRep(this)"></a>
+            <span>${data.now.hr}:${data.now.min}</span>
         </div>`
     }
     return html;
@@ -2983,7 +3043,11 @@ let coringMessage = function (data) {
 const scrollerChatContainer = document.querySelector('.outset-chat-container');
 
 async function appendChat(id, text, msgid, repid, external) {
-    const now = new Date();
+    const date = new Date();
+    const now = {
+        hr: String(date.getHours()).padStart(2, '0'),
+        min: String(date.getMinutes()).padStart(2, '0')
+    };
     let image, name;
     let isYou = false;
     let html = '', reply = '';
@@ -3098,13 +3162,16 @@ async function handleIncomingVideoStatus(data) {
             pause();
             break;
         case 'play':
-            if (currentSong.id !== data.track?.id && data.track) {
+            if (currentSong.id !== data.track?.id && data.track?.id) {
                 await playTrack(data.track, true)
+            } else {
+                play()
             }
-            if (Math.abs(audioPlayer.currentTime - data.time) > 2) {
+            await delay(500)
+            if (Math.abs(audioPlayer.currentTime - data.time) > 5) {
                 seek(data.time);
+                seekForce(data.time)
             }
-            play();
         case 'move':
             seek(data.time);
             seekForce(data.time)
@@ -3166,6 +3233,8 @@ function control(data) {
         handleIncomingVideoStatus(data)
     } if (data.ct == 'chat') {
         appendChat(data.i, data.t, data.id, data.r, data.external)
+    } if (data.ct == 'react') {
+        setReact(data.id, data.react, data.reacter)
     } if (data.ct == 'joined') {
         partyControl.set(data.i, { role: data.info.role, info: data.info });
         appendAlert({ text: data.info?.fullname + ' has <a>joined</a> party', id: data.i, image: data.info?.image });
@@ -3242,7 +3311,7 @@ function control(data) {
 }
 
 function mute(e = true) {
-    if(typeof Android !== 'undefined'){
+    if (typeof Android !== 'undefined') {
         Android.muted(e)
         return
     }
@@ -3864,8 +3933,6 @@ function renderLyrics(data) {
     } else {
         shortenedLyrics = data.lyrics.slice(0, 150)
     }
-
-    console.log(shortenedLyrics)
     shortenedLyrics.forEach((line, index) => {
         html += `<text class="swiper-slide" onclick="lyricsClick(this)" ontouchmove="holdEffect(this);" ontouchend="holdEffect(this)" ontouchstart="holdEffect(this,true)" dataid="${index}" start="${line.start}" end="${line.end}">${line.text}</text>`;
     })

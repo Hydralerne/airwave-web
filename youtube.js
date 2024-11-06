@@ -1,5 +1,4 @@
 
-const cheerio = require('cheerio');
 let fetch;
 
 (async () => {
@@ -41,20 +40,88 @@ function filterYoutubeScrap(textData) {
     }
 
     if (matches.length > 0) {
-        return JSON.parse(matches[1]);
+        return matches
     } else {
-        console.log('Data not found');
         return [];
     }
 }
 
-const getYotuubeMusicList = async (req, res) => {
-    const url = decodeURIComponent(req.query.url)
-    const response = await scrap(url)
+// const getYotuubeMusicList = async (req, res) => {
+//     const url = decodeURIComponent(req.query.url)
+//     const response = await scrap(url)
+//     const html = await response.text();
+//     const data = filterYoutubeScrap(html)
+//     res.send(data)
+// }
+
+const getYotuubeMusicList = async (req, res) => { 
+    const url = decodeURIComponent(req.query.url);
+    const response = await scrap(url);
     const html = await response.text();
-    const data = filterYoutubeScrap(html)
-    res.send(data)
-}
+    const main = filterYoutubeScrap(html);
+    const rawData = JSON.parse(main[1])
+    const metaData = JSON.parse(main[0])
+
+    console.log('scraping')
+
+    const playlistId = rawData.contents.twoColumnBrowseResultsRenderer.secondaryContents.sectionListRenderer.contents[0].musicPlaylistShelfRenderer.playlistId;
+    const trackItems = rawData.contents.twoColumnBrowseResultsRenderer.secondaryContents.sectionListRenderer.contents[0].musicPlaylistShelfRenderer.contents;
+    const playlistTitle = rawData.contents.twoColumnBrowseResultsRenderer.tabs[0].tabRenderer.content.sectionListRenderer.contents[0].musicResponsiveHeaderRenderer.title.runs[0].text;
+    const owner = rawData.contents?.twoColumnBrowseResultsRenderer?.tabs?.[0]?.tabRenderer?.content?.sectionListRenderer?.contents?.[0]?.musicResponsiveHeaderRenderer;
+    const ownerName = owner?.straplineTextOne?.runs?.[0]?.text
+    const ownerID = owner?.straplineTextOne?.runs?.[0]?.navigationEndpoint?.browseEndpoint?.browseId
+    const ownerImage = owner?.straplineThumbnail?.musicThumbnailRenderer?.thumbnail?.thumbnails[1]?.url;
+    
+    const tracks = trackItems.map(item => {
+        const renderer = item.musicResponsiveListItemRenderer;
+
+        const title = renderer.flexColumns[0].musicResponsiveListItemFlexColumnRenderer.text.runs[0].text;
+        const artist = renderer.flexColumns[1].musicResponsiveListItemFlexColumnRenderer.text.runs[0].text;
+        const videoId = renderer.overlay.musicItemThumbnailOverlayRenderer.content.musicPlayButtonRenderer.playNavigationEndpoint.watchEndpoint.videoId;
+
+        const durationText = renderer.overlay.musicItemThumbnailOverlayRenderer.content.musicPlayButtonRenderer.accessibilityPlayData?.accessibilityData?.label || '';
+        
+        const durationMatch = durationText.match(/(\d+) minutes, (\d+) seconds/);
+        let durationMs = 0;
+        if (durationMatch) {
+            const minutes = parseInt(durationMatch[1], 10);
+            const seconds = parseInt(durationMatch[2], 10);
+            durationMs = (minutes * 60 + seconds) * 1000;
+        } else {
+            durationMs = null
+        }
+
+        const poster = renderer.thumbnail.musicThumbnailRenderer.thumbnail.thumbnails[0].url;
+        const posterLarge = renderer.thumbnail.musicThumbnailRenderer.thumbnail.thumbnails[1] ? renderer.thumbnail.musicThumbnailRenderer.thumbnail.thumbnails[1].url : poster;
+
+        return {
+            api: 'youtube',
+            poster,
+            posterLarge,
+            title,
+            artist,
+            id: videoId,
+            duration: durationMs 
+        };
+    });
+
+    const data = {
+        id: playlistId,
+        api: 'Youtube',
+        name: playlistTitle,  
+        owner: {
+            id: ownerID,            
+            name: ownerName,    
+            image: ownerImage    
+        },
+        tracks_count: tracks.length,
+        tracks
+    };
+
+    res.json(data);
+};
+
+
 
 module.exports = {
     getYotuubeMusicList
