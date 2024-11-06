@@ -1578,7 +1578,6 @@ function getSource(id, retries = 3) {
 
 
 function playSource(source) {
-    console.log('playing', source)
     currentSong.source = source
     if (!window.webkit?.messageHandlers) {
         if (typeof Android !== 'undefined') {

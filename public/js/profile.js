@@ -247,22 +247,21 @@ async function showSettings() {
     document.querySelector('.settings-page-body').classList.add('center')
 }
 
-async function goAccount() {
+goAccount = async function () {
     const html = `
-        <div class="account-main-container container">
-            <div class="header-sets-assc">
-                <span>Edit information</span>
-                <p>To edit your account information, click button below to edit from ONVO account</p>
-            </div><div class="edit-information edit-in-onvo"></div><div class="header-sets-assc">
-                <span>Delete account</span>
-                <p>This option will delete your account and all related data, saved tracks, playlists, everything</p>
-            </div><div class="edit-information low-set" onclick="logoutCheck(true);"></div>
-        </div>    
-        <div class="back-main-settings" onclick="resetSets();"></div>`
+            <div class="account-main-container container">
+                <div class="header-sets-assc">
+                    <span>Edit information</span>
+                    <p>To edit your account information, click button below to edit from ONVO account</p>
+                </div><div class="edit-information edit-in-onvo" onclick="interface('web','https://onvo.me?token=${localStorage.getItem('token')}')"></div><div class="header-sets-assc">
+                    <span>Delete account</span>
+                    <p>This option will delete your account and all related data, saved tracks, playlists, everything</p>
+                </div><div class="edit-information low-set" onclick="logoutCheck(true);"></div>
+            </div>    
+            <div class="back-main-settings" onclick="resetSets();"></div>`
     document.querySelector('.secound-slid-shit').innerHTML = html
     await delay(10);
     document.querySelector('.slider-settings-section').style.transform = 'translateX(100%)'
-
 }
 
 async function goAudio() {

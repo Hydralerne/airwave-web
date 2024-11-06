@@ -629,19 +629,19 @@ async function getImportings(e) {
             <div class="left-wing-profile" onclick="closeImporting();"></div>
         </div>` : ''}
         <div class="animated-back">
-            <video autoplay="" muted="" loop="" playsinline="" src="https://cdn.dribbble.com/userupload/4157958/file/original-b4ec39eeac91ab408d32b943a33c316f.mp4"></video>
+            <video autoplay="" poster="none" muted="" loop="" playsinline="" src="/assets/original-b4ec39eeac91ab408d32b943a33c316f.mp4"></video>
         </div>
         <div class="importing-tag container"><span>Turn Up Without a Reset, Import Your Playlists Now!</span><a>Just choose
             platform below and add your playlist link</a></div>
         <div class="platforms-import container">
-            <div class="platform-import"><span style="background-image: url(https://s3-alpha.figma.com/hub/file/2734964093/9f5edc36-eb4d-414a-8447-10514f2bc224-cover.png);background-size: 50px;"></span><a>Spotify</a></div>
-            <div class="platform-import"><span style="background-image: url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZsR9OWKVUAFkaRA4GZsKnup4j3ZGLoqI7tA&amp;s);background-size: 30px;"></span><a>Anghami</a></div>
-            <div class="platform-import"><span style="background-image: url(https://www.cdnlogo.com/logos/s/17/soundcloud.svg);background-size: 25px;"></span><a>Soundcloud</a></div>
-            <div class="platform-import"><span style="background-image: url(https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/1024px-YouTube_full-color_icon_%282017%29.svg.png?20240107144800);background-size: 25px;"></span><a>Youtube</a></div>
-           <div class="platform-import"><span style="background-image: url(https://upload.wikimedia.org/wikipedia/commons/5/5f/Apple_Music_icon.svg);background-size: 25px;"></span><a>Apple music</a></div>
+            <div class="platform-import"><span style="background-image: url(/assets/png-icons/9f5edc36-eb4d-414a-8447-10514f2bc224-cover.png);background-size: 50px;"></span><a>Spotify</a></div>
+            <div class="platform-import"><span style="background-image: url(/assets/png-icons/anghami.png);background-size: 30px;"></span><a>Anghami</a></div>
+            <div class="platform-import"><span style="background-image: url(/assets/png-icons/soundcloud.svg);background-size: 25px;"></span><a>Soundcloud</a></div>
+            <div class="platform-import"><span style="background-image: url(/assets/png-icons/1024px-YouTube_full-color_icon_%282017%29.svg.png);background-size: 25px;"></span><a>Youtube</a></div>
+           <div class="platform-import"><span style="background-image: url(/assets/png-icons/Apple_Music_icon.svg);background-size: 25px;"></span><a>Apple music</a></div>
         </div>
         <div class="links-imports-section container">
-            <div class="link-import-insert"><input type="text" onpaste="pasteList(this,event)" placeholder="Insert your playlist link"></div>
+            <div class="link-import-insert"><input type="text" onpaste="pasteList(this,event)" oninput="pasteList(this,event)" placeholder="Insert your playlist link"></div>
             ${e ? '' : `<div class="link-import-submit">
                 <section class="import-section-click" onclick="createWelcome(this)"><span>Start explore Airwave</span></section>
             </div>`}
@@ -2113,6 +2113,7 @@ async function createLive(el) {
         const name = document.querySelector('.live-name-insert input').value
         const private = document.querySelector('.privacy-select').classList.contains('lock')
         el.classList.add('disabled')
+
         const response = await fetch('https://api.onvo.me/music/create-live', {
             method: 'POST',
             headers: {
