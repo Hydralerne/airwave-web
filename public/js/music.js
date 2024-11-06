@@ -1023,7 +1023,7 @@ function filterArtistName(artistName) {
 }
 
 async function requestSource(song, url, protocol, TIMEOUT = 1) {
-    const { api, id, title, artist, yt } = song
+    let { api, id, title, artist, yt } = song
     clearTimeout(playTrackTimeout)
     playTrackTime = new Promise(resolve => {
         playTrackTimeout = setTimeout(resolve, TIMEOUT);
@@ -1041,10 +1041,10 @@ async function requestSource(song, url, protocol, TIMEOUT = 1) {
             resolve({ url: data.audio })
         } else {
             if (!yt) {
-                const ytid = api == 'youtube' ? id : (await getYTcode(title, artist))
-                currentSong.yt = ytid
+                yt = api == 'youtube' ? id : (await getYTcode(title, artist))
+                currentSong.yt = yt
             }
-            let source = await getSource(ytid, true)
+            let source = await getSource(yt, true)
             resolve(source)
         }
     });
