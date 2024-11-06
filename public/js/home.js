@@ -195,6 +195,19 @@ async function performTracks(id, type, userid, offset = listOffset, limit = 25) 
     } else if (type == 'anghami') {
         if (currentList.id !== id) {
             list = await callAnghami(`?id=${id}`, 'playlist')
+            if (list.tracks?.length > 50) {
+                tracks = list.tracks.slice(0, 50)
+            } else {
+                tracks = list.tracks
+            }
+            currentList = list
+        } else {
+            list = currentList;
+            tracks = currentList.tracks.slice(offset, offset + limit);
+        }
+    } else if (type == 'youtube') {
+        if (currentList.id !== id) {
+            list = await fetchYoutubeList(id)
             console.log(list)
             if (list.tracks?.length > 50) {
                 tracks = list.tracks.slice(0, 50)

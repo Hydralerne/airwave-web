@@ -11,7 +11,7 @@ const core = require(path.join(__dirname, 'handler.js'));
 const spotify = require(path.join(__dirname, 'spotify.js'));
 const ytdlp = require(path.join(__dirname, 'ytdlp', 'youtube.js'));
 const { cloneRepo, createWebSocket, proxyImages, downloadHandler, removeImages } = require(path.join(__dirname, 'proxy.js'));
-const { getYotuubeMusicList } = require(path.join(__dirname, 'youtube.js'));
+const { getYotubeMusicList, getYoutubeList, getVideoId,filterYoutube, scrapYoutube } = require(path.join(__dirname, 'youtube.js'));
 const remotePathDir = path.join(process.argv[2], 'remote');
 const remotePath = path.join(remotePathDir, 'airwave-remote', 'main.js');
 
@@ -131,11 +131,7 @@ app.get('/clear', blockWeb, removeImages);
 
 app.get('/proxy', blockWeb, proxyImages);
 
-app.get('/get-id', async (req, res) => {
-    const { q } = req.query
-    const videoId = await core.getVideoId(decodeURIComponent(q));
-    res.json({ id: videoId })
-});
+app.get('/get-id',getVideoId);
 
 app.get('/music', blockWeb, (req, res) => {
     res.render('musicBody', { req: req })
@@ -261,24 +257,16 @@ app.get('/youtube/search', async (req, res) => {
         if (!req.query.q || req.query.q == '') {
             return res.json({ error: 'empty_query' })
         }
-        const json = await core.scrapYoutube(`https://www.youtube.com/results?search_query=${(req.query.q)}`)
-        const data = core.filterYoutube(json)
+        const json = await scrapYoutube(`https://www.youtube.com/results?search_query=${(req.query.q)}`)
+        const data = filterYoutube(json)
         res.json(data)
     } catch (e) {
         res.status(400).send('Error ' + e)
     }
 });
 
-app.get('/youtube/music/playlist', getYotuubeMusicList);
-app.get('/youtube/playlist', async (req, res) => {
-    try {
-        const data = await getYoutubeList(req)
-        res.json(data)
-    } catch (e) {
-        console.log(e)
-        res.json({ error: e.message })
-    }
-});
+// app.get('/youtube/music/playlist', getYotuubeMusicList);
+app.get('/youtube/playlist', getYotubeMusicList);
 
 app.get('/youtube/lyrics', async (req, res) => {
     try {

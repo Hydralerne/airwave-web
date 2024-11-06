@@ -5,72 +5,6 @@ let fetch;
     fetch = (await import('node-fetch')).default;
 })();
 
-function filterYoutube(json) {
-    const core = json.contents.twoColumnSearchResultsRenderer.primaryContents.sectionListRenderer.contents
-
-    let tracks = [];
-    let data = []
-
-    core.forEach(component => {
-        try {
-            data = data.concat(component.itemSectionRenderer?.contents || []);
-        } catch (e) {
-            console.log(e)
-        }
-    });
-
-    data.forEach(video => {
-        try {
-            tracks.push({
-                api: 'youtube',
-                id: video.videoRenderer.videoId,
-                poster: video.videoRenderer.thumbnail.thumbnails[0].url,
-                title: video.videoRenderer.title.runs[0].text,
-                artist: video.videoRenderer.ownerText.runs[0].text,
-            })
-        } catch (e) {
-            // console.log(e)
-        }
-    })
-
-    return tracks
-}
-
-let ongoingVideo = {}
-
-async function getVideoId(searchQuery) {
-    if (ongoingVideo[searchQuery]) {
-        return await ongoingVideo[searchQuery]
-    }
-
-    ongoingVideo[searchQuery] = new Promise(async (resolve, reject) => {
-        try {
-            const json = await scrapYoutube(`https://www.youtube.com/results?search_query=${searchQuery}`)
-            const data = filterYoutube(json)
-            if (data.length == 0) {
-                throw new Error('error yt')
-            }
-            resolve(data[0].id)
-        } catch (e) {
-            resolve({ error: e })
-        }
-        setTimeout(() => { delete ongoingVideo[searchQuery] }, 1000)
-    })
-
-    return await ongoingVideo[searchQuery];
-}
-
-function filterYoutubeScrap(textData) {
-    const ytInitialDataRegex = /var ytInitialData = (.*?);<\/script>/s;
-    const match = textData.match(ytInitialDataRegex);
-
-    if (match && match[1]) {
-        return JSON.parse(match[1]);
-    } else {
-        return { error: 'no_data' }
-    }
-}
-
 const scrap = async (url, agent = 'chrome') => {
     let agents = {
         chrome: {
@@ -93,73 +27,6 @@ const scrap = async (url, agent = 'chrome') => {
         headers: agents[agent],
         redirect: 'follow',
     });
-}
-
-async function scrapYoutube(url, e) {
-    try {
-        const response = await scrap(url)
-        let textData = await response.text();
-        if (!e) {
-            textData = filterYoutubeScrap(textData)
-        }
-        return textData
-    } catch (e) {
-        console.log(e)
-        return { error: 'call_error' }
-    }
-}
-
-
-const getYoutubeList = async (req) => {
-    try {
-        const json = await scrapYoutube(`https://www.youtube.com/playlist?list=${req.query.id}`)
-        let tracks = []
-
-        const core = json.contents
-            ?.twoColumnBrowseResultsRenderer
-            ?.tabs?.[0]
-            ?.tabRenderer
-            ?.content
-            ?.sectionListRenderer
-            ?.contents?.[0]
-            ?.itemSectionRenderer
-            ?.contents?.[0]
-            ?.playlistVideoListRenderer
-            ?.contents;
-
-        core.forEach(video => {
-            try {
-                tracks.push({
-                    api: 'youtube',
-                    id: video.playlistVideoRenderer.videoId,
-                    poster: video.playlistVideoRenderer.thumbnail.thumbnails[0].url,
-                    title: video.playlistVideoRenderer.title.runs[0].text,
-                    artist: video.playlistVideoRenderer.shortBylineText.runs[0].text,
-                    artist_id: video.playlistVideoRenderer?.shortBylineText.runs?.[0].browseEndpoint?.browseId,
-                })
-            } catch (e) {
-
-            }
-        });
-
-        const data = {
-            api: 'youtube',
-            owner: {
-                id: json.header?.playlistHeaderRenderer?.ownerText.runs[0]?.navigationEndpoint?.browseEndpoint?.browseId,
-                name: json.header?.playlistHeaderRenderer?.ownerText.runs[0]?.text,
-                image: tracks[0]?.poster
-            },
-            name: json.header?.playlistHeaderRenderer?.title?.simpleText,
-            description: json.header?.playlistHeaderRenderer?.descriptionText,
-            tracks_count: json.header?.playlistHeaderRenderer?.numVideosText.runs[0].text,
-            tracks: tracks,
-            url: json.header?.playlistHeaderRenderer?.ownerText.runs[0]?.navigationEndpoint?.browseEndpoint?.canonicalBaseUrl,
-        }
-
-        return data
-    } catch (e) {
-        return { error: e.toString() }
-    }
 }
 
 
@@ -467,4 +334,4 @@ const getAppleHome = async (req, res) => {
     }
 }
 
-module.exports = { getAppleHome, anghamiHandler, getVideoId, scrapYoutube, filterYoutube, getYoutubeList, scrap, getAppleRelated }
+module.exports = { getAppleHome, anghamiHandler, scrap, getAppleRelated }

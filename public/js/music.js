@@ -1657,6 +1657,7 @@ let getStabledTime;
 
 async function getYTcode(title, artist, id) {
     const q = `${title} ${artist}`
+    console.log(q)
     if (!id) {
         const url = `${origin}/get-id?q=${encodeURIComponent(q)}`
         const response = await fetch(url)
@@ -2198,7 +2199,7 @@ async function fetchYoutubeSeach(q) {
     return data
 }
 async function fetchYoutubeList(id) {
-    const response = await fetch(`/youtube/playlist/${id}`)
+    const response = await fetch(`/youtube/playlist/?id=${id}`)
     const data = await response.json()
     return data
 }
