@@ -4119,8 +4119,10 @@ input#audioStatusBar {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
 }
-
-.bottom-live-control:after {
+.lyrics-loading-lyrics-container .no-lyrics-banner {
+    margin-top: 40px;
+}
+.live .bottom-live-control:after {
     content: '';
     position: absolute;
     width: 100%;

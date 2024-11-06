@@ -1528,7 +1528,7 @@ function printArtistsLib(data) {
 async function showCreation() {
     let options = ''
     const page = document.querySelector('.liberary')
-    if (!page.classList.contains('member')) {
+    if (!page.classList.contains('hosted')) {
         options = `
         <div class="switch-options">
         <div onclick="document.querySelector('.back-replyer-switching').click();setTimeout(createList,200);" ontouchstart="op(this,true)" ontouchend="op(this)" ontouchmove="op(this)" class="swtich-option-tap list-create-tap"><span></span><section><a>Create playlist</a><p>Build with songs from multiple platfroms</p></section></div>
