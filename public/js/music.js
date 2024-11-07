@@ -183,13 +183,17 @@ function play() {
             Android.resumePlayer()
             // return
         }
+        try {
+            if (YTplayer) {
+                YTplayer?.playVideo();
+            }
+        }catch(e){
+            
+        }
+        
         if (window.webkit?.messageHandlers) {
             window.webkit.messageHandlers.playMusic.postMessage(0)
-            // return
-        }
-
-        if (YTplayer) {
-            YTplayer?.playVideo();
+            return
         }
 
     } catch (e) {
@@ -248,15 +252,19 @@ function pause() {
             Android.pausePlayer()
             // return
         }
+        try {
+            if (YTplayer) {
+                YTplayer.pauseVideo();
+                console.log('pauseing')
+            }
+        }catch(e){
+            
+        }
         if (window.webkit?.messageHandlers) {
             window.webkit.messageHandlers.pauseMusic.postMessage(parseFloat('123'))
-            // return
+             return
         }
 
-        if (YTplayer) {
-            YTplayer.pauseVideo();
-            console.log('pauseing')
-        }
     } catch (e) {
         console.error(e)
     }
@@ -480,7 +488,7 @@ let lyricsInitialize = false
 let globalDuration = 0;
 let globalTime = 0
 
-const formatTime = (seconds) => {
+let formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     const formattedMinutes = String(minutes).padStart(2, '0');
@@ -1243,9 +1251,6 @@ async function playTrack(el, e) {
     playSource(source);
     handlePlayPause(id, true);
 
-    if (queueTracks.length > 0 && !isParty || isOwner()) {
-        prepareNext()
-    }
     try {
         setMediaSessionMetadata();
     } catch (e) {
@@ -1265,6 +1270,10 @@ async function playTrack(el, e) {
         return
     }
 
+    if (queueTracks.length > 0 && !isParty || isOwner()) {
+        prepareNext()
+    }
+    
     if (isInline() && !isParty && api !== 'soundcloud' && !liveBody.classList.contains('minimized')) {
         initializeYoutube(currentSong.yt)
     }
@@ -1940,6 +1949,10 @@ async function callbackSource(data, e) {
     } else if (data.live?.playing) {
         await playTrack(data.live?.playing, true)
     } else {
+        return
+    }
+    
+    if(e){
         return
     }
 
@@ -3027,6 +3040,7 @@ let addReact = (id, react, el) => {
 let reacts = {}
 
 let addEmojies = (el) => {
+    interface('vibrate')
     document.querySelectorAll('.msg-reacts').forEach(rc => { rc.remove() })
     let html = `<div class="msg-reacts"><div class="love" onclick="callReact(this)"></div><div class="angry" onclick="callReact(this)"></div><div class="haha" onclick="callReact(this)"></div><div class="sad" onclick="callReact(this)"></div><div class="onfire" onclick="callReact(this)"></div><div class="skull" onclick="callReact(this)"></div></div>`
     if (el.querySelector('.msg-reacts')) {
@@ -3294,7 +3308,7 @@ function control(data) {
             console.error(e)
         }
     } if (data.ct == 'source') {
-        callbackSource(data);
+        callbackSource(data,true);
     } if (data.ct == 'invalid_source') {
         handleInvalidSource(data);
     } if (data.ct == 'signal_back') {
