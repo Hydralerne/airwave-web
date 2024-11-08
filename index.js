@@ -137,7 +137,12 @@ app.get('/music', blockWeb, (req, res) => {
 app.get('/profile', (req, res) => {
     res.render('profile', { req: req })
 });
-
+app.get('/policy',cors(), (req,res) => {
+    res.sendFile(path.join(__dirname,'../','terms.html'))
+})
+app.get('/policy/v2',cors(), (req,res) => {
+    res.sendFile(path.join(__dirname,'../','terms.html'))
+})
 const performMeta = (data) => {
     return `
       ${data.description ? `<meta name="description"
