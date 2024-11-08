@@ -158,11 +158,7 @@ const performMeta = (data) => {
 
 app.get('/radio/:id', async (req, res) => {
     try {
-        const response = await fetch(`https://api.onvo.me/music/channels?id=${req.params.id}`, {
-            headers: {
-                Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJodHRwczovL2FwaS5vbnZvLm1lIiwiZXhwIjoxODMwODI1NzgzLCJpZCI6Imc3cTUyZ3JzcnE2dWlvY2o4ajlkMWRpdTFtIiwidnIiOiIxLjIifQ.r3iUBjNLRePQJKuWR9aF3zM7vXO8N16WijF_Vnf5hX4`
-            }
-        })
+        const response = await fetch(`https://api.onvo.me/music/channels?id=${req.params.id}`)
         const data = await response.json();
         req.radio = JSON.stringify(data)
         req.meta = performMeta({
