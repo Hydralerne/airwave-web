@@ -13,6 +13,14 @@ async function getAppleTrack(id, e) {
     return (e ? data[0] : data)
 }
 
+async function getSpotifyTrack(id, e) {
+    const response = await fetch(`https://api.onvo.me/music/spotify/track?ids=${id}`)
+    const data = await response.json()
+    return (e ? data[0] : data)
+}
+
+
+
 async function getTracksData(api, id, isAlbum) {
     let data = {}
     switch (api) {
@@ -27,10 +35,11 @@ async function getTracksData(api, id, isAlbum) {
             data = await getSoundcloudSingleTrack(id, 'id')
             break;
         case 'spotify':
-            data = (await get_tracks(id))[0]
+            data = await getSpotifyTrack(id, true)
             break;
         case 'anghami':
-            data = await getAnghamiTrack(id)
+            const track = await getAnghamiTrack(id)
+            data = track.track
             break;
     }
     return data;

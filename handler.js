@@ -95,6 +95,7 @@ const anghamiTrack = (song) => {
         },
         title: song.title,
         poster: `https://artwork.anghcdn.co/webp/?id=${song.coverArt}&size=296`,
+        posterLarge: `https://artwork.anghcdn.co/webp/?id=${song.coverArt}`,
         genre: song.genre,
         hexcolor: song.hexcolor,
         releasedate: song.releasedate,

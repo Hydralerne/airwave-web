@@ -11,7 +11,8 @@ const core = require(path.join(__dirname, 'handler.js'));
 const spotify = require(path.join(__dirname, 'spotify.js'));
 const ytdlp = require(path.join(__dirname, 'ytdlp', 'youtube.js'));
 const { cloneRepo, createWebSocket, proxyImages, downloadHandler, removeImages } = require(path.join(__dirname, 'proxy.js'));
-const { getYotubeMusicList, getYoutubeList, getVideoId, filterYoutube, scrapYoutube } = require(path.join(__dirname, 'youtube.js'));
+const { getYotubeMusicList, getVideoId, filterYoutube, scrapYoutube } = require(path.join(__dirname, 'youtube.js'));
+const { getTracksData } = require(path.join(__dirname, 'tracks.js'));
 const remotePathDir = path.join(process.argv[2], 'remote');
 const remotePath = path.join(remotePathDir, 'airwave-remote', 'main.js');
 
@@ -455,10 +456,10 @@ app.get('/:endpoint/:id?', async (req, res) => {
         const isCut = getApiCut(endpoint)
         if (isCut) {
             const track = await getTracksData(isCut,id)
-            req.track = track
+            req.track = JSON.stringify(track)
             req.meta = performMeta({
                 title: `Listen to ${track.title} ON Airwave`,
-                image: track.poster
+                image: track.posterLarge || track.poster
             })
             return res.render('index', { req: req })
         }
