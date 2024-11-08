@@ -120,7 +120,6 @@ function isArabic(text) {
 }
 
 function isWeb() {
-    return false
     return !window.webkit?.messageHandlers && typeof Android == 'undefined'
 }
 
