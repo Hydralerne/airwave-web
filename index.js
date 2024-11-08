@@ -17,8 +17,6 @@ const remotePath = path.join(remotePathDir, 'airwave-remote', 'main.js');
 
 
 const cors = require('cors');
-const version = '1.0';
-const url = require('url');
 
 const http = require('http');
 const mime = require('mime-types');
@@ -67,7 +65,7 @@ app.set('trust proxy', true);
 
 let allowed = {}
 
-const isWeb = false
+const isWeb = true
 
 const accessControlBlock = (req, res, next) => {
     if (req.query.token == 'sjaiidlklqa' || Object.keys(allowed).includes(req.headers['x-real-ip'])) {
