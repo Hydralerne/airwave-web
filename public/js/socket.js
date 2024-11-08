@@ -94,15 +94,12 @@ async function connectWebSocket(session,token,channel_id) {
     return new Promise(async (resolve, reject) => {
         try {
             const url = `wss://api.onvo.me/music?id=${session}&token=${token}`
-            resolveSocket = function(){
+            resolveSocket = async function(){
                 resolve();
                 connected();
                 if(channel_id){
-                    console.log(channel_id)
-                    joinParty(channel_id)
-                    const parent = document.querySelector('.body')
-                    parent.setAttribute('dataid', channel_id)
-                    parent.className = 'body page player player2 live center minimized'
+                    const data = await getRadio(channel_id)
+                    fireJoinMethod(data)
                 }
                 try {
                     fireJoinMethod()

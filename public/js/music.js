@@ -280,10 +280,10 @@ function seek(time) {
             }, 250);
         }
         currentTimeText.innerText = formatTime(time)
-        // if (typeof Android !== 'undefined') {
-        //     Android.seekVideo(time)
-        //     return
-        // } 
+        if (typeof Android !== 'undefined') {
+            Android.seekto(time)
+            return
+        } 
         if (window.webkit?.messageHandlers) {
             window.webkit.messageHandlers.seekTo.postMessage(time)
             return
@@ -1129,7 +1129,7 @@ async function getTracksData(api, id, isAlbum) {
             data = (await get_tracks(id))[0]
             break;
         case 'anghami':
-            data = await callAnghami(id, '/track')
+            data = await callAnghami(`/${id}`, 'track')
             break;
     }
     return data;
@@ -1142,27 +1142,10 @@ function isSafari() {
     const ua = navigator.userAgent;
     return /^((?!chrome|android).)*safari/i.test(ua);
 }
+
+let sendingSong = {}
 async function playTrack(el, e) {
-    playerLoading()
-    if (isParty && !e) {
-        if (!isOwner()) {
-            dialog('You are in party', 'You can\'t play other song while being in party, do you want leave?', [
-                '<button class="main" onclick="closeError()" type="button"><span>Stay in live</span></button>',
-                '<button onclick="closeError();exitLive()" type="button"><span>Exit party</span></button>'
-            ])
-            return;
-        }
-    }
-    if (currentPage !== 'player') {
-        history.pushState({ page: 'player' }, null)
-    }
-
-    if (!e) {
-        resetPlayer(currentSong.id);
-    }
-
-    document.querySelector('.artist-inner-song img').src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgAB/ubWFXkAAAAASUVORK5CYII='
-
+ 
     let api, url, protocol, id, rawSongObj, path
 
     if (el?.poster) {
@@ -1181,8 +1164,37 @@ async function playTrack(el, e) {
                 queueOffset = currentList.tracks?.length
                 queueList = currentList
             }
+        }else {
+            if(isParty && !isOwner() && parent.classList.contains('song-chat')){
+                return
+            }
         }
     }
+
+    if (isParty && !e) {
+        sendingSong = rawSongObj;
+        if (!isOwner()) {
+            dialog('You are in party', 'You can\'t play other song while being in party, do you want send it?', [
+                '<button class="main" onclick="closeError();actualSendTrack(sendingSong);miniDialog(\'Track sent\')" type="button"><span>Send track to live</span></button>',
+                '<button onclick="closeError();exitLive()" type="button"><span>Exit party</span></button>'
+            ])
+            return;
+        }
+    }
+    
+    sendingSong = {}
+
+    playerLoading()
+
+    if (currentPage !== 'player') {
+        history.pushState({ page: 'player' }, null)
+    }
+
+    if (!e) {
+        resetPlayer(currentSong.id);
+    }
+
+    document.querySelector('.artist-inner-song img').src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgAB/ubWFXkAAAAASUVORK5CYII='
 
     currentSong = rawSongObj
 
@@ -1248,6 +1260,8 @@ async function playTrack(el, e) {
         return
     }
 
+    lyricsInitialize = false
+
     playSource(source);
     handlePlayPause(id, true);
 
@@ -1265,7 +1279,7 @@ async function playTrack(el, e) {
 
     }
 
-    if (isOffline) {
+    if (isOffline || isParty) {
         getLyrics()
         return
     }
@@ -1278,8 +1292,9 @@ async function playTrack(el, e) {
         initializeYoutube(currentSong.yt)
     }
 
-
-    printCopyrights(currentSong);
+    if(!isParty){
+        printCopyrights(currentSong);
+    }
 
     if (!isParty || (isParty && isOwner())) {
         getRelated()
@@ -1295,20 +1310,6 @@ async function playTrack(el, e) {
             parseRelated()
         }
         lyricsInitialize = true;
-    }
-
-    if (el.poster) {
-        return;
-    }
-
-    const list = el.closest('.playlists-page')
-    if (list) {
-        const queue = document.querySelector('.queue-player');
-        queue.setAttribute('dir', 'list')
-        queue.setAttribute('list-id', list.getAttribute('list-id'))
-        queue.setAttribute('list-api', list.getAttribute('list-api'))
-    } else {
-        document.querySelector('.queue-player').setAttribute('dir', 'track')
     }
 
 }
@@ -1336,7 +1337,7 @@ let YTplayer;
 
 
 function destroyYoutube() {
-    clearInterval(youtubeInterval)
+    clearInterval(intervalYT)
     // if (!isInline()) {
     //     YTplayer.mute();
     // } else {
@@ -1446,7 +1447,7 @@ let intervalYT
 let isNative = true;
 
 function updateYoutube() {
-    if (!isInline()) {
+    if (!isInline() || isParty) {
         return
     }
     if (lastUpdatePlaying < (Date.now() - 1000) && !isCheet) {
@@ -1959,13 +1960,13 @@ async function callbackSource(data, e) {
     await delay(500)
     const time = parseInt(data.live?.playbackPosition) || 0
     seek(time);
-    if (data.live?.playbackStatus == 'pause') {
-        globalPause = true
-        pause()
-    } else {
+    // if (data.live?.playbackStatus == 'pause') {
+    //     globalPause = true
+    //     pause()
+    // } else {
         play();
         globalPause = false;
-    }
+    // }
 }
 
 document.querySelector('.back-replyer-switching').addEventListener('click', function () {
@@ -2072,15 +2073,8 @@ document.querySelector('.anonymous-on-box').addEventListener('click', function (
     this.classList.toggle('checked')
 })
 
-let globalInitialLive = {}
 
-function sendTrack(el) {
-    const parent = el.closest('.song')
-    const song = getSongObject(parent)
-    if (musicStream.getAttribute('sdir') == 'msg') {
-        sendMusicMsg(song)
-        return
-    }
+function actualSendTrack(song){
     song['type'] = 'song';
     let rep;
     const reparent = document.querySelector('.replaying-div');
@@ -2097,6 +2091,16 @@ function sendTrack(el) {
     });
     appendChat(localStorage.getItem('userid'), null, messageId, rep, song);
     document.querySelector('.inset-live-chat textarea').value = '';
+}
+
+function sendTrack(el) {
+    const parent = el.closest('.song')
+    const song = getSongObject(parent)
+    if (musicStream.getAttribute('sdir') == 'msg') {
+        sendMusicMsg(song)
+        return
+    }
+    actualAddTrack(song)
     document.querySelector('.back-music-search').click()
 }
 
@@ -2117,14 +2121,11 @@ async function fetchSoundCloud(dir = 'trending', offset, q) {
 
 function callAnghami(query, dir) {
     return new Promise(async (resolve, reject) => {
-        fetch(`/anghami/${dir}${query}`, {
-            headers: {
-                'Authorization': `Bearer ${await getToken()}`
-            }
-        }).then(response => {
+        const url = `/anghami/${dir}${query}`
+        console.log(url)
+        fetch(url).then(response => {
             return response.json();
         }).then(data => {
-            console.log(data)
             resolve(data)
         }).catch(error => {
             resolve({ error: error.message })
@@ -2660,7 +2661,8 @@ async function getRelated() {
             data = await getSoundcloudRelated(currentSong.id)
         } else if (currentSong.api == 'anghami') {
             const response = await fetch(`/anghami/related/${currentSong.id}`)
-            data = await response.json()
+            const json = await response.json()
+            data = json.related
         } else if (currentSong.api == 'apple') {
             if (currentSong.albumID && currentSong.albumID !== 'undefined' && currentSong.albumID !== 'null') {
                 const response = await fetch(`/apple/related/?album=${currentSong.albumID}`)
@@ -2903,37 +2905,26 @@ let dragging = false;
 let startX = 0;
 let holdMsg = (evt, el, phase) => {
     clearTimeout(holdTimer);
-
-    const container = el.closest('.msg');
-    let containerWidth = container.offsetWidth;
-    let dragLimit = (containerWidth - el.offsetWidth) / 2; // Max drag distance
-
+    let dragLimit = 75; 
     if (phase === 'end') {
-        // Stop dragging
         dragging = false;
         let moveX = el.offsetLeft;
-
-        // Check if drag distance meets threshold to trigger reply action
         if (moveX >= 75) {
-            redRep(el); // Trigger reply function
-            interface('vibrate'); // Trigger vibration or feedback
+            redRep(el);
+            interface('vibrate');
         }
 
-        // Reset position with magnetic effect
         el.classList.add('magnetic');
         el.style.left = '0px';
         om(el)
         return;
     }
-
     if (phase === 'move') {
         if (dragging) {
             let moveX = (evt.touches[0].pageX - startX) / 2;
-
-            // Move only if it’s within the drag limit and to the right
             if (moveX >= 0 && moveX <= dragLimit) {
                 el.style.left = `${moveX}px`;
-                evt.preventDefault(); // Prevent vertical scrolling
+                evt.preventDefault();
             }
         }
         om(el)
@@ -2943,13 +2934,11 @@ let holdMsg = (evt, el, phase) => {
     if (evt?.target?.closest('.msg-reacts')) {
         return;
     }
-    // 'start' phase
     dragging = true;
-    el.classList.remove('magnetic'); // Remove snap-back effect during active drag
-    startX = evt.touches[0].pageX - el.offsetLeft; // Initialize start position
+    el.classList.remove('magnetic');
+    startX = evt.touches[0].pageX - el.offsetLeft;
     om(el, true)
 
-    // Optional long-press logic if needed
     holdTimer = setTimeout(() => {
         addEmojies(el);
     }, 1000);
@@ -3396,8 +3385,7 @@ async function saveSong(el, track = currentSong) {
     } catch (e) {
         console.error(e)
     }
-    el.classList.add('disabled')
-    const body = { id: song.id, api: track.api, playlist_id, track, type: 'track' }
+    const body = { id: track.id, api: track.api, playlist_id, track, type: 'track' }
     console.log(body)
     fetch(`https://api.onvo.me/music/save`, {
         method: e ? 'POST' : 'DELETE',

@@ -10,7 +10,24 @@ body {
     background: #000;
     backdrop-filter: none;
 }
+.msg section div.reps p {
+    margin-bottom: 0;
+    margin-top: 0;
+}
+.live.minimized .bottom-live-control:after {
+    display: none;
+}
+.replaying-div section {
+    padding-right: 50px;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: none;
+    background: hsl(0deg 0% 0%);
+}
 
+.replaying-div section a {
+    margin-right: 10px;
+}
 * {
     padding: 0;
     margin: 0;
@@ -4325,4 +4342,7 @@ div {}
     font-size: 12px!important;
     line-height: 20px;
     opacity: 0.5;
+}
+.owner .media-playback-live input {
+    z-index: 99;
 }

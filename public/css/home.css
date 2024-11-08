@@ -7669,3 +7669,13 @@ body.importing-list .body {
 .msg.msg-tag.replyed section {
     margin-top: -15px;
 }
+
+.join-now-live.main:before {
+    content: 'Join party';
+}
+
+.join-now-live.main {
+    background: #fff;
+    color: #000;
+    border: none;
+}

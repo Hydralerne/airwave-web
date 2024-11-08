@@ -128,29 +128,15 @@
                                 <% if(req.track){ %>
                                     <script>
                                         (async () => {
-                                            const track = getTracksData('<%- req.track.api %>', '<%- req.track.id %>')
-                                            await playTrack(track)
+                                            await playTrack(<%- req.track %>)
                                             showThePlayer()
                                         })()
                                     </script>
                                     <% } %>
                                         <% if(req.radio){ %>
                                             <script>
-                                                function fireJoinMethod() {
-                                                    const liveJSON = <%- req.radio %>
-                                                    if(liveJSON.owner.id == localStorage.getItem('userid')){
-                                                        return
-                                                    }
-                                                    const html = printLiveCard(liveJSON);
-                                                    document.body.insertAdjacentHTML('beforeend',`
-                                                    <div class="huge-join">
-                                                    <div class="close-premium-banner" onclick="document.querySelector('.huge-join').remove();"></div>
-                                                    ${html}
-                                                    <div class="join-now-live" onclick="joinParty('${liveJSON.live_id}');document.querySelector('.huge-join').remove();">
-                                                    </div><div class="join-now-live in-app" onclick="window.open('oave://live/?id=${liveJSON.live_id}')" <="" div="">
-                                                    </div></div>
-                                                    `)
-                                                }
+                                                const liveJSON = <%- req.radio %>
+                                                fireJoinMethod(liveJSON)
                                             </script>
                                             <% } %>
 

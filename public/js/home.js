@@ -1012,7 +1012,7 @@ function printLiveCard(live) {
             </div>
             <div class="users-joined-info">
                 <div class="avatars-live">
-                    <span onclick="openProfile('${live.owner?.id}');" style="background-image: url('${live.owner?.image}');"></span>${live.users.map(user => { return `<span onclick="openProfile('${user.id}');" dataid="${user.id}" style="background-image: url(${user.image});"></span>` })}
+                    <span onclick="openProfile('${live.owner?.id}');" style="background-image: url('${live.owner?.image}');"></span>${live.users.map(user => { return `<span onclick="openProfile('${user.id}');" dataid="${user.id}" style="background-image: url(${user.image});"></span>` }).join('')}
                     <a>${live.numberOfUsers} Users</a>
                 </div>
             </div>
@@ -1361,7 +1361,7 @@ document.querySelector('.liberary')?.addEventListener('scroll', async function (
         if (this.scrollTop > (libBody.offsetHeight - 800) && !loadingLib) {
             loadingLib = true;
             await runReformLib(this.getAttribute('action'), 20, offsetLib);
-            loadingLib = false 
+            loadingLib = false
         }
     }
 })
@@ -1494,13 +1494,13 @@ function getJson(dir) {
 
 async function showLibrary(id) {
     resetLib();
-    if(!id){
+    if (!id) {
         const data = getJson('lib')
         if (data) {
             printLibrary(data)
         }
     }
-    
+
     document.body.classList.add('hideoverflow')
     const parent = document.querySelector('.liberary')
     parent.classList.remove('hidden')
@@ -1512,7 +1512,7 @@ async function showLibrary(id) {
     }).then(response => {
         return response.json();
     }).then(data => {
-        if(!id){
+        if (!id) {
             cacheStorage(data, 'lib')
         }
         printLibrary(data)
@@ -1621,7 +1621,7 @@ async function printLibrary(data) {
     </div>`;
     } else {
         if (!data.owner) {
-        document.querySelector('.libraries-lists-container').innerHTML = `<div class="no-playlists-banner">
+            document.querySelector('.libraries-lists-container').innerHTML = `<div class="no-playlists-banner">
     <section><span></span><p>Looks like you don't have any playlists, import your playlists now</p>
         </section>
     <div class="start-import" onclick="importPlaylist()" ${touchPackage}><span>start importing playlist</span></div>
@@ -1659,9 +1659,9 @@ document.querySelector('.button-page.library-flex').addEventListener('click', as
     showLibrary()
 })
 
-async function deleteList(){
+async function deleteList() {
     document.querySelector('.back-replyer-switching').click();
-    const response = await fetch(`https://api.onvo.me/music/playlists/${currentList.id}`,{
+    const response = await fetch(`https://api.onvo.me/music/playlists/${currentList.id}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
@@ -1669,8 +1669,8 @@ async function deleteList(){
         }
     })
     const data = await response.json();
-    if(data.status == 'success'){
-        dialog('Done','Playlist was deleted successfuly')
+    if (data.status == 'success') {
+        dialog('Done', 'Playlist was deleted successfuly')
     }
     closePlaylist()
     console.log(data)
@@ -2134,7 +2134,15 @@ async function createLive(el) {
         if (data.status == 'success') {
             el.classList.remove('disabled')
             await joinParty(data.id, true)
-            let obsSong = getSongObject(document.querySelector('.song'))
+            let obsSong = {}
+            if (!globalInitialLive.id) {
+                const allSongs = document.querySelectorAll('.song');
+                const randomIndex = Math.floor(Math.random() * allSongs.length);
+                const randomSong = allSongs[randomIndex];
+                obsSong = getSongObject(randomSong)
+            } else {
+                obsSong = globalInitialLive;
+            }
             playTrack(obsSong)
             setTimeout(() => {
                 updatePlaying(currentSong.id ? currentSong : obsSong);
@@ -2161,6 +2169,25 @@ async function getMessagesHome() {
     const data = await response.json()
     const html = printMessages(data)
     return html
+}
+
+function fireJoinMethod(liveJSON) {
+    if(document.querySelector('.huge-join')){
+        return
+    }
+    const html = printLiveCard(liveJSON);
+    document.body.insertAdjacentHTML('beforeend', `
+    <div class="huge-join">
+    <div class="close-premium-banner" onclick="document.querySelector('.huge-join').remove();"></div>
+    ${html}
+    <div class="join-now-live ${!isWeb() ? 'main' : ''} " onclick="joinParty('${liveJSON.live_id}');document.querySelector('.huge-join').remove();">
+    </div>
+    ${isWeb() ? `
+    <div class="join-now-live in-app" onclick="window.open('oave://live/?id=${liveJSON.live_id}')">
+    </div>
+    ` : ''}
+    </div>
+    `)
 }
 
 async function nextHome() {
@@ -2297,9 +2324,9 @@ async function showMenu(parent, e) {
         document.querySelector('.switch-component.download-ssc').classList.remove('downloaded')
     }
 
-    if(lastSelected.id == currentSong.id){
+    if (lastSelected.id == currentSong.id) {
         document.querySelector('.play-more-related').classList.remove('hidden')
-    }else {
+    } else {
         document.querySelector('.play-more-related').classList.add('hidden')
     }
 
@@ -2606,7 +2633,7 @@ document.querySelector('.download-playlist')?.addEventListener('click', function
 document.querySelector('.run-playlist').addEventListener('click', function () {
     this.classList.toggle('played')
     if (!document.querySelector('.music-section .running')) {
-        if(currentList.tracks?.tracks?.length > 3){
+        if (currentList.tracks?.tracks?.length > 3) {
             queueTracks = currentList.tracks
         }
         playTrack(document.querySelector('.music-section .song-music-element .artist-title'))
@@ -2698,6 +2725,9 @@ document.querySelector('.artist-profile-view')?.addEventListener('click', async 
     openArtist(track.artist_id)
 })
 
+
+let globalInitialLive = {}
+
 async function startLive(song) {
     document.querySelector('.switcher-menu-back').click();
     await delay(200)
@@ -2705,7 +2735,7 @@ async function startLive(song) {
         showPremium(`Or continue with <text>Free trail</text>`)
         return;
     }
-    globalInitialLive = lastSelected
+    globalInitialLive = song
     document.querySelector('.live-flex').click()
 }
 
@@ -2793,7 +2823,7 @@ async function runReformLib(e, limit = 20, offset = 0) {
         const downloaded = await getAllObjects('downloads', 'musicDB', limit, offset);
         offsetLib += downloaded.length
         const { html } = printSongsRegular(downloaded);
-        document.querySelector('.downloads-container').insertAdjacentHTML('beforeend',html);
+        document.querySelector('.downloads-container').insertAdjacentHTML('beforeend', html);
         const count = await getObjectCount('downloads');
         document.querySelector('.downloads-tracks-container .favorites-head span a').innerText = count;
     } else {

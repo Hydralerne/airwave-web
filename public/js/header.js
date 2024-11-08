@@ -403,7 +403,17 @@ async function sucessLog(data) {
     window.history.replaceState({}, document.title, url);
 }
 
-function filterUrl(data) {
+async function getRadio(id){
+    const response = await fetch(`https://api.onvo.me/music/channels?id=${id}`, {
+        headers: {
+            Authorization: `Bearer ${await getToken()}`
+        }
+    })
+    const data = await response.json();
+    return data
+}
+
+async function filterUrl(data) {
     globalRCE = data
     if (data.host == 'login') {
         AuthUser({ login: 'true', onvo_id: data.query.onvo_id, token_secret: data.query.token_secret, api: 'wave' }).then(async data => {
@@ -428,7 +438,10 @@ function filterUrl(data) {
         }
     }
 
-
+    if(data.host == 'radio'){
+        const data = await getRadio(data.query.id)
+        fireJoinMethod(data)
+    }
 }
 
 

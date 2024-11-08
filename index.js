@@ -11,7 +11,7 @@ const core = require(path.join(__dirname, 'handler.js'));
 const spotify = require(path.join(__dirname, 'spotify.js'));
 const ytdlp = require(path.join(__dirname, 'ytdlp', 'youtube.js'));
 const { cloneRepo, createWebSocket, proxyImages, downloadHandler, removeImages } = require(path.join(__dirname, 'proxy.js'));
-const { getYotubeMusicList, getYoutubeList, getVideoId,filterYoutube, scrapYoutube } = require(path.join(__dirname, 'youtube.js'));
+const { getYotubeMusicList, getYoutubeList, getVideoId, filterYoutube, scrapYoutube } = require(path.join(__dirname, 'youtube.js'));
 const remotePathDir = path.join(process.argv[2], 'remote');
 const remotePath = path.join(remotePathDir, 'airwave-remote', 'main.js');
 
@@ -131,7 +131,7 @@ app.get('/clear', blockWeb, removeImages);
 
 app.get('/proxy', blockWeb, proxyImages);
 
-app.get('/get-id',getVideoId);
+app.get('/get-id', getVideoId);
 
 app.get('/music', blockWeb, (req, res) => {
     res.render('musicBody', { req: req })
@@ -157,7 +157,7 @@ app.get('/radio/:id', async (req, res) => {
     try {
         const response = await fetch(`https://api.onvo.me/music/channels?id=${req.params.id}`, {
             headers: {
-                Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJodHRwczovL2FwaS5vbnZvLm1lIiwiZXhwIjoxODMwNzMzMTg5LCJpZCI6ImpyMWdyNTM0MHQ1aHFrM2Fjc2Q3cDYwOTNyIiwidnIiOiIxLjIifQ.5Gz91ZE-CJT3bHQphOjrn0Lp0lc8qYwi5Z2WOs6tNWc`
+                Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJodHRwczovL2FwaS5vbnZvLm1lIiwiZXhwIjoxODMwODI1NzgzLCJpZCI6Imc3cTUyZ3JzcnE2dWlvY2o4ajlkMWRpdTFtIiwidnIiOiIxLjIifQ.r3iUBjNLRePQJKuWR9aF3zM7vXO8N16WijF_Vnf5hX4`
             }
         })
         const data = await response.json();
@@ -435,45 +435,41 @@ app.get('/sound_api', soundcloud.soundcloudThread)
 
 function getApiCut(api) {
     switch (api) {
-        case 'apple':
-            return 'ap'
-        case 'spotify':
-            return 'sp'
-        case 'soundcloud':
-            return 'sc'
-        case 'anghami':
-            return 'an'
-        case 'youtube':
-            return 'yt'
-        case 'ap':
+        case 'an':
             return 'anghami'
         case 'sp':
             return 'spotify'
         case 'yt':
             return 'youtube'
+        case 'sc':
+            return 'soundcloud'
         case 'ap':
             return 'apple'
     }
     return;
 }
 
+
 app.get('/:endpoint/:id?', async (req, res) => {
     try {
         const { endpoint, id } = req.params
         const isCut = getApiCut(endpoint)
         if (isCut) {
-            req.track = { api: isCut, id }
+            const track = await getTracksData(isCut,id)
+            req.track = track
+            req.meta = performMeta({
+                title: `Listen to ${track.title} ON Airwave`,
+                image: track.poster
+            })
             return res.render('index', { req: req })
         }
         if (!endpoint) {
             throw new Error('ass')
-            return
         }
         const clientIP = req.headers['x-forwarded-for'] || req.socket?.remoteAddress;
         const response = await fetch(`https://api.onvo.me/music/user/${req.params.endpoint}?method=username`, {
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer SDAXCX213XADS1222XZAWEXXZDFAAS09182EWAS`,
                 'X-Client-IP': clientIP
             }
         });
@@ -494,9 +490,10 @@ app.use((err, req, res, next) => {
 
 
 const server = http.createServer(app);
-server.setTimeout(0);
-createWebSocket(server);
-
+if (!isWeb) {
+    server.setTimeout(0);
+    createWebSocket(server);
+}
 server.listen(PORT, () => {
     console.log(`HTTP server running on http://localhost:${PORT}`);
 });

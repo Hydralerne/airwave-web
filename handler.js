@@ -33,12 +33,12 @@ const scrap = async (url, agent = 'chrome') => {
 const cheerio = require('cheerio');
 
 
-const anghamiScrapHandler = async (url,id) => {
+const anghamiScrapHandler = async (url, id) => {
     let json = '{"tracks": []}'
     let more = {};
 
     try {
-        if(!url && id){
+        if (!url && id) {
             url = `https://play.anghami.com/playlist/${id}`
         }
         const response = await scrap(url)
@@ -67,7 +67,7 @@ const anghamiScrapHandler = async (url,id) => {
     return { json, info }
 }
 
-const anghamiTracks = (json,isTrack) => {
+const anghamiTracks = (json, isTrack) => {
     const tracks = []
     json.forEach((song, index) => {
         tracks.push(anghamiTrack(song))
@@ -105,89 +105,82 @@ const anghamiTrack = (song) => {
     }
 }
 
+const getAnghamiTrack = async (id) => {
+    const url = `https://play.anghami.com/song/${id}`
+    let { info } = await anghamiScrapHandler(url, id)
+    let coreData = info[Object.keys(info)[0]]
+    const related = anghamiTracks(coreData.body?.sections?.[0]?.data)
+    const track = anghamiTrack(coreData.body)
+    return {
+        related, track
+    }
+
+}
+
+const getAnghamiList = async (id) => {
+    const url = `https://play.anghami.com/playlist/${id}`
+    let { json, info } = await anghamiScrapHandler(url, id)
+    let ids = [];
+    let coreData = {}
+
+    try {
+        coreData = info[Object.keys(info)[0]]
+        ids = coreData.body?.songorder?.split(',')
+    } catch (e) {
+        console.log(e);
+    }
+
+    let loop = json.track
+
+    const tracks = [];
+
+    loop.forEach((track, index) => {
+        tracks.push({
+            api: 'anghami',
+            id: ids[index],
+            title: track.name,
+            artist: track.byArtist.name,
+            artist_link: track.byArtist['@id'],
+            album: track.inAlbum['name'],
+            album_url: track.inAlbum['@id'],
+            poster: track.image,
+            slug: `https://play.anghami.com/song/${ids[index]}`
+        })
+    });
+    return {
+        api: 'anghami',
+        id: getAnghamiPlaylistId(json['@id']),
+        owner: {
+            id: coreData?.body.OwnerID,
+            fbid: coreData?.body.fbid,
+            name: coreData?.body.OwnerName,
+            image: coreData?.body.OwnerPicture
+        },
+        name: json.name,
+        description: json.description,
+        tracks_count: json.numtracks,
+        tracks: tracks,
+        url: json.url
+    }
+}
+
+
 const anghamiHandler = async (req) => {
     try {
-        let data = {};
-        if (req.params.endpoint == 'playlist' || ((req.params.endpoint == 'related' || req.params.endpoint == 'track') && req.params.id)) {
-
-            let url = req.query.url
-            let id = req.query.id
-
-            if (!id && !url?.startsWith('https://open.anghami.com') && !url?.startsWith('https://play.anghami.com/') && !req.params.id) {
-                return ({ error: 'invalid_data' })
-            }
-
-            if (req.params.endpoint == 'related' || req.params.endpoint == 'track') {
-                url = `https://play.anghami.com/song/${req.params.id}`
-            }
-
-            let { json, info } = await anghamiScrapHandler(url,id)
-
-            let ids = [];
-            let coreData = {}
-
-            try {
-                coreData = info[Object.keys(info)[0]]
-                ids = coreData.body?.songorder?.split(',')
-            } catch (e) {
-                console.log(e);
-            }
-
-            let loop = json.track
-
-            if (req.params.endpoint == 'related') {
-                json = coreData.body?.sections?.[0]?.data
-                return anghamiTracks(json)
-            }
-            if (req.params.endpoint == 'track') {
-                return anghamiTrack(coreData.body)
-            }
-
-            if (!loop || loop?.length == 0) {
-                return { error: 'invalid_tracks_data' }
-            }
-
-            const tracks = [];
-            loop.forEach((track, index) => {
-                tracks.push({
-                    api: 'anghami',
-                    id: ids[index],
-                    title: track.name,
-                    artist: track.byArtist.name,
-                    artist_link: track.byArtist['@id'],
-                    album: track.inAlbum['name'],
-                    album_url: track.inAlbum['@id'],
-                    poster: track.image,
-                    audio: {
-                        url: `https://play.anghami.com/song/${ids[index]}`
-                    }
-                })
-            });
-            data = {
-                api: 'anghami',
-                id: getAnghamiPlaylistId(json['@id']),
-                owner: {
-                    id: coreData?.body.OwnerID,
-                    fbid: coreData?.body.fbid,
-                    name: coreData?.body.OwnerName,
-                    image: coreData?.body.OwnerPicture
-                },
-                name: json.name,
-                description: json.description,
-                tracks_count: json.numtracks,
-                tracks: tracks,
-                url: json.url
-            }
+        if ((req.params.endpoint == 'related' || req.params.endpoint == 'track')) {
+            const track = await getAnghamiTrack(req.params.id, req.params.endpoint || req.query.id)
+            return track
+        } else if (req.params.endpoint == 'playlist') {
+            const list = await getAnghamiList(req.params.id || req.query.id)
+            return list
         } else if (req.params.endpoint == 'search') {
             const response = await fetch(`https://coussa.anghami.com/rest/v2/GETSearchResults.view?language=en&query=${req.query.q}&page=0&filter_type=${req.query.filter || 'song'}&simple_results=true`);
             const search = await response.json()
             const json = search.sections[0].data
             const tracks = anghamiTracks(json)
-            data = tracks;
-        } else if (req.params.endpoint == 'related') {
-
+            return tracks;
         }
-        return data
+        return { error: 'no_type' }
     } catch (e) {
         console.log(e)
         return { error: e.message }
@@ -334,4 +327,4 @@ const getAppleHome = async (req, res) => {
     }
 }
 
-module.exports = { getAppleHome, anghamiHandler, scrap, getAppleRelated }
+module.exports = { getAppleHome, anghamiHandler, scrap, getAppleRelated,getAnghamiTrack }

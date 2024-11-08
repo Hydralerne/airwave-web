@@ -126,7 +126,7 @@ function printLiveSong(data) {
             <div class="add-song" onclick="addTrack(this)"></div>
         </div>
     </div>`;
-    processColors((data.poster?.url || data.poster), 5).then(cldt => {
+    processColors(pI((data.poster?.url || data.poster),true), 5).then(cldt => {
         document.querySelector('.song-chat.msg-core[trackid="' + data.id + '"]').style.background = `linear-gradient(45deg, ${cldt.color}, ${hexToRGBA(cldt.color, 0.35)})`
     })
     return html
