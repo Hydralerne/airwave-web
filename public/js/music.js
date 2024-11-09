@@ -1230,6 +1230,10 @@ async function playTrack(el, e) {
             source = globalNext.source
             globalNext = {}
         } else if (!path && !isExist) {
+            if(api !== 'soundcloud' && isWeb()){
+                showDownload(currentSong)
+                return 
+            }
             source = await requestSource(currentSong, url, protocol);
         } else {
             try {
