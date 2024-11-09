@@ -259,7 +259,7 @@ const removeImages = (req, res, next) => {
     } catch (e) {
         console.log(e)
     }
-    res.json({status: 'success'})
+    res.json({ status: 'success' })
 }
 
 const urlToFilename = (urlString) => {
@@ -280,7 +280,7 @@ const proxyImages = (req, res, next) => {
 
     const filename = urlToFilename(imageUrl);
     const filePath = path.join(IMAGES_DIR, filename);
-    
+
     if (!noCache) {
         if (fs.existsSync(filePath)) {
             return res.sendFile(filePath, (err) => {
@@ -523,23 +523,23 @@ async function cloneRepo(repoUrl, targetDir, onProgress) {
         // Save the downloaded archive to a file with progress reporting
         const fileStream = fs.createWriteStream(archivePath);
         let lastReportedPercent = 0;
-        
+
         await new Promise((resolve, reject) => {
-               const fileStream = fs.createWriteStream(archivePath);
-               response.body.on('data', chunk => {
-                   downloadedBytes += chunk.length;
-                   const percent = Math.floor((downloadedBytes / totalBytes) * 100);
+            const fileStream = fs.createWriteStream(archivePath);
+            response.body.on('data', chunk => {
+                downloadedBytes += chunk.length;
+                const percent = Math.floor((downloadedBytes / totalBytes) * 100);
 
-                   // Only report progress if it has increased by at least 1%
-                   if (percent > lastReportedPercent) {
-                       lastReportedPercent = percent;
-                       onProgress(percent);
-                   }
-               });
+                // Only report progress if it has increased by at least 1%
+                if (percent > lastReportedPercent) {
+                    lastReportedPercent = percent;
+                    onProgress(percent);
+                }
+            });
 
-               response.body.pipe(fileStream);
-               response.body.on('error', reject);
-               fileStream.on('finish', resolve);
+            response.body.pipe(fileStream);
+            response.body.on('error', reject);
+            fileStream.on('finish', resolve);
         });
         // Extract the downloaded archive
         const zip = new StreamZip.async({ file: archivePath });
@@ -577,6 +577,29 @@ async function cloneRepo(repoUrl, targetDir, onProgress) {
     }
 }
 
+const proxyRequest = (req, res) => {
+    try {
+        const downloadUrl = req.query.url
+        const protocol = downloadUrl.startsWith('https') ? https : http;
+        const options = {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36',
+            }
+        };
+        if (req.headers['range']) {
+            options.headers['Range'] = req.headers['range'];
+        }
+        protocol.get(downloadUrl, options, (proxyRes) => {
+            res.writeHead(proxyRes.statusCode, proxyRes.headers);
+            proxyRes.pipe(res);
+        }).on('error', (err) => {
+            console.log(err)
+            res.status(500).send(`Error proxying the request: ${err.message}`);
+        });
+    } catch (e) {
+        res.json({ error: e.message })
+    }
+};
 
 module.exports = {
     proxyConnect,
@@ -584,5 +607,6 @@ module.exports = {
     proxyImages,
     removeImages,
     downloadHandler,
-    cloneRepo
+    cloneRepo,
+    proxyRequest
 }

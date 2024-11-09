@@ -10,7 +10,7 @@ const lyrics = require(path.join(__dirname, 'lyrics.js'));
 const core = require(path.join(__dirname, 'handler.js'));
 const spotify = require(path.join(__dirname, 'spotify.js'));
 const ytdlp = require(path.join(__dirname, 'ytdlp', 'youtube.js'));
-const { cloneRepo, createWebSocket, proxyImages, downloadHandler, removeImages } = require(path.join(__dirname, 'proxy.js'));
+const { cloneRepo, createWebSocket, proxyImages, downloadHandler, removeImages, proxyRequest } = require(path.join(__dirname, 'proxy.js'));
 const { getYotubeMusicList, getVideoId, filterYoutube, scrapYoutube } = require(path.join(__dirname, 'youtube.js'));
 const { getTracksData } = require(path.join(__dirname, 'tracks.js'));
 const remotePathDir = path.join(process.argv[2], 'remote');
@@ -126,6 +126,8 @@ app.get('/spotify/:method', cors(), async (req, res) => {
     }
 })
 
+app.get('/yt-proxy', proxyRequest)
+
 app.get('/clear', blockWeb, removeImages);
 
 app.get('/proxy', blockWeb, proxyImages);
@@ -138,11 +140,11 @@ app.get('/music', blockWeb, (req, res) => {
 app.get('/profile', (req, res) => {
     res.render('profile', { req: req })
 });
-app.get('/policy',cors(), (req,res) => {
-    res.sendFile(path.join(__dirname,'../','terms.html'))
+app.get('/policy', cors(), (req, res) => {
+    res.sendFile(path.join(__dirname, '../', 'terms.html'))
 })
-app.get('/policy/v2',cors(), (req,res) => {
-    res.sendFile(path.join(__dirname,'../','terms.html'))
+app.get('/policy/v2', cors(), (req, res) => {
+    res.sendFile(path.join(__dirname, '../', 'terms.html'))
 })
 const performMeta = (data) => {
     return `
@@ -455,7 +457,7 @@ app.get('/:endpoint/:id?', async (req, res) => {
         const { endpoint, id } = req.params
         const isCut = getApiCut(endpoint)
         if (isCut) {
-            const track = await getTracksData(isCut,id)
+            const track = await getTracksData(isCut, id)
             req.track = JSON.stringify(track)
             req.meta = performMeta({
                 title: `Listen to ${track.title} ON Airwave`,

@@ -2590,7 +2590,7 @@ function showPremium(e) {
     document.body.insertAdjacentHTML('beforeend', html)
 }
 
-function showDownload(e) {
+function showDownload(song) {
     let html = `
     <div class="premium-banner">
         <div class="premium-banner-back"></div>
@@ -2607,8 +2607,7 @@ function showDownload(e) {
                     <div class="join-now" onclick="showPremiumPage()" ${touchPackage}><span>Download</span></div>
                 </div>
                 <div class="description-why-preimium">
-                    <span></span>
-                    <a>${e}</a>
+                    ${printSongRegular(song)}
                 </div>
             </div>
         </div>

@@ -2684,7 +2684,9 @@ async function getRelated() {
         if (queueTracks.length < 4) {
             queueTracks = data || raw?.byArtist
             queueTracks.unshift(currentSong)
-            prepareNext()
+            if(!isParty || isOwner()){
+                prepareNext()
+            }
         }
         resolve(relatedGlobal)
     });
