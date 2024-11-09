@@ -7701,3 +7701,31 @@ body.importing-list .body {
 .song-complay span {
     display: none;
 }
+
+.description-why-preimium {
+    background: #0000004d;
+    border-radius: 20px;
+    align-items: center;
+    display: flex;
+}
+
+.description-why-preimium .song-music-element.song {
+    margin-bottom: 0;
+}
+
+.description-why-preimium .song-music-element.song .song-element-poster.song-poster {
+    margin-left: 10px;
+}
+
+.description-why-preimium .song-music-element section {
+    margin-left: 70px;
+}
+
+.description-why-preimium .song-music-element section span {
+    color: #fff!important;
+
+}
+
+.song-complay span {
+    display: none;
+}
