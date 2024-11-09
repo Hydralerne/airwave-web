@@ -2590,6 +2590,33 @@ function showPremium(e) {
     document.body.insertAdjacentHTML('beforeend', html)
 }
 
+function showDownload(e) {
+    let html = `
+    <div class="premium-banner">
+        <div class="premium-banner-back"></div>
+        <div class="premium-banner-body">
+            <div class="banner-home premium-banner">
+                <div class="close-premium-banner" onclick="document.querySelector('.premium-banner').remove()"></div><div class="inner-banner-home">
+                    <div class="live-radio-descriotion">
+                        <div class="premimu-tag">
+                            <span>Airwave</span>
+                        </div>
+                        <span>Download app</span>
+                        <p>To Immerse yourself in a limitless world of music and tracks</p>
+                    </div>
+                    <div class="join-now" onclick="showPremiumPage()" ${touchPackage}><span>Download</span></div>
+                </div>
+                <div class="description-why-preimium">
+                    <span></span>
+                    <a>${e}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', html)
+}
+
 let preimiumVideoStarted;
 async function showPremiumPage() {
     document.querySelector('.subscriptions').classList.remove('hidden')
