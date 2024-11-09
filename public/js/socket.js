@@ -86,7 +86,10 @@ function controlCore(data) {
     }
 }
 
-const coreSocket = new coreSocketClass(`ws${origin.includes('https') ? 's' : ''}://${origin.replace('http://', '').replace('https://', '')}/`);
+let coreSocket = {};
+if(!isWeb()){
+    coreSocket = new coreSocketClass(`ws${origin.includes('https') ? 's' : ''}://${origin.replace('http://', '').replace('https://', '')}/`);
+}
 
 let apiSocket;
 
