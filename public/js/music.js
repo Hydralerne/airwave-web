@@ -614,7 +614,7 @@ function playNext(e) {
     }
 
     document.querySelector('.play-pause').classList.remove('played')
-    if ((globalNext.id && !e) || isShuffle()) {
+    if ((globalNext.id && !e && globalNext.id !== currentSong.id) || isShuffle()) {
         playTrack(globalNext)
         // globalNext = {}
     } else {
@@ -3055,7 +3055,7 @@ let coringMessage = function (data) {
     } else {
         html = `
         <div class="msg-core" ontouchstart="holdMsg(event, this)" ontouchend="holdMsg(event, this, 'end')" ontouchmove="holdMsg(event, this, 'move')" dataid="${data.msgid}">
-            <p>${data.text ? encodeHtmlEntities(data.text) : ''}</p>
+            <p ${isArabic(data.text) ? 'style="direction: rtl;"' : ''}>${data.text ? encodeHtmlEntities(data.text) : ''}</p>
             <span>${data.now.hr}:${data.now.min}</span>
         </div>`
     }
@@ -3084,7 +3084,7 @@ async function appendChat(id, text, msgid, repid, external) {
         const reptext = mainel?.querySelector('p')?.innerText;
         reply = `<div dataid="${reply}" class="reps">
         <text>Replying to ${mainel?.closest('.msg')?.querySelector(`.nmvo`)?.innerText || 'you'}</text>
-        <p>${encodeHtmlEntities(reptext)}</p>
+        <p ${isArabic(reptext) ? 'style="direction: rtl;"' : ''}>${encodeHtmlEntities(reptext)}</p>
         </div>`
     }
     const lastmsg = document.querySelector('.msg:last-child');

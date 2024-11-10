@@ -346,7 +346,7 @@ function printMessages(data) {
                     <div class="more-suggestions-body"></div>
                 </div>
                 <div class="reccomendation-body song" onclick="playTrack(this)" trackid="${message.media_content.id}" api="${message.media_content.api || 'spotify'}">
-                    <div class="reccomendation-poster-image song-poster" data-poster-large="${message.media_content.bimg}" data-poster="${message.media_content.img}" style="background-image: url('${(message.media_content.bimg || message.media_content.img, true)}');"></div>
+                    <div class="reccomendation-poster-image song-poster" data-poster-large="${message.media_content.bimg}" data-poster="${message.media_content.img}" style="background-image: url('${(message.media_content.bimg || message.media_content.img)}');"></div>
                     <div class="hilight-blured-info">
                         <div class="backgrounded-blured-info"></div>
                         <div class="post-play-button"></div>

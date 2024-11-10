@@ -17,7 +17,7 @@
         <script>
 
             function log(data) {
-                console.error(data)
+                console.log(data)
                 fetch("/log-error", {
                     method: "POST",
                     headers: {
@@ -29,6 +29,8 @@
 
             if (window.webkit) {
                 window.onerror = function (message, source, lineno, colno, error) {
+                    // Log the error details
+
                     log({
                         message: message,
                         source: source,
@@ -36,12 +38,16 @@
                         colno: colno,
                         error: error ? error.stack : null,
                     })
+
+
+                    // Return true to prevent the error from propagating further
                     return true;
                 };
             }
         </script>
         <script src="/js/header.js?asdasd"></script>
         <script src="/js/db.js"></script>
+        <script src="/js/libs/vibrant.min.js"></script>
         <link rel="stylesheet" href="/js/libs/swiper-bundle.min.css" />
         <script src="/js/libs/swiper-bundle.min.js"></script>
         <script type="application/javascript" src="/js/libs/pullraw.js"></script>
@@ -91,46 +97,47 @@
 
 <body class="<% if(req.query.login){ %><%- 'outlog'; %><% } %>">
     <% if(!req.query.login){ %>
-
-        <% } if(req.query.login){ %>
-            <%- include('loginPage.ejs') %>
-                <% } else { %>
-                    <%- include('../ejs/dialog') %>
-                        <%- include('../ejs/liveCore') %>
-                            <%- include('../ejs/indexCore') %>
-                                <script type="application/javascript" src="/js/songs.js"></script>
-                                <script type="application/javascript" src="/js/effects.js"></script>
-                                <script type="application/javascript" src="/js/socket.js?asdasafdssdd"></script>
-                                <script type="application/javascript" src="/js/music.js?asdasafdssdd"></script>
-                                <script type="application/javascript" src="/js/home.js?ASdadasdsfd"></script>
-                                <script type="application/javascript" src="/js/profile.js?ASassdfddad"></script>
-                                <script type="application/javascript" src="/js/plus.js?Sadasdsdfas"></script>
-                                <% } %>
-                                    <script>
-                                        try {
-                                            const cached = localStorage.getItem('js')
-                                            if (cached) {
-                                                eval(cached)
-                                            }
-                                        } catch (e) {
-                                            console.error(e)
+    
+    <% } 
+    if(req.query.login){ %>
+        <%- include('loginPage.ejs') %>
+            <% } else { %>
+                <%- include('../ejs/dialog') %>
+                    <%- include('../ejs/liveCore') %>
+                        <%- include('../ejs/indexCore') %>
+                            <script type="application/javascript" src="/js/songs.js"></script>
+                            <script type="application/javascript" src="/js/effects.js"></script>
+                            <script type="application/javascript" src="/js/socket.js?asdasafdssdd"></script>
+                            <script type="application/javascript" src="/js/music.js?asdasafdssdd"></script>
+                            <script type="application/javascript" src="/js/home.js?ASdadasdsfd"></script>
+                            <script type="application/javascript" src="/js/profile.js?ASassdfddad"></script>
+                            <script type="application/javascript" src="/js/plus.js?Sadasdsdfas"></script>
+                            <% } %>
+                                <script>
+                                    try {
+                                        const cached = localStorage.getItem('js')
+                                        if (cached) {
+                                            eval(cached)
                                         }
-                                    </script>
+                                    } catch (e) {
+                                        console.error(e)
+                                    }
+                                </script>
 
-                                    <% if(req.track){ %>
-                                        <script>
-                                            (async () => {
-                                                await playTrack(<% - req.track %>)
-                                                showThePlayer()
-                                            })()
-                                        </script>
-                                        <% } %>
-                                            <% if(req.radio){ %>
-                                                <script>
-                                                    const liveJSON = <% - req.radio %>
-                                                        fireJoinMethod(liveJSON)
-                                                </script>
-                                                <% } %>
+                                <% if(req.track){ %>
+                                    <script>
+                                        (async () => {
+                                            await playTrack(<%- req.track %>)
+                                            showThePlayer()
+                                        })()
+                                    </script>
+                                    <% } %>
+                                        <% if(req.radio){ %>
+                                            <script>
+                                                const liveJSON = <%- req.radio %>
+                                                fireJoinMethod(liveJSON)
+                                            </script>
+                                            <% } %>
 
 </body>
 

@@ -152,22 +152,54 @@ const performMeta = (data) => {
         content="${data.description}">` : ''}
     <meta property="og:title" content="${data.title}" />
     <meta property="og:image" content="${data.image}" />
-    <meta name="twitter:card" content="summary">
+    <meta name="twitter:card" content="${data.summary == 'large' ? 'summary_large_image' : 'summary'}">
     <meta name="twitter:site" content="@oave_me">
     <meta name="twitter:title" content="${data.title}">
     <meta name="twitter:image" content="${data.image}">
     `
 }
 
+app.get('/og-image', async (req, res) => {
+    try {
+        const image = req.query.id;
+        if (!/^tmp_\d+\.png$/.test(image)) {
+            return res.status(400).json({ error: 'Invalid image ID' });
+        }
+        const filePath = `/home/cdn/node/cache/${image}`;
+        res.sendFile(filePath);
+    } catch (e) {
+        res.json({ error: e.message });
+    }
+});
+
+
 app.get('/radio/:id', async (req, res) => {
     try {
         const response = await fetch(`https://api.onvo.me/music/channels?id=${req.params.id}`)
         const data = await response.json();
         req.radio = JSON.stringify(data)
+        const userAgent = req.get('User-Agent') || '';
+        const isTwitterBot = /Twitterbot/i.test(userAgent);
+        const isWhatsAppBot = /WhatsApp/i.test(userAgent);
         req.meta = performMeta({
             title: `Join ${data.owner.fullname}'s Live party`,
             image: data.owner.image?.replace('/profile/', '/profile_frame/')
         })
+        if(isTwitterBot || isWhatsAppBot){
+            const imgResponse = await fetch('http://localhost:5321/party',{
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({data})
+            })
+            const imgData = await imgResponse.json()
+            req.meta = performMeta({
+                title: `Join ${data.owner.fullname}'s Live party`,
+                image: `https://oave.me/og-image?id=${imgData.id}`,
+                summary: 'large'
+            })
+        }
     } catch (e) {
         console.error(e)
     }
