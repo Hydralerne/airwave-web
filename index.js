@@ -196,7 +196,7 @@ app.get('/radio/:id', async (req, res) => {
             const imgData = await imgResponse.json()
             req.meta = performMeta({
                 title: `Join ${data.owner.fullname}'s Live party`,
-                image: `https://oave.me/og-image?id=${imgData.id}`,
+                image: `https://oave.me/og-image?id=${imgData.id}&ts=${Date.now()}`,
                 summary: 'large'
             })
         }
