@@ -261,8 +261,8 @@ async function openPlaylist(id, type, userid, public_id) {
 
         randomImages.forEach(random => {
             const posterDetails = filterPosterLarge(random.posterLarge, random.poster)
-            listPerview += `<span data-img="${random.poster?.url || random.poster}" style="background-image: url('${pI(random.poster?.url || random.poster)}')"></span>`;
-            backdropPerview += `<div class="playlist-poster" style="background-image: url(${pI(posterDetails.image)});"></div>`
+            listPerview += `<span data-img="${random.poster?.url || random.poster}" style="background-image: url('${(random.poster?.url || random.poster)}')"></span>`;
+            backdropPerview += `<div class="playlist-poster" style="background-image: url(${(posterDetails.image)});"></div>`
         })
 
         document.querySelector('.list-perview section').innerHTML = listPerview
@@ -346,7 +346,7 @@ function printMessages(data) {
                     <div class="more-suggestions-body"></div>
                 </div>
                 <div class="reccomendation-body song" onclick="playTrack(this)" trackid="${message.media_content.id}" api="${message.media_content.api || 'spotify'}">
-                    <div class="reccomendation-poster-image song-poster" data-poster-large="${message.media_content.bimg}" data-poster="${message.media_content.img}" style="background-image: url('${pI(message.media_content.bimg || message.media_content.img, true)}');"></div>
+                    <div class="reccomendation-poster-image song-poster" data-poster-large="${message.media_content.bimg}" data-poster="${message.media_content.img}" style="background-image: url('${(message.media_content.bimg || message.media_content.img, true)}');"></div>
                     <div class="hilight-blured-info">
                         <div class="backgrounded-blured-info"></div>
                         <div class="post-play-button"></div>
@@ -375,7 +375,7 @@ function printArtists(artists) {
     let html = ''
     const isSearch = document.body.classList.contains('creating')
     artists.forEach(artist => {
-        html += `<div class="artist-element" data-img="${artist.image}" dataid="${artist.id}" onclick="${!isSearch ? `openArtist(this.getAttribute('dataid'),this)` : `this.classList.toggle('selected')`}" dataid="${artist.id}"><span style="background-image: url(${pI(artist.image)})"></span><div class="border-marker"></div><a>${artist.name}</a><div class="marker"></div></div>`
+        html += `<div class="artist-element" data-img="${artist.image}" dataid="${artist.id}" onclick="${!isSearch ? `openArtist(this.getAttribute('dataid'),this)` : `this.classList.toggle('selected')`}" dataid="${artist.id}"><span style="background-image: url(${(artist.image)})"></span><div class="border-marker"></div><a>${artist.name}</a><div class="marker"></div></div>`
         // getColors(artist.image, 5).then(data => {
         //     const parent = document.querySelector(`.artist-element[dataid="${artist.id}"]`)
         //     parent.querySelector('.border-marker').style.borderColor = data.muted
@@ -466,7 +466,7 @@ async function openArtist(id, el) {
     albums.forEach(album => {
         albumsData += `
         <div class="list-perview-home" dataid="${album.id}" api="spotify" onclick="openAlbum('${album.id}','soundcloud')">
-            <div class="list-poster" style="background-image: url('${pI(album.images[1].url, true)}')"></div>
+            <div class="list-poster" style="background-image: url('${(album.images[1].url, true)}')"></div>
             <section>
                 <span>${album.name}</span>
                 <div class="lable-list"><a>${album.total_tracks} Tracks</a></div>
@@ -946,7 +946,7 @@ async function printHome(data) {
 
     const recent = data?.user?.profile?.recently_played
     if (recent?.length > 0) {
-        const recentHTML = scolledSongs(recent || [])
+        const recentHTML = scolledSongs(recent || [], true)
         document.querySelector('.outset-recently-played').innerHTML = `
             <div class="head-tag container"><span>Recently played</span><a></a></div>
             <div class="recently-played-container">
@@ -988,7 +988,7 @@ async function miniDialog(text) {
 
 function printLiveCard(live) {
     const isJoined = liveBody.getAttribute('dataid') == live.live_id
-    const poster = pI(live?.playing?.poster?.url || live?.playing?.poster)
+    const poster = (live?.playing?.poster?.url || live?.playing?.poster)
     getColors(poster, 5).then(colors => {
         const parent = document.querySelector(`.live-card[dataid="${live.live_id}"]`)
         parent.querySelector('.fseclord').style.backgroundColor = colors.shades[2]
@@ -1311,7 +1311,7 @@ async function getSoundcloudHome(e) {
             }
             html += `
             <div class="list-perview-home" dataid="${list.id}" api="soundcloud" onclick="openPlaylist('${list.id}','soundcloud')">
-                <div class="list-poster" style="background-image: url('${pI(list.poster?.replace('large', 't300x300'))}')"></div>
+                <div class="list-poster" style="background-image: url('${(list.poster?.replace('large', 't300x300'))}')"></div>
                 <section>
                     <span>${list.title}</span>
                     <div class="lable-list"><a>${list.tracks_count} Tracks</a><!--<a>${formatRuntime(list.duration)}</a>--></div>
@@ -1528,7 +1528,7 @@ function printArtistsLib(data) {
     data.forEach(artist => {
         html += `
         <div class="artist-card" data-img="${artist.image}" dataid="${artist.id}" onclick="openArtist('${artist.id}',this)">
-            <span style="background-image: url('${pI(artist.image)}');"></span>
+            <span style="background-image: url('${(artist.image)}');"></span>
             <a>${artist.name}</a>
         </div>
         `
@@ -1776,22 +1776,31 @@ function editFavs() {
 // getUserData();
 
 function addScriptIfNotPresent(src) {
-    // Check if the script with the given src already exists
-    var existingScript = document.querySelector(`script[src="${src}"]`);
+    return new Promise((resolve, reject) => {
+        var existingScript = document.querySelector(`script[src="${src}"]`);
+        if (!existingScript) {
+            var script = document.createElement('script');
+            script.src = src;
+            script.async = true;
+            script.onload = () => {
+                console.log('Script loaded:', src);
+                resolve();
+            };
+            script.onerror = () => {
+                console.error('Failed to load script:', src);
+                reject(new Error(`Failed to load script: ${src}`));
+            };
 
-    // If no such script exists, create and append it
-    if (!existingScript) {
-        var script = document.createElement('script');
-        script.src = src;
-        script.async = true; // Optional: adds non-blocking loading
-        document.head.appendChild(script);
-        console.log('Script added:', src);
-    } else {
-        console.log('Script already exists:', src);
-    }
+            document.head.appendChild(script);
+            console.log('Script added:', src);
+        } else {
+            console.log('Script already exists:', src);
+            resolve();
+        }
+    });
 }
 
-if (!window.webkit) {
+if (!window.webkit && typeof Android == 'undefined') {
     addScriptIfNotPresent('/js/libs/hls.js');
 }
 
@@ -1948,7 +1957,7 @@ function printQoute(qoute) {
 }
 function printMusic(musicraw) {
     if (musicraw) {
-        return '<div trackurl="' + musicraw.url + '" class="post-music audio-element textarea-music-element"></audio><div class="inner-post-music song" trackid="' + musicraw.id + '" ><div class="post-music-image song-poster" data-poster="' + pI(musicraw.img) + '" data-poster-large="' + pI(musicraw.bimg) + '" style="background-image: url(' + pI(musicraw.img) + ');"></div><div class="info-music-post artist-title" onclick="playTrack(this)"><span>' + musicraw.nm + '</span><a>' + musicraw.art + '</a></div><div class="play-music" onclick="srswAudio($(this));"></div></div></div>';
+        return '<div trackurl="' + musicraw.url + '" class="post-music audio-element textarea-music-element"></audio><div class="inner-post-music song" trackid="' + musicraw.id + '" ><div class="post-music-image song-poster" data-poster="' + (musicraw.img) + '" data-poster-large="' + (musicraw.bimg) + '" style="background-image: url(' + (musicraw.img) + ');"></div><div class="info-music-post artist-title" onclick="playTrack(this)"><span>' + musicraw.nm + '</span><a>' + musicraw.art + '</a></div><div class="play-music" onclick="srswAudio($(this));"></div></div></div>';
     } else {
         return '';
     }
@@ -1983,7 +1992,7 @@ function printMessage(message, thread, index, e) {
     try {
 
         if (message.type == 'cut') {
-            html = '<div class="post profile-post" onclick="ajaxMsg(\'' + message.id + '\')" dir="cut"><div class="inner-post"><div class="post-header user-stored"><div class="pppi" style="background-image: url(' + pI(message.user.image) + ');"></div></div></div></div>';
+            html = '<div class="post profile-post" onclick="ajaxMsg(\'' + message.id + '\')" dir="cut"><div class="inner-post"><div class="post-header user-stored"><div class="pppi" style="background-image: url(' + (message.user.image) + ');"></div></div></div></div>';
             return html;
         }
         let media = '';
@@ -2172,7 +2181,7 @@ async function getMessagesHome() {
 }
 
 function fireJoinMethod(liveJSON) {
-    if(document.querySelector('.huge-join')){
+    if (document.querySelector('.huge-join')) {
         return
     }
     const html = printLiveCard(liveJSON);
@@ -2180,12 +2189,14 @@ function fireJoinMethod(liveJSON) {
     <div class="huge-join">
     <div class="close-premium-banner" onclick="document.querySelector('.huge-join').remove();"></div>
     ${html}
+        <div class="buttons-flex-join">
     <div class="join-now-live ${!isWeb() ? 'main' : ''} " onclick="joinParty('${liveJSON.live_id}');document.querySelector('.huge-join').remove();">
     </div>
     ${isWeb() ? `
     <div class="join-now-live in-app" onclick="window.open('oave://live/?id=${liveJSON.live_id}')">
     </div>
     ` : ''}
+    </div>
     </div>
     `)
 }
@@ -2210,7 +2221,7 @@ async function nextHome() {
             if (index == 0) {
                 x = msgs
             }
-            const recent = scolledSongs(section.tracks)
+            const recent = scolledSongs(section.tracks, true)
             document.querySelector('.timeline').insertAdjacentHTML('beforeend', `${x}
             <div class="spacer"></div>
         <div class="head-tag container"><span>${section.title}</span><a></a></div>
@@ -2324,7 +2335,7 @@ async function showMenu(parent, e) {
         document.querySelector('.switch-component.download-ssc').classList.remove('downloaded')
     }
 
-    if (lastSelected.id == currentSong.id) {
+    if (lastSelected.id == currentSong.id && (!isParty || isOwner())) {
         document.querySelector('.play-more-related').classList.remove('hidden')
     } else {
         document.querySelector('.play-more-related').classList.add('hidden')
@@ -2348,6 +2359,12 @@ async function showMenu(parent, e) {
     }
 
 }
+
+document.querySelector('.play-more-related')?.addEventListener('click', function () {
+    document.querySelector('.switcher-menu-back').click()
+    queueTracks = relatedGlobal.data || relatedGlobal.artist
+    miniDialog('Related added to queue')
+})
 
 document.querySelector('.saving-ssc')?.addEventListener('click', function () {
     if (liveBody.classList.contains('body')) {
@@ -2551,7 +2568,7 @@ const printViewLists = (data) => {
     data.forEach(list => {
         html += `
          <div class="playlist-inner-container" api="${list.api}" type="${list.type}" playlist-id="${list.playlist_id}" dataid="${list.id}">
-         <section onclick="openPlaylist('${list.playlist_id}','${list.api || 'wave'}')">${list.perview.map(img => `<span style="background-image: url(${pI(img)})"></span>`).join('')}</section>
+         <section onclick="openPlaylist('${list.playlist_id}','${list.api || 'wave'}')">${list.perview.map(img => `<span style="background-image: url(${(img)})"></span>`).join('')}</section>
          <div onclick="openPlaylist('${list.playlist_id}','${list.api || 'wave'}')" class="grid-list-info">
             <a>${list.name}</a>
             <p>${list.tracks_count} tracks</p>
@@ -2781,17 +2798,6 @@ async function removeDownload(song = lastSelected) {
 let downloading = {}
 
 async function downloadSong(song = lastSelected) {
-    processColors(pI(song.poster), 5).then(data => {
-        currentColors = data;
-        const shades = generateShades(colorEqualizer('#fbfd82', data?.colors?.muted), 5)
-        const ds = shades[3];
-        document.querySelector('.styling-helper').innerHTML = `<style>
-        :root {
-            --download: ${ds}
-        }
-        </style>
-        `;
-    });
     await delay(200)
     if (!isPlus()) {
         showPremium('Join premium to <text>download</text>')
@@ -2916,7 +2922,7 @@ async function goOffline(e) {
     if (count > 0) {
         downloaded = await getAllObjects('downloads')
         if (count < 10) {
-            const { html } = printSongsRegular(downloaded, 100);
+            const { html } = printSongsRegular(downloaded, 100, 0, true);
             mini = `
                 <div class="most-terinding-hits home-section">
                     <div class="head-tag container"><span>Your downloads</span></div>
@@ -2924,7 +2930,7 @@ async function goOffline(e) {
                 </div>
             `
         } else {
-            let miniSongs = printMiniSongs(downloaded)
+            let miniSongs = printMiniSongs(downloaded, true)
             mini = `< div class="home-section mini-songs-new" >
                 <div class="head-tag container"><span>Leatest releases</span><a></a></div><div class="newest-chart">
                     <div class="grid-shot-set">

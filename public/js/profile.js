@@ -70,14 +70,14 @@ function prepareLists(data) {
     document.querySelector('.inset-playlists-slider-square').innerHTML = lists
 }
 
-function printLists(data) {
+function printLists(data,e) {
     let lists = ''
     data.forEach(list => {
         try {
             lists += `
             <div class="playlist-component" onclick="openPlaylist('${list.id}','wave')">
                 <div class="imgs-colls-bv">
-                    <section>${list?.perview?.map(img => { return `<span style="background-image: url('${pI(img)}')"></span>` }).join('')}</section>
+                    <section>${list?.perview?.map(img => { return `<span style="background-image: url('${pI(img,e)}')"></span>` }).join('')}</section>
                 </div>
                 <div class="playlist-description">
                     <span>${list.name}</span>
@@ -93,11 +93,11 @@ function printLists(data) {
     return lists
 }
 
-function printListsSquare(data) {
+function printListsSquare(data,e) {
     let lists = ''
     data.forEach(list => {
         try {
-            const perviews = list?.perview?.map(img => { return `<span style="background-image: url('${pI(img)}')"></span>` })
+            const perviews = list?.perview?.map(img => { return `<span style="background-image: url('${pI(img,e)}')"></span>` })
             if(perviews.length < 4){
                 for(i=0; i < (6 - perviews.length); i++){
                     perviews.push('<span></span>')

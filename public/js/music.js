@@ -187,10 +187,10 @@ function play() {
             if (YTplayer) {
                 YTplayer?.playVideo();
             }
-        }catch(e){
-            
+        } catch (e) {
+
         }
-        
+
         if (window.webkit?.messageHandlers) {
             window.webkit.messageHandlers.playMusic.postMessage(0)
             return
@@ -257,12 +257,12 @@ function pause() {
                 YTplayer.pauseVideo();
                 console.log('pauseing')
             }
-        }catch(e){
-            
+        } catch (e) {
+
         }
         if (window.webkit?.messageHandlers) {
             window.webkit.messageHandlers.pauseMusic.postMessage(parseFloat('123'))
-             return
+            return
         }
 
     } catch (e) {
@@ -283,7 +283,7 @@ function seek(time) {
         if (typeof Android !== 'undefined') {
             Android.seekto(time)
             return
-        } 
+        }
         if (window.webkit?.messageHandlers) {
             window.webkit.messageHandlers.seekTo.postMessage(time)
             return
@@ -756,7 +756,7 @@ function extractUrlImage(backgroundImage) {
 function setMediaSessionMetadata() {
     const { title, artist, poster, posterLarge } = currentSong
 
-    const artwork = pI(posterLarge || poster)
+    const artwork = pI((posterLarge || poster), true)
 
     if (window.webkit?.messageHandlers) {
         window.webkit.messageHandlers.mediaPlayer.postMessage({ title, artist, artwork })
@@ -918,7 +918,7 @@ async function addPlayerMetadata(rawSongObj) {
     }
 
     if (posterLarge || poster) {
-        document.querySelector('.artist-inner-song img').src = pI(filterPosterLarge(posterLarge, poster).image);
+        document.querySelector('.artist-inner-song img').src = pI((filterPosterLarge(posterLarge, poster).image), true);
     }
 
     if (title) {
@@ -931,13 +931,12 @@ async function addPlayerMetadata(rawSongObj) {
 
     if (poster) {
         document.querySelectorAll('.wave-back-component').forEach(back => {
-            back.style.backgroundImage = `url('${pI(poster?.url || poster)}')`;
+            back.style.backgroundImage = `url('${pI((poster?.url || poster), true)}')`;
         });
     }
 
     if (poster) {
-        console.log('asdkjgaehjgfwleuias')
-        processColors(pI(poster), 5).then(data => {
+        processColors(pI(poster, true), 5).then(data => {
             currentColors = data;
             const shades = generateShades(colorEqualizer('#fbfd82', data?.colors?.muted), 5)
             const ds = shades[3];
@@ -1145,7 +1144,7 @@ function isSafari() {
 
 let sendingSong = {}
 async function playTrack(el, e) {
- 
+
     let api, url, protocol, id, rawSongObj, path
 
     if (el?.poster) {
@@ -1164,8 +1163,8 @@ async function playTrack(el, e) {
                 queueOffset = currentList.tracks?.length
                 queueList = currentList
             }
-        }else {
-            if(isParty && !isOwner() && parent.classList.contains('song-chat')){
+        } else {
+            if (isParty && !isOwner() && parent.classList.contains('song-chat')) {
                 return
             }
         }
@@ -1181,7 +1180,7 @@ async function playTrack(el, e) {
             return;
         }
     }
-    
+
     sendingSong = {}
 
     playerLoading()
@@ -1230,9 +1229,9 @@ async function playTrack(el, e) {
             source = globalNext.source
             globalNext = {}
         } else if (!path && !isExist) {
-            if(api !== 'soundcloud' && isWeb()){
+            if (api !== 'soundcloud' && isWeb()) {
                 showDownload(currentSong)
-                return 
+                return
             }
             source = await requestSource(currentSong, url, protocol);
         } else {
@@ -1283,33 +1282,35 @@ async function playTrack(el, e) {
 
     }
 
-    if (isOffline || isParty) {
-        getLyrics()
-        return
-    }
-
-    if (queueTracks.length > 0 && !isParty || isOwner()) {
-        prepareNext()
-    }
-    
-    if (isInline() && !isParty && api !== 'soundcloud' && !liveBody.classList.contains('minimized')) {
-        initializeYoutube(currentSong.yt)
-    }
-
-    if(!isParty){
-        printCopyrights(currentSong);
-    }
 
     if (!isParty || (isParty && isOwner())) {
         getRelated()
     }
 
     await checkTrackData()
-    updatePlaying(currentSong);
-    await delay(50)
 
+    updatePlaying(currentSong);
+
+    getLyrics()
+
+    if (isOffline || isParty) {
+        return
+    }
+
+    if (queueTracks.length > 0 && !isParty || isOwner()) {
+        prepareNext()
+    }
+
+    if (isInline() && !isParty && api !== 'soundcloud' && !liveBody.classList.contains('minimized')) {
+        initializeYoutube(currentSong.yt)
+    }
+
+    if (!isParty) {
+        printCopyrights(currentSong);
+    }
+
+    await delay(50)
     if (!lyricsInitialize) {
-        getLyrics()
         if (!liveBody.classList.contains('minimized') && !isParty) {
             parseRelated()
         }
@@ -1682,6 +1683,7 @@ async function getYTcode(title, artist, id) {
 let currentPlaying;
 
 async function updatePlaying(song) {
+    console.log('updateing playing')
     let id = song.id
     if (currentPlaying == song.id) {
         return
@@ -1752,7 +1754,7 @@ async function minimizePlayer(page = document.querySelector('.body')) {
     try {
         lyricsPaused = true
         loader.pause();
-    }catch(e){
+    } catch (e) {
         console.error(e)
     }
     document.querySelector('.timeline').classList.remove('hidden')
@@ -1783,7 +1785,7 @@ function showThePlayer(page = liveBody) {
     try {
         lyricsPaused = false
         loader.resume();
-    }catch(e){
+    } catch (e) {
         console.error(e)
     }
     page.classList.remove('center')
@@ -1956,8 +1958,8 @@ async function callbackSource(data, e) {
     } else {
         return
     }
-    
-    if(e){
+
+    if (e) {
         return
     }
 
@@ -1968,8 +1970,8 @@ async function callbackSource(data, e) {
     //     globalPause = true
     //     pause()
     // } else {
-        play();
-        globalPause = false;
+    play();
+    globalPause = false;
     // }
 }
 
@@ -2034,7 +2036,7 @@ async function replyPage(el) {
     const bg = post.querySelector('.pppi').style.backgroundImage?.replace('"', '')?.replace('"', '')
     document.querySelector('.song-potintial-send').innerHTML = html
     document.querySelector('.song-potintial-send .song').classList.add('music-component')
-    document.querySelector('.song-potintial-send .song').insertAdjacentHTML('beforeend', `<div class="user-whom-sender" style="background-image: ${pI(bg)}" ></div>`)
+    document.querySelector('.song-potintial-send .song').insertAdjacentHTML('beforeend', `<div class="user-whom-sender" style="background-image: ${(bg)}" ></div>`)
     document.querySelector('.body-replyer-switching').setAttribute('dir', 'reply')
     document.querySelector('.button-negrisco.main span').innerText = 'Reply message'
     document.querySelector('.button-negrisco.main').setAttribute('onclick', `replyRequest(this,'${post.getAttribute('dataid')}')`)
@@ -2078,7 +2080,7 @@ document.querySelector('.anonymous-on-box').addEventListener('click', function (
 })
 
 
-function actualSendTrack(song){
+function actualSendTrack(song) {
     song['type'] = 'song';
     let rep;
     const reparent = document.querySelector('.replaying-div');
@@ -2684,7 +2686,7 @@ async function getRelated() {
         if (queueTracks.length < 4) {
             queueTracks = data || raw?.byArtist
             queueTracks.unshift(currentSong)
-            if(!isParty || isOwner()){
+            if (!isParty || isOwner()) {
                 prepareNext()
             }
         }
@@ -2716,7 +2718,7 @@ async function parseRelated() {
 
     let content = '';
     if (data) {
-        const html = scolledSongs(data)
+        const html = scolledSongs(data, true)
         content = `<div class="head-tag container"><span>Similar tracks</span><a onclick="addQueue(this,'related')"></a></div>
             <div class="recently-played-container">
                 <div class="inset-recently-played similar-songs">${html}</div>
@@ -2911,7 +2913,7 @@ let dragging = false;
 let startX = 0;
 let holdMsg = (evt, el, phase) => {
     clearTimeout(holdTimer);
-    let dragLimit = 75; 
+    let dragLimit = 75;
     if (phase === 'end') {
         dragging = false;
         let moveX = el.offsetLeft;
@@ -3303,7 +3305,7 @@ function control(data) {
             console.error(e)
         }
     } if (data.ct == 'source') {
-        callbackSource(data,true);
+        callbackSource(data, true);
     } if (data.ct == 'invalid_source') {
         handleInvalidSource(data);
     } if (data.ct == 'signal_back') {
@@ -3659,7 +3661,7 @@ function endLyricReached() {
 
 let lyricsPaused = false
 function seekLyrics(time) {
-    if(lyricsPaused){
+    if (lyricsPaused) {
         return
     }
     try {
@@ -4296,11 +4298,19 @@ const draggableSearch = new DraggableMenu('.music-search-main', '.back-music-sea
 const mainButtoning = document.querySelector('.buttons-container')
 const mainSectionParent = document.querySelector('.bottom-live-control')
 let tsfire;
+let fireworksLoaded;
 
 async function fire(it = document.querySelector('.send-message-clap')) {
     if (it.classList.contains('disabled')) {
         return;
     }
+
+    if(!fireworksLoaded){
+        await addScriptIfNotPresent('/js/libs/vibrant.min.js');
+        await addScriptIfNotPresent('/js/libs/tsparticles.fireworks.bundle.min.j');
+        fireworksLoaded = true
+    }
+
     it.classList.add('disabled')
     const works = await fireworks({
         background: "transparent",
@@ -4372,28 +4382,12 @@ function parseQueue(e) {
     if (sorter) {
         sorter.destroy();
     }
-    queueContainer.innerHTML = ''
     if (queueTracks.length > 0) {
         let songs = '';
         queueTracks.forEach(song => {
             songs += printSong(song)
         })
-        const activeQueue = document.querySelector('.music-component.running')
-        if (queueContainer.classList.contains('initialized')) {
-            if (activeQueue) {
-                activeQueue.insertAdjacentHTML('afterend', songs)
-            } else {
-                queueContainer.insertAdjacentHTML('afterbegin', songs)
-            }
-        } else {
-            queueContainer.classList.add('initialized')
-            queueContainer.querySelectorAll('.music-component').forEach(es => {
-                if (!es.classList.contains('running')) {
-                    es.remove()
-                }
-            })
-            queueContainer.insertAdjacentHTML('beforeend', songs)
-        }
+        queueContainer.innerHTML = songs
         if (isPlus() && !e) {
             queueContainer.classList.add('sortable')
             sorter = new SortableList()
@@ -4402,7 +4396,6 @@ function parseQueue(e) {
         }
     }
 }
-
 
 document.querySelector('.sections-player.queue-player').addEventListener('click', async function () {
     if (!isPlus()) {
@@ -4562,8 +4555,6 @@ class SortableList {
 
     update() {
         this.destroy();
-        console.log(this.containerName)
-        console.log(this.elementsName)
         this.initialize(this.containerName, this.elementsName);
     }
     destroy() {

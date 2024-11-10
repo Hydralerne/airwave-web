@@ -120,11 +120,12 @@ function isArabic(text) {
 }
 
 function isWeb() {
+    return false
     return !window.webkit?.messageHandlers && typeof Android == 'undefined'
 }
 
-let pI = (url, e) => {
-    if (isWeb()) {
+let pI = (url, e, c) => {
+    if (isWeb() || c) {
         return url
     }
     return `${origin}/proxy?url=${encodeURIComponent(url)}${e ? '&nocache=true' : ''}`

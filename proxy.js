@@ -281,15 +281,14 @@ const proxyImages = (req, res, next) => {
     const filename = urlToFilename(imageUrl);
     const filePath = path.join(IMAGES_DIR, filename);
 
-    if (!noCache) {
-        if (fs.existsSync(filePath)) {
-            return res.sendFile(filePath, (err) => {
-                if (err) {
-                    return res.status(500).send('Error retrieving the cached image');
-                }
-            });
-        }
+    if (fs.existsSync(filePath)) {
+        return res.sendFile(filePath, (err) => {
+            if (err) {
+                return res.status(500).send('Error retrieving the cached image');
+            }
+        });
     }
+
     const requestOptions = {
         headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36',

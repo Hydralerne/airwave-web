@@ -4188,7 +4188,7 @@ input#audioStatusBar {
     margin-right: 10px;
     padding: 0 10px;
     width: fit-content;
-    max-width: 100%;
+    max-width: 60%;
     border-bottom-left-radius: 0;
     min-height: 30px;
 }

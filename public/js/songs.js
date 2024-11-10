@@ -6,7 +6,7 @@ function printSongs(data, dir, listData, e) {
             if (dir == 'search') {
                 const posterDetails = filterPosterLarge(song.posterLarge, song.poster);
                 html += `<div class="music-search-component song ${currentSong?.id == song.id ? 'running' : ''}" duration="${song.duration}" ${song.album? `album="${song.album}"` : ''} ${song.kind == 'album' ? 'kind="album"' : ''} ${song.albumID ? `album-id="${song.albumID}"` : ''} trackid="${song.id}" api="${song.api}">
-                    <div class="song-poster" onclick="playTrack(this)" data-poster="${song.poster?.url || song.poster}" data-size-large="${posterDetails.size}" data-poster-large="${posterDetails.image}" style="background-image: url('${pI(song.poster?.url || song.poster,true)}')"></div>
+                    <div class="song-poster" onclick="playTrack(this)" data-poster="${song.poster?.url || song.poster}" data-size-large="${posterDetails.size}" data-poster-large="${posterDetails.image}" style="background-image: url('${(song.poster?.url || song.poster)}')"></div>
                     <div class="artist-title audio-control" onclick="playTrack(this)" protocol="${song.audio?.protocol}" data-audio="${song.audio?.url}">
                         <span>${song.title}</span>
                         <a>${song.artist}</a>
@@ -28,14 +28,14 @@ function printSongs(data, dir, listData, e) {
     if (e) {
         perview = `
             <div class="imgs-colls-bv main-colls-bv">
-                <section>${data.slice(0, 4)?.map(img => { return `<span data-img="${img.poster?.url || img.poster}" style="background-image: url('${pI(img.poster?.url || img.poster)}')"></span>` }).join('')}</section>
+                <section>${data.slice(0, 4)?.map(img => { return `<span data-img="${img.poster?.url || img.poster}" style="background-image: url('${(img.poster?.url || img.poster)}')"></span>` }).join('')}</section>
             </div>`
     }
     if (listData) {
         list = `
         <div class="playlist-search">
             ${perview}
-            <span dataid="${listData.owner?.id}" api="${listData.api}" style="background-image: url(${pI(listData.owner?.image)})" class="playlist-user"></span>
+            <span dataid="${listData.owner?.id}" api="${listData.api}" style="background-image: url(${(listData.owner?.image)})" class="playlist-user"></span>
             <div class="playlist-info">
                 <span>${listData.name}</span>
                 <a><p>${listData.owner?.name || 'Playlist owner'}</p><text>${listData.tracks_count} tracks</text></a>
@@ -55,7 +55,7 @@ function scolledSongs(data,e) {
         const posterDetails = filterPosterLarge(song.posterLarge, song.poster);
         html += `
             <div class="song-recent song ${currentSong?.id == song.id ? 'running' : ''}" duration="${song.duration}" ${song.album? `album="${song.album}"` : ''} ${song.kind == 'album' ? 'kind="album"' : ''} ${song.albumID ? `album-id="${song.albumID}"` : ''} api="${song.api}" trackid="${song.id}">
-                <div class="track-poster song-poster" onclick="${song.kind == 'playlist' ? `openPlaylist('${song.id}','${song.api}')` : 'playTrack(this)'}" data-poster="${song.poster?.url || song.poster}" data-size-large="${posterDetails.size}" data-poster-large="${posterDetails.image}" style="background-image: url('${pI(posterDetails.image.replace('600x600','500x500'),e)}')"></div>
+                <div class="track-poster song-poster" onclick="${song.kind == 'playlist' ? `openPlaylist('${song.id}','${song.api}')` : 'playTrack(this)'}" data-poster="${song.poster?.url || song.poster}" data-size-large="${posterDetails.size}" data-poster-large="${posterDetails.image}" style="background-image: url('${pI(posterDetails.image.replace('600x600','500x500'),e,e)}')"></div>
                 <section class="artist-title">
                     <span class="track-title">${song.title}</span>
                     <a class="track-artist">${song.artist}</a>
@@ -70,7 +70,7 @@ function printMiniSongs(data,e){
     data.forEach(track => {
         miniSongs += `
         <div class="song mini-song" trackid="${track.id}" api="${track.api}" kind="${track.kind}">
-            <div class="song-poster" onclick="playTrack(this)" data-poster="${track.poster}" data-poster-large="${track.posterLarge}" style="background-image: url('${pI(track.poster,e)}');"></div>
+            <div class="song-poster" onclick="playTrack(this)" data-poster="${track.poster}" data-poster-large="${track.posterLarge}" style="background-image: url('${pI(track.poster,e,e)}');"></div>
             <section class="artist-title" onclick="playTrack(this)"><span>${track.title}</span><a>${track.artist}</a></section>
             <div class="song-complay">
                 <span></span>
@@ -81,10 +81,10 @@ function printMiniSongs(data,e){
     return miniSongs
 }
 
-function printSongRegular(track, posterDetails = filterPosterLarge(track.posterLarge, track.poster)) {
+function printSongRegular(track, posterDetails = filterPosterLarge(track.posterLarge, track.poster),e) {
     return `
         <div class="song-music-element song ${currentSong?.id == track.id ? 'running' : ''}"${track.path ? ` path="${track.path}" ` : ''}${track.youtube ? ` yt="${track.youtube}" ` : ''} duration="${track.duration}" ${track.album? `album="${track.album}"` : ''} ${track.kind == 'album' ? 'kind="album"' : ''} ${track.albumID ? `album-id="${track.albumID}"` : ''} trackid="${track.id}" api="${track.api}">
-            <div onclick="playTrack(this)" class="song-element-poster song-poster" data-poster="${track.poster?.url || track.poster}" data-size-large="${posterDetails.size}" data-poster-large="${posterDetails.image}" style="background-image: url('${pI(track.poster?.url || track.poster)}')"></div>
+            <div onclick="playTrack(this)" class="song-element-poster song-poster" data-poster="${track.poster?.url || track.poster}" data-size-large="${posterDetails.size}" data-poster-large="${posterDetails.image}" style="background-image: url('${e ? pI(track.poster?.url || track.poster) : (track.poster?.url || track.poster)}')"></div>
             <section class="artist-title" onclick="playTrack(this)"><span>${track.title}</span><a>${track.artist}</a></section>
             <div class="song-complay" ${touchPackageV2}>
                 <span></span>
@@ -92,7 +92,7 @@ function printSongRegular(track, posterDetails = filterPosterLarge(track.posterL
             </div>
         </div>`;
 }
-function printSongsRegular(tracks, limit = 20, offset = 0) {
+function printSongsRegular(tracks, limit = 20, offset = 0,e) {
     let html = '';
     let slider = '';
     for (let index = offset; index < tracks.length; index++) {
@@ -102,7 +102,7 @@ function printSongsRegular(tracks, limit = 20, offset = 0) {
 
         const track = tracks[index];
         const posterDetails = filterPosterLarge(track.posterLarge, track.poster);
-        html += printSongRegular(track, posterDetails)
+        html += printSongRegular(track, posterDetails,e)
         if (index < 9) {
             try {
                 slider += `<div trackid="${track.id}" onclick="playTrack(document.querySelector(\`.song[trackid='${track.id}']\`));" class="swiper-slide playlist-poster-slider" style="background-image: url(${posterDetails.image});"></div>`
@@ -119,7 +119,7 @@ function printLiveSong(data) {
     const posterDetails = filterPosterLarge(data.posterLarge, data.poster);
     let html = `
     <div class="song-chat msg-core song" duration="${data.duration}" ${data.album? `album="${data.album}"` : ''} ${data.kind == 'album' ? 'kind="album"' : ''} ${data.albumID ? `album-id="${data.albumID}"` : ''} api="${data.api}" trackid="${data.id}" dataid="${data.msgid}">
-        <div class="poster-chat song-poster" data-poster="${data.poster?.url || data.poster}" data-size-large="${posterDetails.size}" data-poster-large="${posterDetails.image}" style="background-image: url('${pI(data.poster?.url || data.poster,true)}')"></div>
+        <div class="poster-chat song-poster" data-poster="${data.poster?.url || data.poster}" data-size-large="${posterDetails.size}" data-poster-large="${posterDetails.image}" style="background-image: url('${(data.poster?.url || data.poster)}')"></div>
         <div class="song-info-chat artist-title" onclick="playTrack(this)"><span>${data.title}</span><a>${data.artist}</a></div>
         <div class="song-chat-play">
             <div class="save-song" onclick="saveSong(this,getSongObject(this.closest('.song')))"></div>
