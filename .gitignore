@@ -3,3 +3,4 @@
 /images
 /downloads
 /package-lock.json
+.DS_Store

@@ -30,7 +30,7 @@ async function openProfile(id) {
     await closePages()
     const profile = document.querySelector('.profile')
     const oldData = localStorage.getItem('profile');
-    if(currentSong.id && liveBody?.classList.contains('center')){
+    if (currentSong.id && liveBody?.classList.contains('center')) {
         minimizePlayer();
     }
     const isOwner = String(id) == localStorage.getItem('userid') || !id
@@ -65,19 +65,19 @@ async function openProfile(id) {
 }
 
 
-function prepareLists(data) {
-    let lists = printListsSquare(data.playlists)
+function prepareLists(data, e) {
+    let lists = printListsSquare(data.playlists, e)
     document.querySelector('.inset-playlists-slider-square').innerHTML = lists
 }
 
-function printLists(data,e) {
+function printLists(data, e) {
     let lists = ''
     data.forEach(list => {
         try {
             lists += `
             <div class="playlist-component" onclick="openPlaylist('${list.id}','wave')">
                 <div class="imgs-colls-bv">
-                    <section>${list?.perview?.map(img => { return `<span style="background-image: url('${pI(img,e)}')"></span>` }).join('')}</section>
+                    <section>${list?.perview?.map(img => { return `<span style="background-image: url('${pI(img, e)}')"></span>` }).join('')}</section>
                 </div>
                 <div class="playlist-description">
                     <span>${list.name}</span>
@@ -93,13 +93,13 @@ function printLists(data,e) {
     return lists
 }
 
-function printListsSquare(data,e) {
+function printListsSquare(data, e) {
     let lists = ''
     data.forEach(list => {
         try {
-            const perviews = list?.perview?.map(img => { return `<span style="background-image: url('${pI(img,e)}')"></span>` })
-            if(perviews.length < 4){
-                for(i=0; i < (6 - perviews.length); i++){
+            const perviews = list?.perview?.map(img => { return `<span style="background-image: url('${pI(img, e, e)}')"></span>` })
+            if (perviews.length < 4) {
+                for (i = 0; i < (6 - perviews.length); i++) {
                     perviews.push('<span></span>')
                 }
             }
@@ -123,10 +123,10 @@ function printListsSquare(data,e) {
 }
 
 async function printProfile(data) {
-    if(data.live){
-        document.querySelector('.profile-image').setAttribute('onclick',`joinParty('${data.live}')`)
+    if (data.live) {
+        document.querySelector('.profile-image').setAttribute('onclick', `joinParty('${data.live}')`)
         document.querySelector('.profile').classList.add('live')
-    }else {
+    } else {
         document.querySelector('.profile').classList.remove('live')
     }
     document.querySelector('.profile-image').style.backgroundImage = `url(${data.image?.replace('/profile/', '/profile_large/')})`
@@ -293,40 +293,40 @@ async function goAudio() {
     await delay(10);
     document.querySelector('.slider-settings-section').style.transform = 'translateX(100%)'
     document.querySelector(`.audios-sets-choose section[data-audio="${currentSettings.audio || 'low'}"]`).classList.add('selected')
-    
+
 }
 
-function toggleSwitchSets(el){
+function toggleSwitchSets(el) {
     const box = el.querySelector('.box')
     const key = el.getAttribute('data-sets');
-    if(box.classList.contains('checked')){
-        upSets(key,false)
+    if (box.classList.contains('checked')) {
+        upSets(key, false)
         box.classList.remove('checked')
-    }else {
-        upSets(key,true)
+    } else {
+        upSets(key, true)
         box.classList.add('checked')
     }
 }
 
-function upSets(key,value){
+function upSets(key, value) {
     const current = localStorage.getItem('settings')
     const json = current ? JSON.parse(current) : {}
     json[key] = value
     currentSettings[key] = value
-    localStorage.setItem('settings',JSON.stringify(json))
+    localStorage.setItem('settings', JSON.stringify(json))
 }
 
-function choseAudio(el){
+function choseAudio(el) {
     const value = el.getAttribute('data-audio');
-    if(!isPlus()){
-        if(value == 'ultra' || value == 'heigh'){
+    if (!isPlus()) {
+        if (value == 'ultra' || value == 'heigh') {
             showPremium('Join premium to <text>Play heigh quality</text>')
             return;
         }
     }
-    document.querySelectorAll('.audios-sets-choose section').forEach(section => {section.classList.remove('selected')})
+    document.querySelectorAll('.audios-sets-choose section').forEach(section => { section.classList.remove('selected') })
     el.classList.add('selected')
-    upSets('audio',value)
+    upSets('audio', value)
 }
 
 async function resetSets() {
@@ -335,7 +335,7 @@ async function resetSets() {
     document.querySelector('.secound-slid-shit').innerHTML = ''
 }
 
-async function  confirmLogout(e) {
+async function confirmLogout(e) {
     const response = await fetch(`https://api.onvo.me/music/${e ? 'delete' : 'logout'}`, {
         method: 'POST',
         headers: {

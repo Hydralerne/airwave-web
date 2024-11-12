@@ -2232,8 +2232,12 @@ function anghamiList(text) {
 async function fetchYoutubeSeach(q) {
     const response = await fetch(`/youtube/search?q=${encodeURIComponent(q)}`)
     const data = await response.json()
-    console.log(data)
     printSongs(data, 'search')
+    return data
+}
+async function fetchYoutubeMusicSeach(q) {
+    const response = await fetch(`/yt-music/search?q=${encodeURIComponent(q)}`)
+    const data = await response.json()
     return data
 }
 async function fetchYoutubeList(id) {
@@ -2408,6 +2412,10 @@ async function search(q) {
             }
             await fetchYoutubeSeach(videoId ? videoId : q);
             break;
+        case 'ytmusic':
+            const YTMusicData = await fetchYoutubeMusicSeach(q)
+            printSongs(YTMusicData, 'search')
+           break;
         case 'apple':
             let appleList = getAppleListId(q)
             if (appleList) {

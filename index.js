@@ -2,7 +2,6 @@
 // ║                                                       ║
 // ║                 Hydra de Lerne                        ║
 // ║               For ONVO Platforms LLC                  ║
-// ║          From Kafr Elsheikh to the World              ║
 // ║                                                       ║
 // ╚═══════════════════════════════════════════════════════╝
 
@@ -19,7 +18,7 @@ const core = require(path.join(__dirname, 'core', 'handler.js'));
 const spotify = require(path.join(__dirname, 'core', 'spotify.js'));
 const ytdlp = require(path.join(__dirname, 'core', 'source', 'youtube.js'));
 const { cloneRepo, createWebSocket, proxyImages, downloadHandler, removeImages, proxyRequest } = require(path.join(__dirname, 'core', 'proxy.js'));
-const { getYotubeMusicList, getVideoId, filterYoutube, scrapYoutube, youtubeMusicSearch } = require(path.join(__dirname, 'core', 'youtube.js'));
+const youtube = require(path.join(__dirname, 'core', 'youtube.js'));
 const { getTracksData } = require(path.join(__dirname, 'core', 'tracks.js'));
 const remotePathDir = path.join(process.argv[2], 'remote');
 const remotePath = path.join(remotePathDir, 'airwave-remote', 'main.js');
@@ -140,7 +139,7 @@ app.get('/clear', blockWeb, removeImages);
 
 app.get('/proxy', blockWeb, proxyImages);
 
-app.get('/get-id', getVideoId);
+app.get('/get-id', youtube.getVideoId);
 
 app.get('/music', blockWeb, (req, res) => {
     res.render('musicBody', { req: req })
@@ -300,8 +299,8 @@ app.get('/youtube/search', async (req, res) => {
         if (!req.query.q || req.query.q == '') {
             return res.json({ error: 'empty_query' })
         }
-        const json = await scrapYoutube(`https://www.youtube.com/results?search_query=${(req.query.q)}`)
-        const data = filterYoutube(json)
+        const json = await youtube.scrapYoutube(`https://www.youtube.com/results?search_query=${(req.query.q)}`)
+        const data = youtube.filterYoutube(json)
         res.json(data)
     } catch (e) {
         res.status(400).send('Error ' + e)
@@ -309,8 +308,9 @@ app.get('/youtube/search', async (req, res) => {
 });
 
 // app.get('/youtube/music/playlist', getYotuubeMusicList);
-app.get('/yt-music/search', youtubeMusicSearch);
-app.get('/youtube/playlist', getYotubeMusicList);
+app.get('/yt-music/search', youtube.youtubeMusicSearch);
+app.get('/yt-music/related', youtubeMusicRelated);
+app.get('/youtube/playlist', youtube.getYotubeMusicList);
 
 app.get('/youtube/lyrics', async (req, res) => {
     try {

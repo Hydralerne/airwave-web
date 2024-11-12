@@ -357,7 +357,6 @@ const getSoundcloudTrendingTracks = async (genre = 'all-music', offset = 0, limi
 
 const soundcloudThread = (req, res) => {
     const { client_id } = req.query;
-    console.log(client_id)
     SOUNDCLOUD_CLIENT = client_id
     res.json({ status: 'success' })
 }

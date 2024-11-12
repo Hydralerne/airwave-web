@@ -1597,20 +1597,21 @@ async function printLibrary(data) {
     await delay(200)
     const page = document.querySelector('.liberary')
     page.setAttribute('dataid', data.owner?.id)
+    let e = true
     if (data.owner) {
         page.classList.add('hosted');
         document.querySelector('.liberary .host-image').style.backgroundImage = `url('${data.owner.image}')`
         document.querySelectorAll('.profile-background.library-background span').forEach(span => { span.style.backgroundImage = `url('${(data.owner.image)}')` });
         document.querySelector('.liberary .text-live-wave p').innerText = `${data.owner.name}'s Library`
+        e = false
     } else {
         document.querySelector('.liberary .host-image').style.backgroundImage = `url('${pI(localStorage.getItem('image'))}')`
         document.querySelectorAll('.profile-background.library-background span').forEach(span => { span.style.backgroundImage = `url('${pI(localStorage.getItem('image'))}')` });
         document.querySelector('.liberary .text-live-wave p').innerText = `Your library`
-
         page.classList.remove('hosted');
     }
     if (data.playlists?.length > 0) {
-        let lists = printListsSquare(data.playlists)
+        let lists = printListsSquare(data.playlists, e)
         document.querySelector('.library-body .libraries-lists-container').innerHTML = `<div class="favorites-head">
         <span>Playlists<a>12</a></span>
     </div>
