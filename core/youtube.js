@@ -459,11 +459,17 @@ const youtubeMusicSearch = async (req, res) => {
     }
 }
 
+
+const youtubeMusicRelated = async (req,res) => {
+
+}
+
 module.exports = {
     youtubeMusicSearch,
     getYotubeMusicList,
     scrapYoutube,
     getVideoId,
     getYoutubeList,
-    filterYoutube
+    filterYoutube,
+    youtubeMusicRelated
 }

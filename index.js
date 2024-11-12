@@ -309,7 +309,7 @@ app.get('/youtube/search', async (req, res) => {
 
 // app.get('/youtube/music/playlist', getYotuubeMusicList);
 app.get('/yt-music/search', youtube.youtubeMusicSearch);
-app.get('/yt-music/related', youtubeMusicRelated);
+app.get('/yt-music/related', youtube.youtubeMusicRelated);
 app.get('/youtube/playlist', youtube.getYotubeMusicList);
 
 app.get('/youtube/lyrics', async (req, res) => {
