@@ -101,7 +101,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.set('views', [
     path.join(__dirname, 'public'),
-    path.join(__dirname, 'static'),
     path.join(__dirname, 'ejs'),
 ]);
 

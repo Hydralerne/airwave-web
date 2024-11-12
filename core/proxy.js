@@ -14,7 +14,7 @@ let socket = {};
     fetch = (await import('node-fetch')).default;
 })();
 
-process.argv[2] = process.argv[3] == "ios" ? process.argv[2] : __dirname
+process.argv[2] = (process.argv[3] == "ios" || process.argv[3] == "android") ? process.argv[2] : path.join(__dirname,'../')
 
 const createDownload = (id) => {
     const downloadsDir = path.join(process.argv[2], 'downloads', `${id}`);
