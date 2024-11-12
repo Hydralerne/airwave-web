@@ -4346,3 +4346,7 @@ div {}
 .owner .media-playback-live input {
     z-index: 99;
 }
+
+.live .lyrics-container section {
+    width: 100%;
+}

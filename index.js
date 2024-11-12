@@ -1,3 +1,11 @@
+// ╔═══════════════════════════════════════════════════════╗
+// ║                                                       ║
+// ║                 Hydra de Lerne                        ║
+// ║               For ONVO Platforms LLC                  ║
+// ║          From Kafr Elsheikh to the World              ║
+// ║                                                       ║
+// ╚═══════════════════════════════════════════════════════╝
+
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
@@ -5,14 +13,14 @@ const https = require('https');
 const unzipper = require('unzipper');
 const bodyParser = require('body-parser');
 
-const soundcloud = require(path.join(__dirname, 'soundcloud.js'));
-const lyrics = require(path.join(__dirname, 'lyrics.js'));
-const core = require(path.join(__dirname, 'handler.js'));
-const spotify = require(path.join(__dirname, 'spotify.js'));
-const ytdlp = require(path.join(__dirname, 'ytdlp', 'youtube.js'));
-const { cloneRepo, createWebSocket, proxyImages, downloadHandler, removeImages, proxyRequest } = require(path.join(__dirname, 'proxy.js'));
-const { getYotubeMusicList, getVideoId, filterYoutube, scrapYoutube } = require(path.join(__dirname, 'youtube.js'));
-const { getTracksData } = require(path.join(__dirname, 'tracks.js'));
+const soundcloud = require(path.join(__dirname, 'core', 'soundcloud.js'));
+const lyrics = require(path.join(__dirname, 'core', 'lyrics.js'));
+const core = require(path.join(__dirname, 'core', 'handler.js'));
+const spotify = require(path.join(__dirname, 'core', 'spotify.js'));
+const ytdlp = require(path.join(__dirname, 'core', 'source', 'youtube.js'));
+const { cloneRepo, createWebSocket, proxyImages, downloadHandler, removeImages, proxyRequest } = require(path.join(__dirname, 'core', 'proxy.js'));
+const { getYotubeMusicList, getVideoId, filterYoutube, scrapYoutube, youtubeMusicSearch } = require(path.join(__dirname, 'core', 'youtube.js'));
+const { getTracksData } = require(path.join(__dirname, 'core', 'tracks.js'));
 const remotePathDir = path.join(process.argv[2], 'remote');
 const remotePath = path.join(remotePathDir, 'airwave-remote', 'main.js');
 
@@ -101,6 +109,7 @@ app.set('view engine', 'ejs');
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+const routes = ['append','spotify',]
 
 app.get('/append', blockWeb, async (req, res) => {
     try {
@@ -185,13 +194,13 @@ app.get('/radio/:id', async (req, res) => {
             title: `Join ${data.owner.fullname}'s Live party`,
             image: data.owner.image?.replace('/profile/', '/profile_frame/')
         })
-        if(isTwitterBot || isWhatsAppBot){
-            const imgResponse = await fetch('http://localhost:5321/party',{
+        if (isTwitterBot || isWhatsAppBot) {
+            const imgResponse = await fetch('http://localhost:5321/party', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({data})
+                body: JSON.stringify({ data })
             })
             const imgData = await imgResponse.json()
             req.meta = performMeta({
@@ -205,6 +214,7 @@ app.get('/radio/:id', async (req, res) => {
     }
     res.render('index', { req: req })
 });
+
 app.get('/soundcloud/playlist', async (req, res) => {
     try {
         const list = await soundcloud.getSoundcloudList(req);
@@ -300,6 +310,7 @@ app.get('/youtube/search', async (req, res) => {
 });
 
 // app.get('/youtube/music/playlist', getYotuubeMusicList);
+app.get('/yt-music/search', youtubeMusicSearch);
 app.get('/youtube/playlist', getYotubeMusicList);
 
 app.get('/youtube/lyrics', async (req, res) => {
@@ -341,9 +352,6 @@ app.get('/get-source', async (req, res) => {
     }
 })
 
-app.get('/', (req, res) => {
-    res.render('index', { req: req })
-});
 app.get('/lyrics', (req, res) => {
     res.render('lyrics', { req: req })
 });
@@ -484,7 +492,14 @@ function getApiCut(api) {
 }
 
 
+app.get('/', (req, res) => {
+    res.render('index', { req: req })
+});
+
 app.get('/:endpoint/:id?', async (req, res) => {
+    if(req.params.endpoint == 'favicon.ico'){
+        return
+    }
     try {
         const { endpoint, id } = req.params
         const isCut = getApiCut(endpoint)

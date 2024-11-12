@@ -918,7 +918,9 @@ async function addPlayerMetadata(rawSongObj) {
     }
 
     if (posterLarge || poster) {
-        document.querySelector('.artist-inner-song img').src = pI((filterPosterLarge(posterLarge, poster).image), true);
+        setTimeout(() => {
+            document.querySelector('.artist-inner-song img').src = pI((filterPosterLarge(posterLarge, poster).image), true);
+        },50)
     }
 
     if (title) {
@@ -1292,13 +1294,13 @@ async function playTrack(el, e) {
     updatePlaying(currentSong);
 
     getLyrics()
+    
+    if (queueTracks.length > 0 && !isParty || isOwner()) {
+        prepareNext()
+    }
 
     if (isOffline || isParty) {
         return
-    }
-
-    if (queueTracks.length > 0 && !isParty || isOwner()) {
-        prepareNext()
     }
 
     if (isInline() && !isParty && api !== 'soundcloud' && !liveBody.classList.contains('minimized')) {
@@ -1648,11 +1650,15 @@ async function loadNative(id, e, d) {
 
 }
 
-async function prepareNext() {
+async function prepareNext(next) {
     if (currentSong.api == 'song') {
         return
     }
-    globalNext = getNext(currentSong.id);
+    if(!next){
+        globalNext = getNext(currentSong.id);
+    }else {
+        globalNext = next
+    }
     if (globalNext.kind == 'album') {
         const oldId = globalNext.id
         globalNext = await getAlbumData(globalNext.id, true);
@@ -1893,6 +1899,8 @@ async function actualAddTrack(el, id, dir, json) {
         queueTracks.unshift(json);
     } else {
         queueTracks.splice(currentIndex + 1, 0, json);
+        globalNext = json;
+        prepareNext(json)
     }
 
     if (liveBody.classList.contains('queue') || isParty) {
