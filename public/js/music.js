@@ -1668,6 +1668,7 @@ async function prepareNext(next) {
         }
     }
     const id = await getYTcode(globalNext.title, globalNext.artist);
+    globalNext.yt = id
     let data = await getSource(id);
     globalNext.source = data
 }
