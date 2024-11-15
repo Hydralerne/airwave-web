@@ -205,7 +205,9 @@ function play() {
 let ytInitialized = false;
 function resetPlayer(id) {
     try {
-        pause()
+        seek(0)
+        pause(true)
+        document.querySelector('.artist-inner-song img').src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgAB/ubWFXkAAAAASUVORK5CYII='
         audioPlayer.src = ''
         videoPlayer.src = ''
         sliderEl.value = 0;
@@ -240,10 +242,10 @@ function resetPlayer(id) {
         console.error(e)
     }
 }
-function pause() {
+function pause(e) {
     try {
         if (isParty) {
-            if (isOwner()) {
+            if (isOwner() && !e) {
                 sendSocket({ 'ct': 'control', action: 'signal', do: 'pause' });
             }
         }
@@ -920,7 +922,7 @@ async function addPlayerMetadata(rawSongObj) {
     if (posterLarge || poster) {
         setTimeout(() => {
             document.querySelector('.artist-inner-song img').src = pI((filterPosterLarge(posterLarge, poster).image), true);
-        },50)
+        }, 50)
     }
 
     if (title) {
@@ -1144,11 +1146,61 @@ function isSafari() {
     return /^((?!chrome|android).)*safari/i.test(ua);
 }
 
+async function handleSource() {
+    let source = {}
+    let path = currentSong.path
+
+    const isExist = await checkObjectExists(currentSong.id, 'downloads')
+    if (!window.webkit?.messageHandlers && typeof Android == 'undefined' && currentSong.source) {
+        source = currentSong.source
+        if (isSafari() && currentSong.source.aac) {
+            source.url = source.aac
+        }
+    } else if (!safeMode) {
+        if (globalNext.id == currentSong.id && globalNext.source) {
+            currentSong.yt = globalNext.yt
+            currentSong.source = globalNext.source
+            source = globalNext.source
+            globalNext = {}
+        } else if (!path && !isExist) {
+            if (currentSong.api !== 'soundcloud' && isWeb()) {
+                showDownload(currentSong)
+                return
+            }
+            source = await requestSource(currentSong, url, protocol);
+        } else {
+            try {
+                if (!path) {
+                    path = (await getObject(currentSong.id, 'downloads')).path;
+                }
+                source = { url: `http://localhost:2220/retrieve?raw=${encodeURIComponent(path)}` }
+                console.log(source)
+            } catch (e) {
+                console.error(e)
+            }
+        }
+    } else {
+        if (api == 'youtube') {
+            dialog('No perview found', `Looks like you should open it in ${api} to listen, we are sorry`)
+            return interface('open', `https://youtube.com/watch?v=${currentSong.id}`)
+        }
+        if (!currentSong.perview) {
+            const { perview } = await getTracksData(currentSong.api, currentSong.id)
+            currentSong.perview = perview
+        }
+        if (!currentSong.perview) {
+            return dialog('No perview found', `Looks like you should open it in ${api} to listen, we are sorry`)
+        }
+        source = { url: currentSong.perview }
+    }
+
+    return { source, path, done: true }
+}
+
 let sendingSong = {}
+
 async function playTrack(el, e) {
-
-    let api, url, protocol, id, rawSongObj, path
-
+    let api, id, rawSongObj
     if (el?.poster) {
         rawSongObj = el;
         ({ api, url, protocol, id, kind } = el);
@@ -1158,7 +1210,7 @@ async function playTrack(el, e) {
         rawSongObj = getSongObject(parent, e)
         rawSongObj.protocol = el.getAttribute('protocol');
         rawSongObj.path = parent.getAttribute('path');
-        ({ api, url, protocol, path, kind } = rawSongObj);
+        ({ api, url, protocol, kind } = rawSongObj);
         if (parent.closest('.playlists-page')) {
             if (currentList.id !== queueList.id) {
                 queueTracks = currentList.tracks
@@ -1191,21 +1243,23 @@ async function playTrack(el, e) {
         history.pushState({ page: 'player' }, null)
     }
 
-    if (!e) {
-        resetPlayer(currentSong.id);
-    }
-
-    document.querySelector('.artist-inner-song img').src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgAB/ubWFXkAAAAASUVORK5CYII='
-
     currentSong = rawSongObj
 
-    addPlayerMetadata(rawSongObj)
+    let handler = {}
+
+    if (e) {
+        onGoingId = currentSong.id
+        handler = await handleSource(currentSong)
+    }
+
+    resetPlayer(currentSong.id);
+    addPlayerMetadata(currentSong)
 
     if (!isParty) {
         showPlayer();
     }
 
-    if (rawSongObj.kind == 'album') {
+    if (currentSong.kind == 'album') {
         currentSong = await getAlbumData(id, true);
         let albumIndex = queueTracks.findIndex(item => item.id === id);
         if (!queueTracks.includes(currentSong)) {
@@ -1214,61 +1268,21 @@ async function playTrack(el, e) {
         addPlayerMetadata(currentSong)
     }
 
-    const isExist = await checkObjectExists(id, 'downloads')
-
-    onGoingId = currentSong.id
-    let source = {}
-
-    if (!window.webkit?.messageHandlers && typeof Android == 'undefined' && currentSong.source) {
-        source = currentSong.source
-        if (isSafari() && currentSong.source.aac) {
-            source.url = source.aac
-        }
-    } else if (!safeMode) {
-        if (globalNext.id == currentSong.id && globalNext.source) {
-            currentSong.yt = globalNext.yt
-            currentSong.source = globalNext.source
-            source = globalNext.source
-            globalNext = {}
-        } else if (!path && !isExist) {
-            if (api !== 'soundcloud' && isWeb()) {
-                showDownload(currentSong)
-                return
-            }
-            source = await requestSource(currentSong, url, protocol);
-        } else {
-            try {
-                if (!path) {
-                    path = (await getObject(currentSong.id, 'downloads')).path;
-                }
-                source = { url: `http://localhost:2220/retrieve?raw=${encodeURIComponent(path)}` }
-                console.log(source)
-            } catch (e) {
-                console.error(e)
-            }
-        }
-    } else {
-        if (api == 'youtube') {
-            dialog('No perview found', `Looks like you should open it in ${api} to listen, we are sorry`)
-            return interface('open', `https://youtube.com/watch?v=${currentSong.id}`)
-        }
-        if (!currentSong.perview) {
-            const { perview } = await getTracksData(currentSong.api, currentSong.id)
-            currentSong.perview = perview
-        }
-        if (!currentSong.perview) {
-            return dialog('No perview found', `Looks like you should open it in ${api} to listen, we are sorry`)
-        }
-        source = { url: currentSong.perview }
+    if (!e) {
+        onGoingId = currentSong.id
+        handler = await handleSource(currentSong)
     }
-    if (onGoingId !== currentSong.id && !path) {
+
+    if (onGoingId !== currentSong.id && !handler.path) {
         return
     }
 
     lyricsInitialize = false
 
-    playSource(source);
-    handlePlayPause(id, true);
+    playSource(handler.source);
+
+    play();
+    playForce()
 
     try {
         setMediaSessionMetadata();
@@ -1294,7 +1308,7 @@ async function playTrack(el, e) {
     updatePlaying(currentSong);
 
     getLyrics()
-    
+
     if (queueTracks.length > 0 && !isParty || isOwner()) {
         prepareNext()
     }
@@ -1420,7 +1434,7 @@ function playerLoaded() {
 let safeMode = false
 
 function initializeYoutube(id, e) {
-    if (ytInitialized || isParty) {
+    if (ytInitialized || isParty || !isInline()) {
         return
     }
     try {
@@ -1555,7 +1569,6 @@ function isInline() {
     }
     return false;
 }
-youtube = isInline()
 let onGoingId;
 let lastSource = {}
 function getSource(id, retries = 3) {
@@ -1654,9 +1667,9 @@ async function prepareNext(next) {
     if (currentSong.api == 'song') {
         return
     }
-    if(!next){
+    if (!next) {
         globalNext = getNext(currentSong.id);
-    }else {
+    } else {
         globalNext = next
     }
     if (globalNext.kind == 'album') {
@@ -1690,7 +1703,6 @@ async function getYTcode(title, artist, id) {
 let currentPlaying;
 
 async function updatePlaying(song) {
-    console.log('updateing playing')
     let id = song.id
     if (currentPlaying == song.id) {
         return
@@ -2416,7 +2428,7 @@ async function search(q) {
         case 'ytmusic':
             const YTMusicData = await fetchYoutubeMusicSeach(q)
             printSongs(YTMusicData, 'search')
-           break;
+            break;
         case 'apple':
             let appleList = getAppleListId(q)
             if (appleList) {
@@ -3447,11 +3459,11 @@ function createBlobURL(data) {
 }
 
 async function fetchLyrics(track, youtube) {
-    console.log(youtube)
     let data = {};
     if (youtube && track.api !== 'soundcloud') {
         const response = await fetch(`/youtube/lyrics?id=${youtube}`)
         data = await response.json({ data })
+        console.log(data)
     }
     if (!data.lyrics) {
         let params = new URLSearchParams({
@@ -4322,9 +4334,9 @@ async function fire(it = document.querySelector('.send-message-clap')) {
         return;
     }
 
-    if(!fireworksLoaded){
+    if (!fireworksLoaded) {
         await addScriptIfNotPresent('/js/libs/vibrant.min.js');
-        await addScriptIfNotPresent('/js/libs/tsparticles.fireworks.bundle.min.j');
+        await addScriptIfNotPresent('/js/libs/tsparticles.fireworks.bundle.min.js');
         fireworksLoaded = true
     }
 

@@ -13,7 +13,6 @@ const unzipper = require('unzipper');
 const bodyParser = require('body-parser');
 
 const soundcloud = require(path.join(__dirname, 'core', 'soundcloud.js'));
-const lyrics = require(path.join(__dirname, 'core', 'lyrics.js'));
 const core = require(path.join(__dirname, 'core', 'handler.js'));
 const spotify = require(path.join(__dirname, 'core', 'spotify.js'));
 const ytdlp = require(path.join(__dirname, 'core', 'source', 'youtube.js'));
@@ -310,6 +309,7 @@ app.get('/youtube/search', async (req, res) => {
 // app.get('/youtube/music/playlist', getYotuubeMusicList);
 app.get('/yt-music/search', youtube.youtubeMusicSearch);
 app.get('/yt-music/related', youtube.youtubeMusicRelated);
+app.get('/yt-music/artist', youtube.getArtist);
 app.get('/youtube/playlist', youtube.getYotubeMusicList);
 
 app.get('/youtube/lyrics', async (req, res) => {
@@ -317,7 +317,7 @@ app.get('/youtube/lyrics', async (req, res) => {
         if (!req.query.id) {
             return res.json({ error: 'empty_query' })
         }
-        const data = await lyrics.getNativeSubtitles(req.query.id)
+        const data = await youtube.getNativeSubtitles(req.query.id)
         res.json(data)
     } catch (e) {
         console.log(e)
