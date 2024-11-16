@@ -12,6 +12,9 @@ Experience the ultimate music-sharing social app that lets you connect with frie
 ## Installation
 Available for download on the [App Store](https://apps.apple.com/us/app/airwave-join-the-party/id6701996557) [Google Play](https://play.google.com/store/apps/details?id=me.onvo.wave).
 
+## Note
+This project is currently in beta testing. While you may encounter some bugs, we are actively working to deliver a polished final version. Additionally, a desktop version is in development and will include even more powerful features. Stay tuned for updates!
+
 ## Contributing
 Contributions are welcome! To contribute:
 1. Fork the repository.
@@ -21,10 +24,10 @@ Contributions are welcome! To contribute:
 5. Open a pull request for review.
 
 ## License
-This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for more details.
+This project is licensed under the AGPL 3.0 See the [LICENSE](LICENSE) file for more details.
 
 ## Contact
-For questions or feedback, feel free to open an issue or contact the development team at [contact email or support link].
+For questions or feedback, feel free to open an issue or contact the development team at support@onvo.me
 
 ## Join Us
 Start sharing and experiencing music with friends and become part of a vibrant, music-loving community today!
