@@ -2,7 +2,7 @@
 let url = new URL(window.location.href);
 let params = new URLSearchParams(url.search);
 let token = localStorage.getItem('token');
-const version = '1.7';
+const version = '1.8';
 let isApp = (typeof Android !== 'undefined' || window.webkit) ? true : false;
 
 let globalRCE = {}

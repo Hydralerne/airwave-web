@@ -130,9 +130,9 @@ async function printProfile(data) {
         document.querySelector('.profile').classList.remove('live')
     }
     document.querySelector('.profile-image').style.backgroundImage = `url(${data.image?.replace('/profile/', '/profile_large/')})`
-    document.querySelectorAll('.profile-background span').forEach(span => {
-        span.style.backgroundImage = `url(${data.image})`
-    })
+    // document.querySelectorAll('.profile-background span').forEach(span => {
+    //     span.style.backgroundImage = `url(${data.image})`
+    // })
     document.querySelector('.top-profile-info span').innerText = data.fullname
     document.querySelector('.top-profile-info a').innerText = data.bio
     document.querySelector('.following-value').innerText = formatNumber(data.following)

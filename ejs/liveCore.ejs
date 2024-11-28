@@ -1,17 +1,8 @@
-<div class="body-back"></div><div class="body page owner player player2 non-blur hidden">
+<div class="body-back"></div>
+<div class="body page owner player minimized hidden">
     <div class="text-subtitles-parse"></div>
+    <div class="minimize-live sw-effect" onclick="draggablePlayer.closeMenu()"></div>
     <div class="top-header-wave">
-        <div class="pulse-container hidden">
-            <div class="pulse">
-                <svg height="253" width="253">
-                    <circle class="still" cx="125" cy="125" r="110"></circle>
-                    <circle cx="125" cy="125" r="122"></circle>
-                    <circle cx="125" cy="125" r="122"></circle>
-                    <circle cx="125" cy="125" r="122"></circle>
-                    <circle cx="125" cy="125" r="122"></circle>
-                </svg>
-            </div>
-        </div>
         <div class="real-top-wave">
             <div class="logo-set-wave">
                 <div class="logo-wave"></div>
@@ -19,7 +10,6 @@
                 <div class="text-live-wave"><span>ONVO Airwave</span>
                     <p>Testing the shit</p>
                 </div>
-                <div class="minimize-live sw-effect" onclick="minimizePlayer()"></div>
             </div>
             <div class="live-selections">
                 <div class="section-wave sw-effect settings-wave" tsx="200"><span>Lyrics</span></div>
@@ -27,14 +17,11 @@
                 <div class="section-wave sw-effect chat-wave selected" tsx="0"><span>Chat</span></div>
             </div>
         </div>
-
         <div class="inner-top-wave"></div>
         <div class="left-top-wave"></div>
     </div>
     <div class="background-wave">
-        <div class="backdrop-player"></div>
-        <div class="wave-back-component"></div>
-        <div class="wave-back-component secound"></div>
+
     </div>
     <div class="bottom-live-control">
         <div class="buttons-container smalled">
@@ -51,12 +38,14 @@
             <div class="sending-zobr" onclick="sendLiveMsg();interface('vibrate')"></div>
         </div>
         <div class="song-live-artist">
+            <div class="close-player" onclick="removePlayer()"></div>
             <div class="big-the-tits" onclick="showThePlayer();"></div>
             <div class="artist-inner-song">
                 <div class="copyrigth-padge">
                     <div class="soundcloud-logo"></div>
                 </div>
-                <img onerror="this.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgAB/ubWFXkAAAAASUVORK5CYII='" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgAB/ubWFXkAAAAASUVORK5CYII=">
+                <img onerror="this.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgAB/ubWFXkAAAAASUVORK5CYII='"
+                    src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgAB/ubWFXkAAAAASUVORK5CYII=">
                 <div class="hidden-detailed-player">
                     <div class="sections-player sw-effect download-player">
                         <div></div>
@@ -90,11 +79,12 @@
             <video playsinline class="hidden" id="audioPlayer"></video>
             <input type="range" value="0" class="audio-status-bar" id="audioStatusBar" min="0" max="10000" step="1"
                 wfd-id="id0">
-                <div class="status-wrapper"><a></a></div>
+            <div class="status-wrapper"><a></a></div>
             <span class="count-allvals">00:00</span>
         </div>
     </div>
-    <div class="scroller-container">
+
+    <!-- <div class="scroller-container">
         <div class="inset-scroller-container">
             <div class="queue-container lyrics-container">
                 <div class="lyrics-handler"></div>
@@ -125,7 +115,6 @@
                 </div>
             </div>
             <div class="chat-container">
-                <!-- <div class="cool-effect-by-hydra"><span></span></div> -->
                 <div class="fixed-user-wave">
                     <div class="inset-vertical">
                     </div>
@@ -136,8 +125,8 @@
                 </div>
             </div>
         </div>
-    </div>
-
+    </div> -->
+    <!-- 
     <div class="kosom-eld7k">
         <div class="msg " dataid="1">
             <div class="msg-img">
@@ -162,7 +151,6 @@
             </section>
         </div>
     </div>
-    <div class="styling"></div>
     <div class="mini-body">
         <div class="sharing-lyrics-body">
             <div class="no-lyrics-banner">
@@ -203,10 +191,9 @@
         </div>
         <div class="visualisation">
             <div class="head-tag container"><span>Video clip</span><div class="box video-check"></div></div>
-            <!-- <div class="visual-back"></div> -->
             <div class="video-frame" id="video-frame">
                 <video playsinline id="videoPlayer" muted></video>
             </div>
         </div>
-    </div>
+    </div> -->
 </div>

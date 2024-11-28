@@ -2,7 +2,6 @@
 const sliderEl = document.querySelector('#audioStatusBar')
 const currentMove = document.querySelector('.status-wrapper a')
 const audioPlayer = document.querySelector('#audioPlayer')
-const videoPlayer = document.querySelector('#videoPlayer')
 
 let lyrics;
 let jsonLyrics
@@ -209,7 +208,6 @@ function resetPlayer(id) {
         pause(true)
         document.querySelector('.artist-inner-song img').src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAgAB/ubWFXkAAAAASUVORK5CYII='
         audioPlayer.src = ''
-        videoPlayer.src = ''
         sliderEl.value = 0;
         liveBody.classList.remove('no-lyrics')
         ytInitialized = false
@@ -820,11 +818,12 @@ function getSongObject(parent, e) {
     const posterLargeSize = posterElement.getAttribute('data-size-large')
     const title = e ? parent.querySelector('.song-info-chat text').innerText : parent.querySelector('.artist-title span').innerText;
     const artist = e ? parent.querySelector('.song-info-chat a').innerText : parent.querySelector('.artist-title a').innerText;
-    const album = parent.getAttribute('album')
+    const album = decodeURIComponent(parent.getAttribute('album'))
     const duration = parent.getAttribute('duration')
     const albumID = parent.getAttribute('album-id')
+    const artistID = parent.getAttribute('artist-id')
     const kind = parent.getAttribute('kind')
-    return { api, url, poster, posterLarge, title, artist, posterLargeSize, id, album, duration, albumID, kind }
+    return { api, url, poster, posterLarge, title, artist, posterLargeSize, id, album, duration, albumID, kind, artistID }
 }
 
 let currentSong = {}
@@ -840,9 +839,6 @@ function playForce(trackid = currentSong.id, el = document.querySelector('.play-
             sngel.querySelector('.audio-control')?.classList.add('played');
             sngel.classList.remove('paused')
             sngel.classList.add('running')
-            if (!sngel.querySelector('.equalizer')) {
-                sngel.querySelector('.artist-title')?.insertAdjacentHTML('afterbegin', equalizer)
-            }
         })
     } catch (e) {
         console.error(e)
@@ -934,9 +930,10 @@ async function addPlayerMetadata(rawSongObj) {
     }
 
     if (poster) {
-        document.querySelectorAll('.wave-back-component').forEach(back => {
+        document.querySelectorAll('.player .wave-back-component').forEach(back => {
             back.style.backgroundImage = `url('${pI((poster?.url || poster), true)}')`;
         });
+        document.querySelector('.background-wave').innerHTML = `<span style="background-image: url('${pI((poster), true)}')"></span>`
     }
 
     if (poster) {
@@ -947,8 +944,8 @@ async function addPlayerMetadata(rawSongObj) {
             document.querySelector('.styling').innerHTML = `<style>
             .visualisation .box.checked {background:  ${darkenColor(shades[3], 0.5)}!important;}
             .body.minimized { background: ${darkenColor(shades[3], 0.5)}!important;}
-            .minimized.player.player2.body .background-wave::before {
-                /*background-color: ${hexToRGBA(darkenColor(shades[3], 0.5), 0.5)}*/
+            .android .player .background-wave::before{
+                background: linear-gradient(to bottom, ${darkenColor(colorEqualizer('#7f7e79',data?.colors?.muted),0.5)} 25%, #121416 50%);
             }
             .song.running .bar {background: ${ds}}.song.running .artist-title span{color: ${ds}}
             .pottom-width-slider span{background: #fff}
@@ -1078,7 +1075,7 @@ function exitLive(channel) {
     liveBody.classList.remove('minimized')
     isParty = false;
     sendSocket({ ct: 'exit', channel });
-    liveBody.className = 'body page minimized player player2 hidden owner'
+    liveBody.className = 'body page minimized player hidden owner'
     if (currentSong.id) {
         minimizePlayer()
 
@@ -1239,6 +1236,7 @@ async function playTrack(el, e) {
 
     playerLoading()
 
+
     if (currentPage !== 'player') {
         history.pushState({ page: 'player' }, null)
     }
@@ -1248,13 +1246,18 @@ async function playTrack(el, e) {
     let handler = {}
 
     if (e) {
+        if (currentSong.path) {
+            delete currentSong.path
+            delete currentSong.source
+        }
         onGoingId = currentSong.id
         handler = await handleSource(currentSong)
     }
 
     resetPlayer(currentSong.id);
     addPlayerMetadata(currentSong)
-
+    playForce()
+    
     if (!isParty) {
         showPlayer();
     }
@@ -1282,7 +1285,6 @@ async function playTrack(el, e) {
     playSource(handler.source);
 
     play();
-    playForce()
 
     try {
         setMediaSessionMetadata();
@@ -1776,27 +1778,19 @@ async function minimizePlayer(page = document.querySelector('.body')) {
     } catch (e) {
         console.error(e)
     }
-    document.querySelector('.timeline').classList.remove('hidden')
-    window.scrollTo(0, scrollCurrent)
-    page.classList.remove('center');
-    page.querySelector('.background-wave').classList.add('non-blur');
     document.body.classList.remove('hideoverflow')
     page.scrollTop = 0;
-    await delay(200)
-    page.classList.add('hidden');
+    page.removeAttribute('style')
     page.classList.add('minimized');
     if (page.classList.contains('live')) {
         page.classList.add('player')
-        page.classList.add('player2')
     }
-    await delay(50)
-    page.classList.remove('hidden')
-    page.querySelector('.background-wave').classList.remove('non-blur');
-    await delay(40)
-    page.classList.add('center');
-    await delay(200)
-    page.classList.remove('non-blur');
-    document.querySelector('.lyrics-bottom-related').innerHTML = ''
+    page.classList.add('center-flex');
+    const related = document.querySelector('.lyrics-bottom-related')
+    if(related){
+        related.innerHTML = ''
+    }
+    
 }
 
 let scrollCurrent = 0;
@@ -1807,27 +1801,12 @@ function showThePlayer(page = liveBody) {
     } catch (e) {
         console.error(e)
     }
-    page.classList.remove('center')
-    const timeline = document.querySelector('.timeline')
-    scrollCurrent = window.screenY;
+    page.classList.remove('minimized')
+    page.classList.add('center-flex')
+    try {
+        draggablePlayer.openMenu()
+    }catch(e){}
     document.body.classList.add('hideoverflow')
-    setTimeout(async () => {
-        page.querySelector('.background-wave').classList.add('non-blur');
-        page.classList.add('hidden')
-        page.classList.remove('minimized')
-        await delay(10)
-        page.classList.remove('hidden')
-        if (page.classList.contains('live')) {
-            page.classList.remove('player')
-            page.classList.remove('player2')
-        }
-        await delay(40)
-        page.classList.add('center');
-        await delay(200)
-        timeline.classList.add('hidden')
-        page.querySelector('.background-wave').classList.remove('non-blur');
-        page.classList.remove('non-blur');
-    }, 200)
     if (page.classList.contains('live')) {
         history.pushState({ page: 'player' }, null, `/radio/${page.getAttribute('dataid')}`)
     }
@@ -1839,19 +1818,41 @@ function showThePlayer(page = liveBody) {
     initializeYoutube(currentSong.yt)
 }
 
+let draggablePlayer
+async function removePlayer() {
+    const parent = document.querySelector('.body')
+    pause();
+    resetPlayer()
+    parent.classList.add('hidden')
+}
 async function showPlayer() {
     const parent = document.querySelector('.body')
-    if (parent.classList.contains('center')) {
+    parent.classList.remove('hidden')
+    if (parent.classList.contains('center-flex')) {
         parent.scrollTo({
             top: 0,
             behavior: 'smooth'
         });
         return;
     }
-    parent.classList.remove('hidden')
     parent.classList.add('minimized')
     await delay(50)
-    parent.classList.add('center')
+    parent.classList.add('center-flex')
+    if (!draggablePlayer) {
+        draggablePlayer = new DraggableMenu({
+            parent: '.body',
+            back: '.body-back',
+            isHeight: true,
+            minHeight: 55,
+            minTransform: 90,
+            onclose: minimizePlayer,
+            onopen: () => {
+                parent.classList.remove('minimized')
+            }
+        });
+    } else {
+        draggablePlayer.update()
+    }
 }
 
 
@@ -2016,7 +2017,10 @@ async function reflexReply() {
     if (draggableMusic) {
         draggableMusic.update()
     } else {
-        draggableMusic = new DraggableMenu('.body-replyer-switching', '.back-replyer-switching');
+        draggableMusic = new DraggableMenu({
+            parent: '.body-replyer-switching',
+            back: '.back-replyer-switching'
+        });
     }
 }
 
@@ -2036,7 +2040,10 @@ let drag = async (dir, html) => {
     if (draggableMusic) {
         draggableMusic.update()
     } else {
-        draggableMusic = new DraggableMenu('.body-replyer-switching', '.back-replyer-switching');
+        draggableMusic = new DraggableMenu({
+            parent: '.body-replyer-switching',
+            back: '.back-replyer-switching'
+        });
     }
     if (html) {
         document.querySelector('.body-replyer-options').innerHTML = html
@@ -2050,7 +2057,10 @@ async function replyPage(el) {
     if (draggableMusic) {
         draggableMusic.update()
     } else {
-        draggableMusic = new DraggableMenu('.body-replyer-switching', '.back-replyer-switching');
+        draggableMusic = new DraggableMenu({ 
+            parent: '.body-replyer-switching', 
+            back: '.back-replyer-switching' 
+        });
     }
     const post = el.closest('.post')
     const html = post.querySelector('.song').outerHTML
@@ -2139,7 +2149,6 @@ async function fetchSoundCloud(dir = 'trending', offset, q) {
     }).then(response => {
         return response.json();
     }).then(data => {
-        console.log(data)
         printSongs(data, dir)
     }).catch(error => {
         console.error(error);
@@ -2190,7 +2199,7 @@ const musicSearchContainer = document.querySelector('.music-search-main');
 
 // getTrending('soundcloud')
 
-document.querySelector('.back-music-search').addEventListener('click', function () {
+document.querySelector('.back-music-search')?.addEventListener('click', function () {
     musicSearchContainer.classList.remove('center-flex');
     musicSearchContainer.removeAttribute('style');
     setTimeout(() => {
@@ -2198,7 +2207,7 @@ document.querySelector('.back-music-search').addEventListener('click', function 
     }, 200)
 })
 
-document.querySelector('.search-edit-list').addEventListener('click', function () {
+document.querySelector('.search-edit-list')?.addEventListener('click', function () {
     musicStream.classList.remove('hidden');
     if (!document.querySelector('.music-search-main').getAttribute('dataid')) {
         getTrending('soundcloud', 25, 'rxx')
@@ -2245,11 +2254,10 @@ function anghamiList(text) {
 async function fetchYoutubeSeach(q) {
     const response = await fetch(`/youtube/search?q=${encodeURIComponent(q)}`)
     const data = await response.json()
-    printSongs(data, 'search')
     return data
 }
-async function fetchYoutubeMusicSeach(q) {
-    const response = await fetch(`/yt-music/search?q=${encodeURIComponent(q)}`)
+async function fetchYoutubeMusicSeach(q, dir) {
+    const response = await fetch(`/yt-music/search?q=${encodeURIComponent(q)}${dir ? `&type=${dir}` : ''}`)
     const data = await response.json()
     return data
 }
@@ -2364,86 +2372,84 @@ const getAppleListId = () => {
     return false
 }
 
-async function search(q) {
+async function search(q, e, dir) {
     if (!nE(q)) {
         return
     }
-
-    const searchDir = document.querySelector('.platform.selected').getAttribute('dataid');
+    dir = document.querySelector('.search-types section.selected').getAttribute('dataid')
+    let searchDir = document.querySelector('.platform.selected').getAttribute('dataid');
 
     let loader = ''
     for (i = 0; i < 12; i++) {
-        if (searchDir == 'artists') {
+        if (searchDir == 'artists' || dir == 'artists') {
             loader += loaderArtist
         } else {
             loader += songLoaderEffect
         }
     }
 
-    document.querySelector('.inset-search-songs').innerHTML = loader
+    document.querySelector(e ? '.search-result' : '.inset-search-songs').innerHTML = (dir == 'artists') ? `<div class="artists-search-container">${loader}</div>` : loader
+
+    let data = {}
 
     switch (searchDir) {
         case 'spotify':
             let spotifyListData = spotifyList(q);
             if (spotifyListData) {
                 const list = await getSpotifyList(spotifyListData, offset, limit)
-                printSongs(list, 'search', list)
-                return;
+                data = list.tracks
+            } else {
+                data = await spotify_search(q);
             }
-            const spotifyData = await spotify_search(q);
-            printSongs(spotifyData, 'search')
             break;
         case 'soundcloud':
             let soundcloudListData = soundcloudList(q);
             if (soundcloudListData) {
                 const list = await getSoundcloudList(soundcloudListData)
-                printSongs(spotifyData, 'search', list)
-                return;
+                data = list.tracks
+            } else {
+                data = await fetchSoundCloud('search', null, q);
             }
-            const data = await fetchSoundCloud('search', null, q);
             break;
         case 'anghami':
             let anghamiListData = anghamiList(q);
             if (anghamiListData) {
-                callAnghami(`?url=${anghamiListData}`, 'playlist').then(data => {
-                    printSongs(data.tracks, 'search', data)
-                })
+                const anghamiData = await callAnghami(`?url=${anghamiListData}`, 'playlist')
+                data = anghamiData.tracks
                 return;
+            } else {
+                const anghamiData = await callAnghami(`?q=${q}`, 'search')
+                data = anghamiData.tracks
             }
-            callAnghami(`?q=${q}`, 'search').then(data => {
-                printSongs(data, 'search')
-            })
             break;
         case 'youtube':
             let videoId = getYouTubeVideoId(q)
             const playlist = extractPlaylistId(q)
             if (!videoId && playlist) {
-                fetchYoutubeList(playlist).then(data => {
-                    printSongs(data.tracks, 'search', data)
-                })
+                const ytlistData = await fetchYoutubeList(playlist)
+                data = ytlistData.tracks
                 return;
+            } else {
+                data = await fetchYoutubeSeach(videoId ? videoId : q);
             }
-            await fetchYoutubeSeach(videoId ? videoId : q);
             break;
         case 'ytmusic':
-            const YTMusicData = await fetchYoutubeMusicSeach(q)
-            printSongs(YTMusicData, 'search')
+            data = await fetchYoutubeMusicSeach(q, dir)
             break;
         case 'apple':
             let appleList = getAppleListId(q)
             if (appleList) {
-                fetchAppleList(playlist).then(data => {
-                    printSongs(data.tracks, 'search', data)
-                })
+                const appleData = await fetchAppleList(playlist)
+                data = appleData.tracks
                 return;
+            } else {
+                const apres = await fetch(`https://api.onvo.me/music/apple/search?q=${q}`, {
+                    headers: {
+                        Authorization: `Bearer ${await getToken()}`
+                    }
+                })
+                data = await apres.json();
             }
-            const apres = await fetch(`https://api.onvo.me/music/apple/search?q=${q}`, {
-                headers: {
-                    Authorization: `Bearer ${await getToken()}`
-                }
-            })
-            const apdata = await apres.json();
-            printSongs(apdata, 'search', null)
             break;
         case 'users':
             const response = await fetch(`https://api.onvo.me/music/users-search?q=${q}`, {
@@ -2464,6 +2470,23 @@ async function search(q) {
             console.log('ass')
             break;
     }
+
+    let html = ''
+    console.log(dir)
+    if (dir == 'artists') {
+        html = `<div class="artists-search-container">${artists(data)}</div>`
+    } else {
+        html = printSongs(data, 'search')
+    }
+    document.querySelector(e ? '.search-result' : '.inset-search-songs').innerHTML = html
+}
+
+function artists(data) {
+    let html = ''
+    data.forEach(artist => {
+        html += `<div class="artist-element" data-img="${artist.posterLarge}" dataid="${artist.id}" onclick="openArtist(this.getAttribute('dataid'),this,'youtube')" dataid="${artist.id}"><span style="background-image: url('${pI(artist.posterLarge, true)}')"></span><a>${artist.name}</a><p>${artist.followers}</p></div>`
+    })
+    return html
 }
 
 function printUsers(users) {
@@ -2508,6 +2531,8 @@ document.querySelector('.input-text-search input').addEventListener('input', fun
         search(q)
     }, 500)
 })
+
+
 document.querySelector('.input-text-search input').addEventListener('focus', function (event) {
     this.closest('.input-text-search').classList.add('focused')
 });
@@ -3217,6 +3242,9 @@ async function handleIncomingVideoStatus(data) {
                 await playTrack(data.track, true)
             } else {
                 play()
+            }
+            if (currentSong.id !== data.track?.id) {
+                return
             }
             await delay(500)
             if (Math.abs(audioPlayer.currentTime - data.time) > 5) {
@@ -4164,21 +4192,30 @@ const addTrackToPlaylist = async (accessToken, playlistId, trackUri) => {
 
 
 class DraggableMenu {
-    constructor(menuSelector, backgroundSelector, innerScroller) {
-        this.menu = document.querySelector(menuSelector);
-        this.background = document.querySelector(backgroundSelector);
+    constructor(data) {
+        this.menu = document.querySelector(data.parent);
+        this.background = document.querySelector(data.back);
         this.touchingElement = false;
         this.isMoving = false;
-        this.menuHeight = this.menu.offsetHeight;
+        this.menuHeight = data.isHeight ? window.innerHeight : this.menu.offsetHeight;
         this.movelY = this.menuHeight;
         this.dragDirection = "";
         this.maxOpacity = 0.7;
         this.velocity = 0.3;
-        this.isOpen = true;
-        this.scroller = document.querySelector(innerScroller)
+        this.isOpen = data.isHeight ? false : true;
+        this.moveOffset = 0
+        this.isHeight = data.isHeight;
+        this.minHeight = data.minHeight || 0;
+        this.minTransform = data.minTransform || this.menuHeight;
+        this.onclose = data.onclose || (() => {})
+        this.onopen = data.onopen || (() => {})
+        if (data.inner) {
+            this.scroller = document.querySelector(data.inner)
+        }
         this.bindEvents();
     }
     update() {
+        this.isOpen = this.isHeight ? false : true;
         this.menuHeight = this.menu.offsetHeight;
     }
     bindEvents() {
@@ -4188,7 +4225,7 @@ class DraggableMenu {
         this.scroller?.addEventListener("scroll", (e) => this.onScroll(e))
     }
     shouldRefresh() {
-        if (!this.scroller) {
+        if (!this.scroller && this.isOpen) {
             return true
         }
         if (this.scroller.scrollTop < 20) {
@@ -4245,14 +4282,12 @@ class DraggableMenu {
         this.menu.classList.remove("no-transition");
         this.background.classList.remove("no-transition");
 
-        const timeTaken = new Date().getTime() - this.startTime;
-        const translateY = parseFloat(getComputedStyle(this.menu).transform.split(',')[5]);
         if (this.isOpen !== true) {
-            if (Math.abs(translateY) < this.menuHeight / 3) {
+            if ((Math.abs(this.moveOffset) < this.menuHeight / 3) && this.moveOffset > 20) {
                 this.openMenu();
             }
         } else {
-            if (Math.abs(translateY) > this.menuHeight / 3) {
+            if (Math.abs(this.moveOffset) > this.menuHeight / 3) {
                 this.closeMenu();
             } else {
                 this.openMenu();
@@ -4263,7 +4298,13 @@ class DraggableMenu {
     updateUI() {
         if (this.isMoving) {
             const value = Math.max(Math.min(this.movelY, this.menuHeight), 0);
-            this.menu.style.transform = `translateY(${value}px)`;
+            this.moveOffset = value
+            if (this.isHeight) {
+                this.menu.style.height = `calc(100% - ${value}px)`;
+                // this.menu.style.transform = `translateY(-${this.minTransform * (value / this.menuHeight)}px)`;
+            } else {
+                this.menu.style.transform = `translateY(${value}px)`;
+            }
         }
     }
 
@@ -4277,13 +4318,26 @@ class DraggableMenu {
     }
 
     closeMenu() {
-        this.isOpen = true;
-        this.menu.style.transform = `translateY(${this.menuHeight}px)`;
+        this.isOpen = false;
+        this.moveOffset = 0
+        if (this.isHeight) {
+            this.menu.style.height = `${this.minHeight}px`;
+            this.menu.style.transform = `translateY(-${this.minTransform}px)`;
+            setTimeout(() => {
+                this.onclose()
+            },200)
+        } else {
+            this.menu.style.transform = `translateY(${this.minTransform}px)`;
+        }
         this.background.click();
     }
 
     openMenu() {
-        this.isOpen = true;
+        this.isOpen = true
+        if (this.isHeight) {
+            this.menu.style.height = '100%';
+            this.onopen()
+        } 
         this.menu.style.transform = 'translateY(0px)';
         this.background.style.opacity = `${this.maxOpacity}`;
         this.background.classList.remove("hidden");
@@ -4321,7 +4375,11 @@ const getPopularArtists = async (accessToken) => {
     }
 };
 
-const draggableSearch = new DraggableMenu('.music-search-main', '.back-music-search', '.search-container-songs');
+const draggableSearch = new DraggableMenu({
+    parent: '.music-search-main',
+    back: '.back-music-search',
+    inner: '.search-container-songs'
+});
 
 
 const mainButtoning = document.querySelector('.buttons-container')

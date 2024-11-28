@@ -29,7 +29,7 @@ document.querySelectorAll('.subscipe-button').forEach(div => {
     })
 })
 
-document.querySelector('.switcher-plus-back').addEventListener('click', function () {
+document.querySelector('.switcher-plus-back')?.addEventListener('click', function () {
     document.querySelector('.switcher-plus-body').classList.remove('center-flex');
     document.querySelector('.switcher-plus-body').removeAttribute('style');
     setTimeout(() => {
@@ -125,7 +125,7 @@ async function pay(el) {
     }
 }
 
-document.querySelector('.promocode').addEventListener('click', async function () {
+document.querySelector('.promocode')?.addEventListener('click', async function () {
     const attr = document.querySelector('.promo-code');
     attr.classList.add('loading');
     attr.insertAdjacentHTML('beforeend', roller);

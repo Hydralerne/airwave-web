@@ -278,9 +278,9 @@ const filteredHome = (data) => {
                     description: core.description,
                     poster: getImage(core.artwork.dictionary.url, 2500, 1550, 'webp'),
                     heading: core.heading,
-                    type: core.contentDescriptor.kind,
-                    id: core.contentDescriptor.identifiers.storeAdamID,
-                    url: core.contentDescriptor.url
+                    type: core.contentDescriptor?.kind,
+                    id: core.contentDescriptor?.identifiers.storeAdamID,
+                    url: core.contentDescriptor?.url
                 })
             })
         }

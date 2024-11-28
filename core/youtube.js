@@ -441,41 +441,73 @@ const request = async (query, params) => {
 }
 
 function timeToMilliseconds(timeString) {
-    const timeParts = timeString.split(":").map(Number);
-    let milliseconds = 0;
+    try {
+        const timeParts = timeString.split(":").map(Number);
+        let milliseconds;
+        if (timeParts.length === 3) {
+            const [hours, minutes, seconds] = timeParts;
+            milliseconds = (hours * 3600 + minutes * 60 + seconds) * 1000;
+        } else if (timeParts.length === 2) {
+            const [minutes, seconds] = timeParts;
+            milliseconds = (minutes * 60 + seconds) * 1000;
+        } else {
+            console.log(timeString)
+        }
 
-    if (timeParts.length === 3) {
-        const [hours, minutes, seconds] = timeParts;
-        milliseconds = (hours * 3600 + minutes * 60 + seconds) * 1000;
-    } else if (timeParts.length === 2) {
-        const [minutes, seconds] = timeParts;
-        milliseconds = (minutes * 60 + seconds) * 1000;
-    } else {
-        console.log(timeString)
+        return milliseconds;
+    } catch (e) {
+        return
     }
-
-    return milliseconds;
 }
 
 const filterMenu = (data) => {
-    track.musicResponsiveListItemRenderer.flexColumns[1].musicResponsiveListItemFlexColumnRenderer.text.runs[0].navigationEndpoint?.browseEndpoint.browseId
-    track.musicResponsiveListItemRenderer.flexColumns[1].musicResponsiveListItemFlexColumnRenderer.text.runs[2].navigationEndpoint.browseEndpoint.browseId
+    const artists = (() => {
+        const runs = data.musicResponsiveListItemRenderer.flexColumns[1]
+            .musicResponsiveListItemFlexColumnRenderer.text.runs;
+        const filteredArtists = runs
+            .filter((item) =>
+                item.navigationEndpoint?.browseEndpoint?.browseEndpointContextSupportedConfigs
+                    ?.browseEndpointContextMusicConfig?.pageType === "MUSIC_PAGE_TYPE_ARTIST"
+            )
+            .map((item) => ({
+                name: item.text,
+                id: item.navigationEndpoint.browseEndpoint.browseId,
+            }));
+
+        return filteredArtists.length > 1 ? filteredArtists : undefined;
+    })();
+    const artist = data.musicResponsiveListItemRenderer.flexColumns[1].musicResponsiveListItemFlexColumnRenderer.text.runs[0].navigationEndpoint?.browseEndpoint.browseId
+    const albumID = data.musicResponsiveListItemRenderer.menu.menuRenderer.items
+        .find(item => item.menuNavigationItemRenderer?.icon?.iconType === 'ALBUM')?.menuNavigationItemRenderer.navigationEndpoint.browseEndpoint.browseId;
+    const albumColumn = data.musicResponsiveListItemRenderer.flexColumns
+        .find(column =>
+            column.musicResponsiveListItemFlexColumnRenderer.text.runs.some(
+                run => run.navigationEndpoint?.browseEndpoint?.browseId === albumID
+            )
+        );
+    const album = albumColumn
+        ? albumColumn.musicResponsiveListItemFlexColumnRenderer.text.runs
+            .find(run => run.navigationEndpoint?.browseEndpoint?.browseId === albumID)
+            ?.text.split('(')[0].trim()
+        : undefined;
+    return { artist, albumID, album, artists }
 }
 
 const filterYTMusicTracks = (track) => {
-    const duration = timeToMilliseconds(track.musicResponsiveListItemRenderer.flexColumns[1].musicResponsiveListItemFlexColumnRenderer.text.runs[4].text)
+    const duration = timeToMilliseconds(track.musicResponsiveListItemRenderer.flexColumns[1].musicResponsiveListItemFlexColumnRenderer.text.runs[4]?.text)
     const ids = filterMenu(track)
     return {
         api: 'youtube',
         id: track.musicResponsiveListItemRenderer.playlistItemData.videoId,
         title: track.musicResponsiveListItemRenderer.flexColumns[0].musicResponsiveListItemFlexColumnRenderer.text.runs[0].text,
         artist: track.musicResponsiveListItemRenderer.flexColumns[1].musicResponsiveListItemFlexColumnRenderer.text.runs[0].text,
+        artists: ids.artists,
         artistID: ids.artist,
         poster: track.musicResponsiveListItemRenderer.thumbnail.musicThumbnailRenderer.thumbnail.thumbnails[1].url,
         posterLarge: track.musicResponsiveListItemRenderer.thumbnail.musicThumbnailRenderer.thumbnail.thumbnails[1].url?.split('=')[0] + '=w600-h600-l100-rj',
         duration: duration,
-        album: track.musicResponsiveListItemRenderer.flexColumns[1].musicResponsiveListItemFlexColumnRenderer.text.runs[2].text?.split('(')[0].trim(),
-        albumID: ids.album,
+        album: ids.album,
+        albumID: ids.albumID,
     }
 }
 
@@ -806,14 +838,169 @@ const youtubeMusicRelated = async (req, res) => {
     }
 }
 
+const filterSongsSection = (data) => {
+    const tracks = []
+    data.contents.forEach(track => {
+        try {
+            tracks.push(filterYTMusicTracks(track))
+        } catch (e) {
+            console.error(e)
+        }
+    })
+    const json = {
+        type: 'songs',
+        id: data.title.runs[0].navigationEndpoint.browseEndpoint.browseId,
+        params: data.title.runs[0].navigationEndpoint.browseEndpoint.params,
+        tracks: tracks
+    }
+    return json
+}
+
+const filterAlbums = (data) => {
+    const albums = []
+    data.contents.forEach(album => {
+        try {
+            albums.push({
+                api: 'youtube',
+                kind: 'album',
+                id: album.musicTwoRowItemRenderer.navigationEndpoint.browseEndpoint.browseId,
+                title: album.musicTwoRowItemRenderer.title.runs[0].text,
+                artist: album.musicTwoRowItemRenderer.subtitle.runs[2]?.text,
+                poster: album.musicTwoRowItemRenderer.thumbnailRenderer.musicThumbnailRenderer.thumbnail.thumbnails[0]?.url,
+                posterLarge: album.musicTwoRowItemRenderer.thumbnailRenderer.musicThumbnailRenderer.thumbnail.thumbnails[1]?.url,
+            })
+        } catch (e) {
+            console.error(e)
+        }
+    })
+    return {
+        type: 'albums',
+        id: data?.header?.musicCarouselShelfBasicHeaderRenderer?.title?.runs?.[0]?.navigationEndpoint?.browseEndpoint?.browseId,
+        params: data?.header?.musicCarouselShelfBasicHeaderRenderer?.title?.runs?.[0]?.navigationEndpoint?.browseEndpoint?.params,
+        data: albums
+    }
+}
+
+const filterSingles = (data) => {
+    const albums = []
+    data.contents.forEach(album => {
+        try {
+            albums.push({
+                api: 'youtube',
+                kind: 'single',
+                id: album.musicTwoRowItemRenderer.navigationEndpoint.browseEndpoint.browseId,
+                title: album.musicTwoRowItemRenderer.title.runs[0].text,
+                artist: album.musicTwoRowItemRenderer.subtitle.runs[2]?.text,
+                poster: album.musicTwoRowItemRenderer.thumbnailRenderer.musicThumbnailRenderer.thumbnail.thumbnails[0]?.url,
+                posterLarge: album.musicTwoRowItemRenderer.thumbnailRenderer.musicThumbnailRenderer.thumbnail.thumbnails[1]?.url,
+            })
+        } catch (e) {
+            console.error(e)
+        }
+    })
+    return {
+        type: 'singles',
+        id: data?.header?.musicCarouselShelfBasicHeaderRenderer?.title?.runs?.[0]?.navigationEndpoint?.browseEndpoint?.browseId,
+        params: data?.header?.musicCarouselShelfBasicHeaderRenderer?.title?.runs?.[0]?.navigationEndpoint?.browseEndpoint?.params,
+        data: albums
+    }
+}
+
+const filterList = (data) => {
+    let lists = []
+    data.forEach(list => {
+        try {
+            lists.push({
+                api: 'youtube',
+                kind: 'playlist',
+                id: list.musicTwoRowItemRenderer.navigationEndpoint.browseEndpoint.browseId,
+                title: list.musicTwoRowItemRenderer.title.runs[0].text,
+                artist: 'Youtube music',
+                poster: list.musicTwoRowItemRenderer.thumbnailRenderer.musicThumbnailRenderer.thumbnail.thumbnails[0].url,
+                posterLarge: list.musicTwoRowItemRenderer.thumbnailRenderer.musicThumbnailRenderer.thumbnail.thumbnails[1].url,
+            })
+        }catch(e){
+            console.error(e)
+        }
+    })
+    return lists
+}
+
+const filterArtists = (data) => {
+    let artists = []
+    data.forEach(list => {
+        try {filterYTMusicArtists
+            artists.push({
+                api: 'youtube',
+                kind: 'artist',
+                id: list.musicTwoRowItemRenderer.navigationEndpoint.browseEndpoint.browseId,
+                name: list.musicTwoRowItemRenderer.title.runs[0].text,
+                followers: list.musicTwoRowItemRenderer.subtitle.runs[0].text.replace('subscribers','followers'),
+                poster: list.musicTwoRowItemRenderer.thumbnailRenderer.musicThumbnailRenderer.thumbnail.thumbnails[0].url,
+                posterLarge: list.musicTwoRowItemRenderer.thumbnailRenderer.musicThumbnailRenderer.thumbnail.thumbnails[1].url,
+            })
+        }catch(e){
+            console.error(e)
+        }
+    })
+    return artists
+}
+const filterArtistSections = (json) => {
+    const sections = json.contents.singleColumnBrowseResultsRenderer.tabs[0].tabRenderer.content.sectionListRenderer.contents
+    const data = {}
+    sections.forEach(section => {
+        try {
+            if (section.musicShelfRenderer) {
+                data.songs = filterSongsSection(section.musicShelfRenderer)
+            } else if (section.musicCarouselShelfRenderer) {
+                const main = section.musicCarouselShelfRenderer.header.musicCarouselShelfBasicHeaderRenderer.title.runs[0]
+                const type = main.text
+                if (type == 'Albums') {
+                    data.albums = filterAlbums(section.musicCarouselShelfRenderer)
+                }
+                if (type == 'Singles') {
+                    data.singles = filterSingles(section.musicCarouselShelfRenderer)
+                }
+                if(type == 'Featured on'){
+                    data.lists = filterList(section.musicCarouselShelfRenderer.contents)
+                }
+                if(type == 'Fans might also like'){
+                    data.artists = filterArtists(section.musicCarouselShelfRenderer.contents)
+                }
+            }
+        } catch (e) {
+            console.error(e)
+        }
+    })
+    return data
+}
+
+const filterArtistData = (json) => {
+    const artist = json.header.musicImmersiveHeaderRenderer
+    const sections = filterArtistSections(json);
+    const image = artist?.thumbnail?.musicThumbnailRenderer?.thumbnail?.thumbnails?.[0]?.url?.split('=w')?.[0]
+    const data = {
+        name: artist?.title?.runs?.[0]?.text,
+        description: artist?.description?.runs?.[0]?.text,
+        followers: artist?.subscriptionButton?.subscribeButtonRenderer?.subscriberCountText?.runs?.[0]?.text,
+        poster: image ? `${image}=w1500-h1500-p-l100-rj` : undefined,
+        images: artist?.thumbnail?.musicThumbnailRenderer?.thumbnail?.thumbnails,
+        ...sections
+    }
+    return data
+}
+
+/// FEmusic_explore
+/// FEmusic_home
 
 const getArtist = async (req, res) => {
     try {
         const data = await requestBrowse(req.query.id);
-        res.json(data)
+        const json = filterArtistData(data)
+        res.json(json)
     } catch (e) {
         console.error(e)
-        res.json({error: e.message})
+        res.json({ error: e.message })
     }
 }
 

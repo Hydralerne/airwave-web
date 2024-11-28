@@ -429,7 +429,15 @@ async function get_albums(artistId) {
 }
 
 
+async function getArtist(id) {
+    const response = await fetch(`/yt-music/artist?id=${id}`)
+    const data = await response.json()
+    return data
+}
+
+
 async function openArtist(id, el) {
+    await closePages()
     const page = document.querySelector('.artist-page')
     page.classList.remove('hidden')
     await delay(10);
@@ -439,44 +447,48 @@ async function openArtist(id, el) {
         behavior: 'smooth'
     })
     resetArtist();
+    page.setAttribute('dataid', id)
     if (el) {
         const poster = el.querySelector('span').getAttribute('data-img') || el.getAttribute('data-img')
         const name = el.querySelector('a')?.innerText
-        document.querySelector('.artist-avatar').setAttribute('data-img', poster)
-        document.querySelector('.artist-avatar').style.backgroundImage = `url('${poster}')`
         document.querySelector('.artist-back').style.backgroundImage = `url('${poster}')`
         document.querySelector('.artist-name span').innerText = name
         document.querySelector('.artist-follow').setAttribute('dataid', id)
     }
-    const data = await get_artist(id)
-    const poster = data.images[0].url
-    document.querySelector('.artist-avatar').setAttribute('data-img', poster)
-    document.querySelector('.artist-avatar').style.backgroundImage = `url('${poster}')`
-    document.querySelector('.artist-back').style.backgroundImage = `url('${poster}')`
+
+    const data = await getArtist(id)
+    document.querySelector('.bio-artist p').innerText = data.description
+    console.log(data)
+    document.querySelector('.artist-back').style.backgroundImage = `url('${pI(data.poster, true)}')`
     document.querySelector('.artist-name span').innerText = data.name
     document.querySelector('.artist-follow').setAttribute('dataid', data.id)
 
-    const top = await get_top_tracks(id)
-    console.log(top)
-    let topData = printSongsRegular(top)
-    document.querySelector('.artist-popular').innerHTML = topData.html
-    const albums = await get_albums(id)
-    console.log(albums)
-    let albumsData = ''
-    albums.forEach(album => {
-        albumsData += `
-        <div class="list-perview-home" dataid="${album.id}" api="spotify" onclick="openAlbum('${album.id}','soundcloud')">
-            <div class="list-poster" style="background-image: url('${(album.images[1].url, true)}')"></div>
+    let topData = printSongsRegular(data.songs.tracks)
+    document.querySelector('.artist-popular').innerHTML = `
+    ${topData.html}
+    <div class="bottom-rows-trending" onclick="openPlaylist(document.querySelector('.generes-section.selected').getAttribute('dataid'),'spotify')">
+            <span>Explore more</span>
+        </div>
+    `
+
+    try {
+        let albumsData = ''
+        data.albums.data.forEach(album => {
+            albumsData += `
+        <div class="list-perview-home" dataid="${album.id}" api="${album.api}" onclick="openAlbum('${album.id}','${album.api}')">
+            <div class="list-poster" style="background-image: url('${pI(album.posterLarge, true)}')"></div>
             <section>
-                <span>${album.name}</span>
-                <div class="lable-list"><a>${album.total_tracks} Tracks</a></div>
+                <span>${album.title}</span>
+                <div class="lable-list"><a>${album.artist}</a></div>
             </section>
         </div>
         `
-    })
-    document.querySelector('.inset-albums-popular').innerHTML = albumsData
-    const artists = await get_related_artists(id);
-    let artistData = printArtists(artists)
+        })
+        document.querySelector('.inset-albums-popular').innerHTML = albumsData
+    } catch (e) {
+        console.error(e)
+    }
+    let artistData = artists(data.artists)
     document.querySelector('.similar-artist-artist').innerHTML = artistData
 }
 
@@ -884,6 +896,7 @@ const getMainApple = async () => {
     const data = await response.json();
     appleMain = data
     if (appleMain.cards) {
+        appleMain.expire = Date.now() + (1000 * 60 * 60 * 24)
         localStorage.setItem('applehome', JSON.stringify(appleMain))
     }
     return data
@@ -924,16 +937,8 @@ function printAppleMain(data) {
             </div>
         </div>
     </div>`
-    document.querySelector('.most-terinding-hits').insertAdjacentHTML('afterend', `<div class="apple-home-container">${html + mini}</div>`)
+    document.querySelector('.discover-categories').insertAdjacentHTML('beforeend', `<div class="apple-home-container">${html + mini}</div>`)
 }
-
-try {
-    const oldApple = localStorage.getItem('applehome');
-    if (oldApple) {
-        printAppleMain(JSON.parse(oldApple))
-    }
-} catch (e) { }
-
 
 async function printHome(data) {
     document.querySelectorAll('.reccomendation-body').forEach(async message => {
@@ -1160,13 +1165,6 @@ getHome().then(async data => {
     } else {
         document.querySelector('.loadermain')?.remove()
     }
-    if (!safeMode) {
-        setTimeout(() => {
-            getMainApple().then(data => {
-                printAppleMain(data)
-            })
-        }, 50)
-    }
     try {
         if (data.home?.soundcloud && !safeMode) {
             localStorage.setItem('soundcloud', data.home?.soundcloud)
@@ -1229,6 +1227,20 @@ document.querySelectorAll('.generes-section').forEach(btn => {
         document.querySelector('.main-inset-hits').innerHTML = songsData.html
         sectionsParent.classList.remove('disabled')
 
+    });
+})
+
+document.querySelectorAll('.search-types section').forEach(btn => {
+    btn.addEventListener('click', async function () {
+        if (this.classList.contains('selected')) {
+            return
+        }
+        document.querySelectorAll('.search-types section').forEach(div => {
+            div.classList.remove('selected');
+        });
+        this.classList.add('selected')
+        await delay(50)
+        search(document.querySelector('.input-search input').value, true)
     });
 })
 
@@ -1601,12 +1613,12 @@ async function printLibrary(data) {
     if (data.owner) {
         page.classList.add('hosted');
         document.querySelector('.liberary .host-image').style.backgroundImage = `url('${data.owner.image}')`
-        document.querySelectorAll('.profile-background.library-background span').forEach(span => { span.style.backgroundImage = `url('${(data.owner.image)}')` });
+        // document.querySelectorAll('.profile-background.library-background span').forEach(span => { span.style.backgroundImage = `url('${(data.owner.image)}')` });
         document.querySelector('.liberary .text-live-wave p').innerText = `${data.owner.name}'s Library`
         e = false
     } else {
         document.querySelector('.liberary .host-image').style.backgroundImage = `url('${pI(localStorage.getItem('image'))}')`
-        document.querySelectorAll('.profile-background.library-background span').forEach(span => { span.style.backgroundImage = `url('${pI(localStorage.getItem('image'))}')` });
+        // document.querySelectorAll('.profile-background.library-background span').forEach(span => { span.style.backgroundImage = `url('${pI(localStorage.getItem('image'))}')` });
         document.querySelector('.liberary .text-live-wave p').innerText = `Your library`
         page.classList.remove('hosted');
     }
@@ -2086,7 +2098,7 @@ async function loadMsgs(e) {
     })
 }
 
-document.querySelector('.button-page.inbox-flex').addEventListener('click', async function () {
+document.querySelector('.button-page.inbox-flex')?.addEventListener('click', async function () {
     await closePages()
     const profile = document.querySelector('.messages')
     loadMsgs()
@@ -2094,8 +2106,38 @@ document.querySelector('.button-page.inbox-flex').addEventListener('click', asyn
     await delay(50)
     profile.classList.add('center')
 })
+async function closeDiscovery() {
+    const parent = document.querySelector('.discovery')
+    parent.classList.remove('center')
+    await delay(200)
+    parent.classList.add('hidden')
+    document.querySelector('.discover-categories').innerHTML = ''
+}
+async function showDiscovery() {
+    const parent = document.querySelector('.discovery')
+    parent.classList.remove('hidden')
+    try {
+        const oldApple = localStorage.getItem('applehome');
+        if (oldApple) {
+            printAppleMain(JSON.parse(oldApple))
+            if (oldApple.expire > Date.now()) {
+                return
+            }
+        }
+        getMainApple().then(data => {
+            printAppleMain(data)
+        })
+    } catch (e) { }
 
-document.querySelector('.button-page.live-flex').addEventListener('click', async function () {
+    await delay(50)
+    parent.classList.add('center')
+
+}
+document.querySelector('.button-page.search-flex')?.addEventListener('click', async function () {
+    await closePages()
+    showDiscovery()
+});
+document.querySelector('.button-page.live-flex')?.addEventListener('click', async function () {
     await closePages()
     if (liveBody.classList.contains('live')) {
         showThePlayer();
@@ -2304,7 +2346,10 @@ async function showMenu(parent, e) {
     setTimeout(() => {
         document.querySelector('.switcher-menu-body').classList.add('center-flex');
         if (!draggableSong) {
-            draggableSong = new DraggableMenu('.switcher-menu-body', '.switcher-menu-back');
+            draggableSong = new DraggableMenu({
+                parent: '.switcher-menu-body',
+                back: '.switcher-menu-back'
+            });
         } else {
             draggableSong.update()
         }
@@ -2312,15 +2357,13 @@ async function showMenu(parent, e) {
 
     let rawSongObj;
 
-    if (e) {
+    if (e || parent.poster) {
         rawSongObj = parent
     } else {
         rawSongObj = getSongObject(parent)
     }
 
     lastSelected = rawSongObj
-
-    await delay(200)
 
     const isExist = await checkObjectExists(rawSongObj.id, 'downloads')
 
@@ -2491,7 +2534,7 @@ async function sendMsg(el, user = currentProfile.id) {
         return
     }
     el.classList.add('disabled')
-    const hide = document.querySelector('.anonymous-on-box').classList.contains('checked') ? '' : 'no'
+    const hide = document.querySelector('.anonymous-on-box').classList.contains('checked') ? 'true' : ''
     const text = document.querySelector('.textarea-msg textarea').value
     const music = getSongObject(document.querySelector('.sender-potintial .song'))
 
@@ -2949,6 +2992,27 @@ async function goOffline(e) {
     document.querySelector('.loadermain')?.remove()
 }
 
+const searcher = document.querySelector('.discovery-body')
+
+document.querySelector('.input-search input').addEventListener('input', function (event) {
+    clearTimeout(timeSearch)
+    const q = this.value;
+    if (!nE(q, true)) {
+        searcher.classList.remove('searching')
+        return;
+    }
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        clearTimeout(timeSearch);
+        searcher.classList.add('searching')
+        search(q, true);
+        return
+    }
+    timeSearch = setTimeout(() => {
+        searcher.classList.add('searching')
+        search(q, true)
+    }, 500)
+})
 
 // let globalResolve;
 // var arrowicon = '<div class="refresh-arrow"></div>';
