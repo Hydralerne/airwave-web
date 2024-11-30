@@ -643,7 +643,7 @@
     z-index: 99999999;
     background: #121416;
     border-top-right-radius: 30px;
-    border-top-left-radius: 3%;
+    border-top-left-radius: 30px;
     transition: 0.3s;
     transform: translateY(100%);
 }
