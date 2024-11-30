@@ -2705,31 +2705,30 @@ async function getRelated(e) {
         }
 
         let data = {}
-
-        if (currentSong.api == 'youtube' || e) {
-            const response = await fetch(`/yt-music/related?id=${currentSong.api == 'youtube' ? currentSong.id : currentSong.yt}`)
-            data = await response.json()
-        } else if (currentSong.api == 'spotify') {
-            data = await getRelatedSongs(currentSong.id)
-        } else if (currentSong.api == 'soundcloud') {
-            data = await getSoundcloudRelated(currentSong.id)
-        } else if (currentSong.api == 'anghami') {
-            const response = await fetch(`/anghami/related/${currentSong.id}`)
-            data = await response.json()
-        } else if (currentSong.api == 'apple') {
-            if (currentSong.albumID && currentSong.albumID !== 'undefined' && currentSong.albumID !== 'null') {
-                const response = await fetch(`/apple/related?album=${currentSong.albumID}`)
-                data = await response.json()
-            } else {
-                const response = await fetch(`/apple/related?id=${currentSong.id}`)
-                data = await response.json()
-            }
-        }
+        // if (currentSong.api == 'youtube' || e) {
+        const response = await fetch(`/yt-music/related?id=${currentSong.api == 'youtube' ? currentSong.id : currentSong.yt}`)
+        data = await response.json()
+        // } else if (currentSong.api == 'spotify') {
+        //     data = await getRelatedSongs(currentSong.id)
+        // } else if (currentSong.api == 'soundcloud') {
+        //     data = await getSoundcloudRelated(currentSong.id)
+        // } else if (currentSong.api == 'anghami') {
+        //     const response = await fetch(`/anghami/related/${currentSong.id}`)
+        //     data = await response.json()
+        // } else if (currentSong.api == 'apple') {
+        //     if (currentSong.albumID && currentSong.albumID !== 'undefined' && currentSong.albumID !== 'null') {
+        //         const response = await fetch(`/apple/related?album=${currentSong.albumID}`)
+        //         data = await response.json()
+        //     } else {
+        //         const response = await fetch(`/apple/related?id=${currentSong.id}`)
+        //         data = await response.json()
+        //     }
+        // }
 
         if (queueTracks.length < 5 && e) {
-            queueTracks = data?.list || data?.related?.tracks
+            queueTracks = currentSong.api == 'youtube' ? (data?.list || data?.related?.tracks) : data?.related?.tracks
         }
-        
+
         relatedGlobal = { ...data, id: currentSong.id, api: currentSong.api }
         // if (queueTracks.length < 4) {
         //     queueTracks = data || raw?.byArtist
@@ -2798,8 +2797,8 @@ async function parseRelated(e = 'main') {
         if (queueTracks.length > 0) {
             if (isPlus()) {
                 relatedParent.classList.add('sortable')
-                sorter = new SortableList({ 
-                    container: '.related-outset-container', 
+                sorter = new SortableList({
+                    container: '.related-outset-container',
                     elements: '.music-component',
                     isQueue: true
                 })

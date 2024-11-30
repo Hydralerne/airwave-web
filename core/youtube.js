@@ -816,7 +816,7 @@ const getYTMusicRelated = async (id) => {
         ?.[0]
         ?.text
     const artists = []
-    artistsRaw.forEach(artist => {
+    artistsRaw?.forEach(artist => {
         try {
             artists.push(filterRelatedArtists(artist))
         } catch (e) {
