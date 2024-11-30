@@ -944,8 +944,8 @@ async function addPlayerMetadata(rawSongObj) {
             document.querySelector('.styling').innerHTML = `<style>
             .visualisation .box.checked {background:  ${darkenColor(shades[3], 0.5)}!important;}
             .body.minimized { background: ${darkenColor(shades[3], 0.5)}!important;}
-            .android .player .background-wave::before{
-                background: linear-gradient(to bottom, ${darkenColor(colorEqualizer('#7f7e79',data?.colors?.muted),0.5)} 25%, #121416 50%);
+            .player .background-wave::before{
+                background: linear-gradient(to bottom, ${darkenColor(colorEqualizer('#7f7e79', data?.colors?.muted), 0.5)} 25%, #121416 50%);
             }
             .song.running .bar {background: ${ds}}.song.running .artist-title span{color: ${ds}}
             .pottom-width-slider span{background: #fff}
@@ -1257,7 +1257,7 @@ async function playTrack(el, e) {
     resetPlayer(currentSong.id);
     addPlayerMetadata(currentSong)
     playForce()
-    
+
     if (!isParty) {
         showPlayer();
     }
@@ -1302,14 +1302,14 @@ async function playTrack(el, e) {
 
 
     if (!isParty || (isParty && isOwner())) {
-        getRelated()
+        getRelated(true)
     }
 
     await checkTrackData()
 
     updatePlaying(currentSong);
 
-    getLyrics()
+    // getLyrics()
 
     if (queueTracks.length > 0 && !isParty || isOwner()) {
         prepareNext()
@@ -1324,15 +1324,7 @@ async function playTrack(el, e) {
     }
 
     if (!isParty) {
-        printCopyrights(currentSong);
-    }
-
-    await delay(50)
-    if (!lyricsInitialize) {
-        if (!liveBody.classList.contains('minimized') && !isParty) {
-            parseRelated()
-        }
-        lyricsInitialize = true;
+        // printCopyrights(currentSong);
     }
 
 }
@@ -1566,7 +1558,7 @@ function addSource(data) {
 }
 
 function isInline() {
-    if (document.querySelector('.video-check').classList.contains('checked')) {
+    if (document.querySelector('.video-check')?.classList.contains('checked')) {
         return true
     }
     return false;
@@ -1782,19 +1774,20 @@ async function minimizePlayer(page = document.querySelector('.body')) {
     page.scrollTop = 0;
     page.removeAttribute('style')
     page.classList.add('minimized');
+    page.classList.remove('blured')
     if (page.classList.contains('live')) {
         page.classList.add('player')
     }
     page.classList.add('center-flex');
     const related = document.querySelector('.lyrics-bottom-related')
-    if(related){
+    if (related) {
         related.innerHTML = ''
     }
-    
+
 }
 
 let scrollCurrent = 0;
-function showThePlayer(page = liveBody) {
+async function showThePlayer(page = liveBody) {
     try {
         lyricsPaused = false
         loader.resume();
@@ -1805,17 +1798,17 @@ function showThePlayer(page = liveBody) {
     page.classList.add('center-flex')
     try {
         draggablePlayer.openMenu()
-    }catch(e){}
+    } catch (e) { }
     document.body.classList.add('hideoverflow')
+    await delay(300)
     if (page.classList.contains('live')) {
         history.pushState({ page: 'player' }, null, `/radio/${page.getAttribute('dataid')}`)
     }
-    parseLyrics();
+    // parseLyrics();
     if (isOffline) {
         return
     }
-    parseRelated()
-    initializeYoutube(currentSong.yt)
+    // initializeYoutube(currentSong.yt)
 }
 
 let draggablePlayer
@@ -1841,13 +1834,16 @@ async function showPlayer() {
     if (!draggablePlayer) {
         draggablePlayer = new DraggableMenu({
             parent: '.body',
-            back: '.body-back',
             isHeight: true,
             minHeight: 55,
             minTransform: 90,
             onclose: minimizePlayer,
-            onopen: () => {
+            onopen: async () => {
                 parent.classList.remove('minimized')
+                await delay(300)
+                if (typeof Android == 'undefined') {
+                    parent.classList.add('blured')
+                }
             }
         });
     } else {
@@ -1918,11 +1914,7 @@ async function actualAddTrack(el, id, dir, json) {
     }
 
     if (liveBody.classList.contains('queue') || isParty) {
-
         const activeQueue = document.querySelector('.music-component.running')
-
-        let place
-
         if (activeQueue) {
             place = Array.prototype.indexOf.call(queueContainer.children, activeQueue);
             activeQueue.insertAdjacentHTML('afterend', html)
@@ -1940,7 +1932,7 @@ async function addTrack(el, id = el.closest('.song')?.getAttribute('trackid'), j
     }
     const dir = musicSearchContainer.getAttribute('dir')
     if (dir == 'favs') {
-        if (queueContainer.querySelector('.song[trackid="' + id + '"]') && id) {
+        if (queueContainer?.querySelector('.song[trackid="' + id + '"]') && id) {
             return;
         }
         const length = document.querySelectorAll('.favorites-components.active-favorites').length
@@ -1961,10 +1953,9 @@ async function addTrack(el, id = el.closest('.song')?.getAttribute('trackid'), j
         return;
     }
     el.classList.add('added')
-    if (queueContainer.querySelector('.song[trackid="' + id + '"]') && id) {
+    if (queueContainer?.querySelector('.song[trackid="' + id + '"]') && id) {
         return;
     }
-
 
     actualAddTrack(el, id, dir)
 
@@ -1998,8 +1989,6 @@ async function callbackSource(data, e) {
 }
 
 document.querySelector('.back-replyer-switching').addEventListener('click', function () {
-    document.querySelector('.body-replyer-switching').classList.remove('center-flex');
-    document.querySelector('.body-replyer-switching').removeAttribute('style');
     setTimeout(() => {
         document.querySelector('.switching-replyer').classList.add('hidden');
     }, 200)
@@ -2057,9 +2046,9 @@ async function replyPage(el) {
     if (draggableMusic) {
         draggableMusic.update()
     } else {
-        draggableMusic = new DraggableMenu({ 
-            parent: '.body-replyer-switching', 
-            back: '.back-replyer-switching' 
+        draggableMusic = new DraggableMenu({
+            parent: '.body-replyer-switching',
+            back: '.back-replyer-switching'
         });
     }
     const post = el.closest('.post')
@@ -2200,8 +2189,6 @@ const musicSearchContainer = document.querySelector('.music-search-main');
 // getTrending('soundcloud')
 
 document.querySelector('.back-music-search')?.addEventListener('click', function () {
-    musicSearchContainer.classList.remove('center-flex');
-    musicSearchContainer.removeAttribute('style');
     setTimeout(() => {
         musicStream.classList.add('hidden');
     }, 200)
@@ -2383,15 +2370,20 @@ async function search(q, e, dir) {
     for (i = 0; i < 12; i++) {
         if (searchDir == 'artists' || dir == 'artists') {
             loader += loaderArtist
+        } else if (dir == 'podcasts') {
+            loader += recentLoader
         } else {
             loader += songLoaderEffect
         }
     }
 
-    document.querySelector(e ? '.search-result' : '.inset-search-songs').innerHTML = (dir == 'artists') ? `<div class="artists-search-container">${loader}</div>` : loader
+    document.querySelector(e ? '.search-result' : '.inset-search-songs').innerHTML = (dir == 'artists') ? `<div class="artists-search-container">${loader}</div>` : ((dir == 'podcasts') ? `<div class="podcasts-search-container">${loader}</div>` : loader)
 
     let data = {}
 
+    if (dir == 'users') {
+        searchDir = 'users'
+    }
     switch (searchDir) {
         case 'spotify':
             let spotifyListData = spotifyList(q);
@@ -2457,9 +2449,8 @@ async function search(q, e, dir) {
                     Authorization: `Bearer ${await getToken()}`
                 }
             })
-            const usersData = await response.json()
-            const usersHtml = printUsers(usersData);
-            document.querySelector('.inset-search-songs').innerHTML = usersHtml
+            data = await response.json()
+            console.log(data)
             break;
         case 'artists':
             const artists = await getInitialArtists(q)
@@ -2472,19 +2463,23 @@ async function search(q, e, dir) {
     }
 
     let html = ''
-    console.log(dir)
     if (dir == 'artists') {
         html = `<div class="artists-search-container">${artists(data)}</div>`
+    } else if (dir == 'users') {
+        html = printUsers(data);
+    } else if (dir == 'podcasts') {
+        html = `<div class="podcasts-search-container">${scolledSongs(data, true)}</div>`
     } else {
         html = printSongs(data, 'search')
     }
+    console.log(data)
     document.querySelector(e ? '.search-result' : '.inset-search-songs').innerHTML = html
 }
 
 function artists(data) {
     let html = ''
     data.forEach(artist => {
-        html += `<div class="artist-element" data-img="${artist.posterLarge}" dataid="${artist.id}" onclick="openArtist(this.getAttribute('dataid'),this,'youtube')" dataid="${artist.id}"><span style="background-image: url('${pI(artist.posterLarge, true)}')"></span><a>${artist.name}</a><p>${artist.followers}</p></div>`
+        html += `<div class="artist-element" data-img="${artist.posterLarge}" dataid="${artist.id}" onclick="openArtist(this.getAttribute('dataid'),'youtube',this)" dataid="${artist.id}"><span style="background-image: url('${pI(artist.posterLarge, true)}')"></span><a>${artist.name}</a><p>${artist.followers}</p></div>`
     })
     return html
 }
@@ -2702,48 +2697,47 @@ async function getSoundcloudRelated(id) {
 let relatedGlobal = {}
 
 
-async function getRelated() {
+async function getRelated(e) {
     return new Promise(async (resolve) => {
-        if (currentSong.api == 'youtube') {
-            return
-        }
         if (relatedGlobal.id == currentSong.id) {
             resolve(relatedGlobal)
             return
         }
 
         let data = {}
-        let raw = {}
 
-        if (currentSong.api == 'spotify') {
+        if (currentSong.api == 'youtube' || e) {
+            const response = await fetch(`/yt-music/related?id=${currentSong.api == 'youtube' ? currentSong.id : currentSong.yt}`)
+            data = await response.json()
+        } else if (currentSong.api == 'spotify') {
             data = await getRelatedSongs(currentSong.id)
         } else if (currentSong.api == 'soundcloud') {
             data = await getSoundcloudRelated(currentSong.id)
         } else if (currentSong.api == 'anghami') {
             const response = await fetch(`/anghami/related/${currentSong.id}`)
-            const json = await response.json()
-            data = json.related
+            data = await response.json()
         } else if (currentSong.api == 'apple') {
             if (currentSong.albumID && currentSong.albumID !== 'undefined' && currentSong.albumID !== 'null') {
-                const response = await fetch(`/apple/related/?album=${currentSong.albumID}`)
-                console.log('related done test')
-                raw = await response.json()
-                data = raw.related
+                const response = await fetch(`/apple/related?album=${currentSong.albumID}`)
+                data = await response.json()
             } else {
-                const response = await fetch(`/apple/related/?id=${currentSong.id}`)
-                raw = await response.json()
-                data = raw.related
+                const response = await fetch(`/apple/related?id=${currentSong.id}`)
+                data = await response.json()
             }
         }
 
-        relatedGlobal = { data, artist: raw?.byArtist, id: currentSong.id }
-        if (queueTracks.length < 4) {
-            queueTracks = data || raw?.byArtist
-            queueTracks.unshift(currentSong)
-            if (!isParty || isOwner()) {
-                prepareNext()
-            }
+        if (queueTracks.length < 5 && e) {
+            queueTracks = data?.list || data?.related?.tracks
         }
+        
+        relatedGlobal = { ...data, id: currentSong.id, api: currentSong.api }
+        // if (queueTracks.length < 4) {
+        //     queueTracks = data || raw?.byArtist
+        //     queueTracks.unshift(currentSong)
+        //     if (!isParty || isOwner()) {
+        //         prepareNext()
+        //     }
+        // }
         resolve(relatedGlobal)
     });
 }
@@ -2762,34 +2756,71 @@ function addQueue(el, type) {
 
 }
 
-async function parseRelated() {
-    let { data, artist } = await getRelated()
+let sorter
+async function parseRelated(e = 'main') {
+    const relatedParent = document.querySelector('.related-container')
+    let loader = ''
+    for (i = 0; i < 10; i++) {
+        loader += songLoaderEffect
+    }
+    relatedParent.innerHTML = loader
+    let data = await getRelated(true)
+    let queue = e == 'main' ? (data?.list || data?.related?.tracks) : data?.related?.tracks
+    let helper = e == 'main' ? `
+    <div class="container-adding-queue"><div class="add-to-queue"><span>Add to queue</span></div><div class="clear-queue"><span>Clear queue</span></div></div>
+    ` : ''
+    if (queue) {
+        let html = ''
+        if (queueTracks.length < 5) {
+            queueTracks = queue
+        } else if (e == 'main') {
+            queue = queueTracks
+        }
 
-    if ((!data && !artist) || isParty) {
-        console.log('error related Parseeeeeeeeeeeeeeeeeeeeeeeeeee')
-        return
+        queue.forEach(song => {
+            try {
+                if (e == 'main') {
+                    html += printSong(song, true)
+                } else if (e == 'related') {
+                    html += printSongRegular(song, true, true)
+                }
+            } catch (e) {
+                console.error(e)
+            }
+        })
+        relatedParent.innerHTML = `<div class="related-outset-container">${helper}${html}</div>`
     }
 
-    let content = '';
-    if (data) {
-        const html = scolledSongs(data, true)
-        content = `<div class="head-tag container"><span>Similar tracks</span><a onclick="addQueue(this,'related')"></a></div>
-            <div class="recently-played-container">
-                <div class="inset-recently-played similar-songs">${html}</div>
-            </div><div class="spacer"></div>`;
+    if (e == 'main') {
+        if (sorter) {
+            sorter.destroy();
+        }
+        if (queueTracks.length > 0) {
+            if (isPlus()) {
+                relatedParent.classList.add('sortable')
+                sorter = new SortableList({ 
+                    container: '.related-outset-container', 
+                    elements: '.music-component',
+                    isQueue: true
+                })
+            } else {
+                relatedParent.classList.remove('sortable')
+            }
+        }
     }
-    if (artist) {
-        const { html } = printSongsRegular(artist, 5)
-        content += `<div class="head-tag container"><span>More By Artist</span><a onclick="addQueue(this,'artist')"></a></div>
-                <div class="trendings-inset-hits">
-                ${html}
-                <div class="bottom-rows-trending" onclick="">
-                        <span>See all</span>
-                    </div>
-                </div>`;
-    }
-    document.querySelector('.lyrics-bottom-related').innerHTML = content
 }
+
+document.querySelectorAll('.related-menu section').forEach((element, index) => {
+    element?.addEventListener('click', function () {
+        if (this.classList.contains('selected')) {
+            return
+        }
+        document.querySelectorAll('.related-menu section').forEach(el => { el.classList.remove('selected') })
+        this.classList.add('selected')
+        document.querySelector('.related-menu').setAttribute('dir', index)
+        parseRelated(this.getAttribute('dataid'))
+    });
+})
 
 async function get_most_trending_playlist() {
     try {
@@ -4194,7 +4225,9 @@ const addTrackToPlaylist = async (accessToken, playlistId, trackUri) => {
 class DraggableMenu {
     constructor(data) {
         this.menu = document.querySelector(data.parent);
-        this.background = document.querySelector(data.back);
+        if (data.back) {
+            this.background = document.querySelector(data.back);
+        }
         this.touchingElement = false;
         this.isMoving = false;
         this.menuHeight = data.isHeight ? window.innerHeight : this.menu.offsetHeight;
@@ -4207,8 +4240,9 @@ class DraggableMenu {
         this.isHeight = data.isHeight;
         this.minHeight = data.minHeight || 0;
         this.minTransform = data.minTransform || this.menuHeight;
-        this.onclose = data.onclose || (() => {})
-        this.onopen = data.onopen || (() => {})
+        this.onclose = data.onclose || (() => { })
+        this.onopen = data.onopen || (() => { })
+        this.blockClass = data.blockClass
         if (data.inner) {
             this.scroller = document.querySelector(data.inner)
         }
@@ -4228,6 +4262,9 @@ class DraggableMenu {
         if (!this.scroller && this.isOpen) {
             return true
         }
+        if (!this.isOpen) {
+            return false
+        }
         if (this.scroller.scrollTop < 20) {
             return true
         }
@@ -4243,6 +4280,11 @@ class DraggableMenu {
         return currentY > this.startY;
     }
     onTouchStart(evt) {
+        if (this.blockClass) {
+            if (evt.target.classList.contains(this.blockClass)) {
+                return
+            }
+        }
         this.touchingElement = true;
         this.startY = evt.touches[0].pageY;
         this.startX = evt.touches[0].pageX;
@@ -4250,7 +4292,9 @@ class DraggableMenu {
         this.lastY = this.startY;
         this.dragDirection = "";
         this.menu.classList.add("no-transition");
-        this.background.classList.add("no-transition");
+        if (this.background) {
+            this.background.classList.add("no-transition");
+        }
         if (this.isOpen === false) { this.movelY = this.menuHeight; } else { this.movelY = 0; }
     }
 
@@ -4270,7 +4314,9 @@ class DraggableMenu {
             this.movelY = this.calculateMoveY(this.currentY - this.lastY);
             this.updateUI();
             this.lastY = this.currentY;
-            this.updateBackgroundOpacity();
+            if (this.background) {
+                this.updateBackgroundOpacity();
+            }
         } else {
             this.touchingElement = false;
         }
@@ -4280,9 +4326,11 @@ class DraggableMenu {
     onTouchEnd(evt) {
         this.touchingElement = false;
         this.menu.classList.remove("no-transition");
-        this.background.classList.remove("no-transition");
+        if (this.background) {
+            this.background.classList.remove("no-transition");
+        }
 
-        if (this.isOpen !== true) {
+        if (!this.isOpen) {
             if ((Math.abs(this.moveOffset) < this.menuHeight / 3) && this.moveOffset > 20) {
                 this.openMenu();
             }
@@ -4290,9 +4338,12 @@ class DraggableMenu {
             if (Math.abs(this.moveOffset) > this.menuHeight / 3) {
                 this.closeMenu();
             } else {
-                this.openMenu();
+                if (this.moveOffset > 5) {
+                    this.openMenu();
+                }
             }
         }
+        this.moveOffset = 0
     }
 
     updateUI() {
@@ -4313,6 +4364,9 @@ class DraggableMenu {
     }
 
     updateBackgroundOpacity() {
+        if (!this.background) {
+            return
+        }
         let opacity = (1 - Math.abs(this.movelY) / this.menuHeight) * this.maxOpacity;
         this.background.style.opacity = opacity.toFixed(2);
     }
@@ -4325,24 +4379,44 @@ class DraggableMenu {
             this.menu.style.transform = `translateY(-${this.minTransform}px)`;
             setTimeout(() => {
                 this.onclose()
-            },200)
+            }, 200)
         } else {
-            this.menu.style.transform = `translateY(${this.minTransform}px)`;
+            this.menu.style.transform = ``;
+            this.menu.classList.remove('center-flex')
+            if (typeof this.onclose == 'function') {
+                setTimeout(() => {
+                    this.onclose()
+                }, 300)
+            } else if (this.background) {
+                this.background.click();
+            }
         }
-        this.background.click();
+
     }
 
     openMenu() {
         this.isOpen = true
+        this.menu.style.transform = 'translateY(0px)';
+
         if (this.isHeight) {
             this.menu.style.height = '100%';
+        }
+
+        if (typeof this.onopen == 'function') {
             this.onopen()
-        } 
-        this.menu.style.transform = 'translateY(0px)';
-        this.background.style.opacity = `${this.maxOpacity}`;
-        this.background.classList.remove("hidden");
+        } else if (this.background) {
+            this.background.style.opacity = `${this.maxOpacity}`;
+            this.background.classList.remove("hidden");
+        }
     }
 }
+
+document.querySelector('.player .artist-inner-song section a')?.addEventListener('click', function () {
+    if (!currentSong.artistID) {
+        return miniDialog('Artist profile not available')
+    }
+    openArtist(currentSong.artistID, currentSong.api)
+})
 
 const getPopularArtists = async (accessToken) => {
     try {
@@ -4464,32 +4538,31 @@ document.querySelector('.rounded-buttons.chat-button').addEventListener('click',
     share(`https://oave.me/radio/${liveBody.getAttribute('dataid')}`, 'Join a live party with me')
 })
 
-let sorter;
-function parseQueue(e) {
-    if (sorter) {
-        sorter.destroy();
-    }
-    if (queueTracks.length > 0) {
-        let songs = '';
-        queueTracks.forEach(song => {
-            songs += printSong(song)
+let relatedDraggable;
+async function parseQueue(e) {
+    const parent = document.querySelector('.related-container-set')
+    const main = parent.querySelector('.related-queue')
+    parent.classList.remove('hidden')
+    await delay(50)
+    if (!relatedDraggable) {
+        relatedDraggable = new DraggableMenu({
+            parent: '.related-queue',
+            inner: '.related-container',
+            blockClass: 'arrange',
+            onclose: () => {
+                parent.classList.add('hidden')
+                document.querySelector('.related-container').innerHTML = ''
+            }
         })
-        queueContainer.innerHTML = songs
-        if (isPlus() && !e) {
-            queueContainer.classList.add('sortable')
-            sorter = new SortableList()
-        } else {
-            queueContainer.classList.remove('sortable')
-        }
+    } else {
+        relatedDraggable.update()
     }
+    main.classList.add('center-flex', 'owner')
+    await delay(300)
+    parseRelated()
 }
 
 document.querySelector('.sections-player.queue-player').addEventListener('click', async function () {
-    if (!isPlus()) {
-        showPremium('Join premium to <text>Control queue</text>')
-        return
-    }
-    document.querySelector('.player').classList.add('queue')
     parseQueue();
 })
 
@@ -4548,13 +4621,13 @@ function loadGSAPAndDraggable() {
 }
 
 class SortableList {
-    constructor(container = ".inset-playlist-compine", elements = ".music-component", rowSize = 70) {
+    constructor(data, rowSize = 70) {
         this.rowSize = rowSize;
-        this.initialize(container, elements);
+        this.initialize(data.container, data.elements);
         this.loaded = false;
-        this.containerName = container
-        this.elementsName = elements
-        this.isQueue = container == ".inset-playlist-compine"
+        this.containerName = data.container
+        this.elementsName = data.elements
+        this.isQueue = data.isQueue
     }
 
     async initialize(container, elements) {
@@ -4645,17 +4718,7 @@ class SortableList {
         this.initialize(this.containerName, this.elementsName);
     }
     destroy() {
-        try {
-            this.draggables.forEach(dragger => dragger.kill());
-            this.sortables.forEach(sortable => gsap.killTweensOf(sortable.element));
-            if (this.container) {
-                gsap.set(this.container, { autoAlpha: 0 });
-                this.container = null;
-            }
-            this.listItems = []
-            this.sortables = [];
-        } catch (e) {
-            console.error(e)
-        }
+
+
     }
 }

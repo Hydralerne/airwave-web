@@ -675,14 +675,24 @@ const getVideoSections = async (id) => {
 
 const filterTrackNextList = (track) => {
     const duration = timeToMilliseconds(track.playlistPanelVideoRenderer.lengthText.runs[0].text)
+    const albumID = track.playlistPanelVideoRenderer.menu.menuRenderer.items.filter(item => item?.menuNavigationItemRenderer?.icon?.iconType == 'ALBUM')
+    ?.[0]?.menuNavigationItemRenderer
+    ?.navigationEndpoint
+    ?.browseEndpoint
+    ?.browseId
+    const album = track.playlistPanelVideoRenderer.longBylineText.runs.filter(item => item?.navigationEndpoint?.browseEndpoint?.browseId == albumID)
+    ?.[0]
+    ?.text
     return {
         api: 'youtube',
-        id: track.videoId,
+        id: track.playlistPanelVideoRenderer.videoId,
         title: track.playlistPanelVideoRenderer.title.runs[0].text,
-        artist: track.playlistPanelVideoRenderer.longBylineText.runs[0].text,
-        artistID: track.playlistPanelVideoRenderer.longBylineText.runs[0].navigationEndpoint.browseEndpoint.browseId,
+        artist: track.playlistPanelVideoRenderer.shortBylineText.runs[0].text,
+        artistID: track.playlistPanelVideoRenderer.longBylineText.runs[0].navigationEndpoint?.browseEndpoint?.browseId,
         poster: track.playlistPanelVideoRenderer.thumbnail.thumbnails[0].url,
-        posterLarge: track.playlistPanelVideoRenderer.thumbnail.thumbnails[2].url,
+        posterLarge: track.playlistPanelVideoRenderer.thumbnail.thumbnails[2]?.url,
+        album,
+        albumID,
         duration: duration,
     }
 }
@@ -738,8 +748,8 @@ const filterTrackRelated = (track) => {
         id: track.musicResponsiveListItemRenderer.playlistItemData.videoId,
         title: track.musicResponsiveListItemRenderer.flexColumns[0].musicResponsiveListItemFlexColumnRenderer.text.runs[0].text,
         artist: track.musicResponsiveListItemRenderer.flexColumns[1].musicResponsiveListItemFlexColumnRenderer.text.runs[0].text,
-        artistID: track.musicResponsiveListItemRenderer.flexColumns[1].musicResponsiveListItemFlexColumnRenderer.text.runs[0].navigationEndpoint.browseEndpoint.browseId,
-        poster: track.musicResponsiveListItemRenderer.thumbnail.musicThumbnailRenderer.thumbnail.thumbnails[1].url,
+        artistID: track.musicResponsiveListItemRenderer.flexColumns[1].musicResponsiveListItemFlexColumnRenderer.text.runs[0].navigationEndpoint?.browseEndpoint?.browseId,
+        poster: track.musicResponsiveListItemRenderer.thumbnail.musicThumbnailRenderer.thumbnail.thumbnails[1]?.url,
         posterLarge: track.musicResponsiveListItemRenderer.thumbnail.musicThumbnailRenderer.thumbnail.thumbnails[1].url?.split('=')[0] + '=w600-h600-l100-rj',
         album: track.musicResponsiveListItemRenderer.flexColumns[2].musicResponsiveListItemFlexColumnRenderer.text.runs[0]?.text?.split('(')[0].trim(),
         albumID: track.musicResponsiveListItemRenderer.flexColumns[2].musicResponsiveListItemFlexColumnRenderer.text.runs[0]?.navigationEndpoint.browseEndpoint.browseId,
@@ -751,10 +761,10 @@ const filterRelatedArtists = (artist) => {
         api: 'youtube',
         kind: 'artist',
         id: artist.musicTwoRowItemRenderer?.navigationEndpoint?.browseEndpoint?.browseId,
-        name: artist.musicTwoRowItemRenderer.title.runs[0].text,
-        followers: artist.musicTwoRowItemRenderer.subtitle.runs?.[0]?.text?.replace('subscribers', 'followers'),
-        poster: artist.musicTwoRowItemRenderer.thumbnailRenderer.musicThumbnailRenderer.thumbnail.thumbnails[0].url,
-        posterLarge: artist.musicTwoRowItemRenderer.thumbnailRenderer.musicThumbnailRenderer.thumbnail.thumbnails[1].url,
+        name: artist.musicTwoRowItemRenderer?.title?.runs?.[0]?.text,
+        followers: artist.musicTwoRowItemRenderer?.subtitle?.runs?.[0]?.text?.replace('subscribers', 'followers'),
+        poster: artist.musicTwoRowItemRenderer?.thumbnailRenderer?.musicThumbnailRenderer?.thumbnail?.thumbnails?.[0]?.url,
+        posterLarge: artist.musicTwoRowItemRenderer?.thumbnailRenderer?.musicThumbnailRenderer?.thumbnail?.thumbnails?.[1]?.url,
     }
 
     return data

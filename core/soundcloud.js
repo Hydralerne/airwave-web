@@ -193,7 +193,7 @@ const getSoundRelated = async (req) => {
                 console.log(e);
             }
         });
-        return filter;
+        return { related: { tracks: filter } };
     } catch (e) {
         return { error: e.toString() }
     }

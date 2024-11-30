@@ -375,7 +375,7 @@ function printArtists(artists) {
     let html = ''
     const isSearch = document.body.classList.contains('creating')
     artists.forEach(artist => {
-        html += `<div class="artist-element" data-img="${artist.image}" dataid="${artist.id}" onclick="${!isSearch ? `openArtist(this.getAttribute('dataid'),this)` : `this.classList.toggle('selected')`}" dataid="${artist.id}"><span style="background-image: url(${(artist.image)})"></span><div class="border-marker"></div><a>${artist.name}</a><div class="marker"></div></div>`
+        html += `<div class="artist-element" data-img="${artist.image}" dataid="${artist.id}" onclick="${!isSearch ? `openArtist(this.getAttribute('dataid'),this.getAttribute('api'),this)` : `this.classList.toggle('selected')`}" dataid="${artist.id}"><span style="background-image: url(${(artist.image)})"></span><div class="border-marker"></div><a>${artist.name}</a><div class="marker"></div></div>`
         // getColors(artist.image, 5).then(data => {
         //     const parent = document.querySelector(`.artist-element[dataid="${artist.id}"]`)
         //     parent.querySelector('.border-marker').style.borderColor = data.muted
@@ -436,8 +436,11 @@ async function getArtist(id) {
 }
 
 
-async function openArtist(id, el) {
+async function openArtist(id, api, el) {
     await closePages()
+    try {
+        draggablePlayer.closeMenu()
+    } catch (e) { }
     const page = document.querySelector('.artist-page')
     page.classList.remove('hidden')
     await delay(10);
@@ -457,7 +460,9 @@ async function openArtist(id, el) {
     }
 
     const data = await getArtist(id)
-    document.querySelector('.bio-artist p').innerText = data.description
+    if (data.description) {
+        document.querySelector('.bio-artist p').innerText = data.description
+    }
     console.log(data)
     document.querySelector('.artist-back').style.backgroundImage = `url('${pI(data.poster, true)}')`
     document.querySelector('.artist-name span').innerText = data.name
@@ -1539,7 +1544,7 @@ function printArtistsLib(data) {
     let html = ''
     data.forEach(artist => {
         html += `
-        <div class="artist-card" data-img="${artist.image}" dataid="${artist.id}" onclick="openArtist('${artist.id}',this)">
+        <div class="artist-card" data-img="${artist.image}" dataid="${artist.id}" onclick="openArtist('${artist.id}','${artist.api}',this)">
             <span style="background-image: url('${(artist.image)}');"></span>
             <a>${artist.name}</a>
         </div>
@@ -2343,12 +2348,16 @@ let draggableSong
 let lastSelected = {}
 async function showMenu(parent, e) {
     document.querySelector('.switcher-menu').classList.remove('hidden');
+    const back = document.querySelector('.switcher-menu-body')
     setTimeout(() => {
-        document.querySelector('.switcher-menu-body').classList.add('center-flex');
+        back.classList.add('center-flex');
         if (!draggableSong) {
             draggableSong = new DraggableMenu({
                 parent: '.switcher-menu-body',
-                back: '.switcher-menu-back'
+                back: '.switcher-menu-back',
+                onclose: () => {
+                    back.classList.add('hidden')
+                }
             });
         } else {
             draggableSong.update()
@@ -2803,13 +2812,11 @@ document.querySelector('.share-ssc')?.addEventListener('click', async function (
 document.querySelector('.artist-profile-view')?.addEventListener('click', async function () {
     document.querySelector('.switcher-menu-back').click();
     await delay(200)
-    if (lastSelected.api !== 'spotify') {
+    if (lastSelected.api !== 'youtube') {
         dialog('Uavilable for now', 'Artist profile for this song is not avilable for now, will be avilable soon')
         return
     }
-    const [track] = await get_tracks(lastSelected.id)
-    console.log(track)
-    openArtist(track.artist_id)
+    openArtist(lastSelected.artistID)
 })
 
 

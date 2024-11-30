@@ -110,10 +110,10 @@ const getAnghamiTrack = async (id) => {
     const url = `https://play.anghami.com/song/${id}`
     let { info } = await anghamiScrapHandler(url, id)
     let coreData = info[Object.keys(info)[0]]
-    const related = anghamiTracks(coreData.body?.sections?.[0]?.data)
+    const tracks = anghamiTracks(coreData.body?.sections?.[0]?.data)
     const track = anghamiTrack(coreData.body)
     return {
-        related, track
+        related: { tracks }, track
     }
 
 }
@@ -215,7 +215,7 @@ const filterRelated = (data) => {
             sections.byArtist = filterSectionItem(section.items, sectionsRaw[0]?.items?.[0]?.artistLinks?.[0]?.title || sectionsRaw[0]?.items?.[0]?.subtitleLinks?.[0]?.title)
         }
         if (section.id == 'you-might-also-like - you-might-also-like') {
-            sections.related = filterSectionItem(section.items)
+            sections.related = { tracks: filterSectionItem(section.items) }
         }
     })
     return sections
@@ -229,7 +229,6 @@ const getAppleRelated = async (req, res) => {
         } else {
             url = `https://music.apple.com/us/${req.query.album ? 'album' : 'song'}/${req.query.id || req.query.album}`
         }
-        console.log(url)
         const response = await scrap(url)
         const html = await response.text()
         const $ = cheerio.load(html)
@@ -328,4 +327,4 @@ const getAppleHome = async (req, res) => {
     }
 }
 
-module.exports = { getAppleHome, anghamiHandler, scrap, getAppleRelated,getAnghamiTrack }
+module.exports = { getAppleHome, anghamiHandler, scrap, getAppleRelated, getAnghamiTrack }

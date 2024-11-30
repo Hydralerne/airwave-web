@@ -540,28 +540,27 @@
 .background-wave {
     background: #121416;
 }
-
-.player .background-wave:before {
-    display: flex;
-    height: 100vh;
-    backdrop-filter: none;
-    background: linear-gradient(to bottom, #12141691, #121416);
-    backdrop-filter: blur(50px);
-    -webkit-backdrop-filter: blur(50px);
-}
-.android .player .background-wave span{
-    display: none;
-}
-.android .player .background-wave::before{
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    background: linear-gradient(to bottom, #7f7e79 25%, #121416 50%);
-}
 .player .background-wave span {
     width: 100%;
     position: absolute;
     height: 75vh;
     background-size: cover;
+    display: none;
+}
+.player .background-wave::before{
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: linear-gradient(to bottom, #7f7e79 25%, #121416 50%);
+    height: 100vh;
+}
+
+.blured.player .background-wave:before {
+    background: linear-gradient(to bottom, #12141691, #121416);
+    backdrop-filter: blur(50px);
+    -webkit-backdrop-filter: blur(50px);
+}
+.blured.player .background-wave span{
+    display: block;
 }
 
 .player .background-wave {
@@ -617,4 +616,170 @@
 }
 .minimized .close-player{
     display: flex
+}
+.user-search:first-child {
+    margin-top: 0;
+}
+.podcasts-search-container {
+    display: flex;
+    flex-wrap: wrap;
+    width: calc(100% + 15px);
+    justify-content: center;
+}
+
+.podcasts-search-container .song-recent {
+    width: 100px;
+    margin-bottom: 25px;
+}
+
+.podcasts-search-container .song-recent .song-poster {
+    height: 100px;
+}
+.related-queue {
+    position: fixed;
+    width: 100%;
+    height: 80vh;
+    bottom: 0;
+    z-index: 99999999;
+    background: #121416;
+    border-top-right-radius: 30px;
+    border-top-left-radius: 3%;
+    transition: 0.3s;
+    transform: translateY(100%);
+}
+.related-container .loader-music:first-child {
+    margin-top: 20px;
+}
+.related-back {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: hsl(0deg 0% 33% / 50%);
+    z-index: 99999999;
+}
+
+.related-queue:before {
+    content: '';
+    position: absolute;
+    width: 32px;
+    height: 4px;
+    border-radius: 5px;
+    background: #ffffff26;
+    right: 0;
+    left: 0;
+    margin: auto;
+    margin-top: 20px;
+}
+
+.related-menu {
+    display: flex;
+    margin-top: 45px;
+    height: 40px;
+    background: rgb(255 255 255 / 5%);
+    border-radius: 15px;
+    align-items: center;
+}
+
+.related-menu section,.related-menu:before {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    color: #fff;
+    font-size: 14px;
+    height: 70%;
+    border-radius: 10px;
+}
+
+.related-menu section:first-child {
+    margin-left: 10px;
+}
+
+.related-menu section span {
+    line-height: 20px;
+}
+
+.related-menu:before {
+    content: '';
+    position: absolute;
+    width: calc(100% / 3 - 15px);
+    margin-left: 10px;
+    background: rgb(255 255 255 / 10%);
+    transition: 0.2s;
+}
+
+.related-container {
+    height: calc(100% - 85px);
+}
+.related-container {
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+.related-outset-container {
+    margin-top: 15px;
+    margin-bottom: 50px;
+}
+.related-container .music-component {
+    background: #121416;
+}
+.related-menu[dir="1"]:before {
+    transform: translateX(calc(100% + 12px));
+}
+
+.related-menu[dir="2"]:before {
+    transform: translateX(calc(200% + 25px));
+}
+.container-adding-queue {
+    display: flex;
+    margin-bottom: 10px;
+    color: #fff;
+    position: relative;
+    font-size: 14px;
+    align-items: center;
+    border-bottom: 1px solid hsl(0deg 0% 100% / 10%);
+    padding-bottom: 10px;
+}
+
+.clear-queue {
+    right: 0;
+    position: absolute;
+    opacity: 0.25;
+    display: flex;
+}
+
+.add-to-queue {
+    /* background: #fff; */
+    /* color: #000; */
+    border-radius: 20px;
+    /* padding: 0 14px; */
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.add-to-queue:before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    margin-right: 5px;
+    -webkit-mask-image: url('/assets/png-icons/plus%204-12-1662493809.png');
+    -webkit-mask-position: center;
+    -webkit-mask-size: contain;
+    -webkit-mask-position: center left;
+}
+
+.clear-queue:after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    display: flex;
+    margin-left: 5px;
+    -webkit-mask-image: url(/assets/png-icons/minus%204-9-1662822465.png);
+    -webkit-mask-size: contain;
+    -webkit-mask-position: center;
+    -webkit-mask-repeat: no-repeat;
 }
