@@ -24,6 +24,25 @@
 <div class="page profile">
     <%- include('../ejs/profileCore') %>
 </div>
+<div class="album-page page hidden">
+    <div class="album-header"></div>
+    <div class="album-back"></div>
+    <div class="album-body">
+        <div class="album-poster">
+        </div>
+        <div class="album-info container">
+        </div>
+        <div class="album-controlers container">
+            <div class="btns-album more-album"></div>
+            <div class="btns-album download-album"></div>
+            <div class="run-album"></div>
+            <div class="btns-album shuffle-album"></div>
+            <div class="btns-album save-album"></div>
+        </div>
+        <div class="album-wrapper container">   
+        </div>
+    </div>
+</div>
 <div class="timeline">
     <div class="going-live">
         <div class="inset-going-live"></div>
@@ -107,19 +126,7 @@
         </div>
         <div class="trendings-inset-hits main-inset-hits"></div>
     </div>
-    <!-- <div class="home-section banner-home">
-        <div class="inner-banner-home">
-            <div class="live-radio-descriotion">
-                <span>Make the party</span>
-                <p>Start listen with your freinds in same time in live party</p>
-            </div>
-            <div class="join-now" onclick="document.querySelector('.live-flex').click()"><span>Start
-                    now</span></div>
-        </div>
-    </div> -->
-
     <div class="recently-played outset-recently-played home-section">
-
     </div>
 
 </div>
@@ -453,31 +460,16 @@
     <div class="switcher-menu-body blured">
         <div class="container switch-select-container">
             <div class="song-potintial-send switcher-potintial"></div>
-            <div class="switch-component sw-effect saving-ssc"><span
-                    style="-webkit-mask-image: url(/assets/png-icons/bookmark-44-1658235288.png);"></span><a>Save to
-                    library</a></div>
-            <div class="switch-component sw-effect adding-list-ssc"><span
-                    style="-webkit-mask-image: url(/assets/png-icons/plus%202-47-1658433844.png);"></span><a>Add to
-                    playlist</a></div>
-            <div class="switch-component sw-effect lyrics-share"><span
-                    style="-webkit-mask-image: url(/assets/png-icons/lyrics-263-1658234823.png);"></span><a>View &amp;
-                    share lyrics</a></div>
-            <div class="switch-component sw-effect sending-to-friend"><span
-                    style="-webkit-mask-image: url(/assets/png-icons/send%20message-184-1658433902.png);"></span><a>Send
-                    to friends</a></div>
-            <div class="switch-component sw-effect live-ssc"><span
-                    style="-webkit-mask-image: url(/assets/png-icons/hotspot-37-1658436340.png);"></span><a>Start live
-                    radio</a></div>
+            <div class="switch-component sw-effect saving-ssc"><span></span><a>Save to library</a></div>
+            <div class="switch-component sw-effect adding-list-ssc"><span></span><a>Add to playlist</a></div>
+            <div class="switch-component sw-effect lyrics-share"><span></span><a>View & share lyrics</a></div>
+            <div class="switch-component sw-effect sending-to-friend"><span></span><a>Send to friends</a></div>
+            <div class="switch-component sw-effect live-ssc"><span></span><a>Start live radio</a></div>
+            <div class="switch-component sw-effect view-album-ssc"><span></span><a>Go to album</a></div>
             <div class="switch-component sw-effect download-ssc"><span></span><a></a></div>
-            <div class="switch-component sw-effect play-more-related"><span
-                    style="-webkit-mask-image: url(/assets/png-icons/magic-47-1687505464.png);"></span><a>Play more like
-                    this</a></div>
-            <div class="switch-component sw-effect share-ssc"><span
-                    style="-webkit-mask-image: url(/assets/png-icons/upload-206-1663754948.png);"></span><a>Share track
-                    link</a></div>
-            <div class="switch-component sw-effect artist-profile-view"><span
-                    style="-webkit-mask-image: url(/assets/png-icons/user%20music-203-1658436042.png);"></span><a>View
-                    artist profile</a></div>
+            <div class="switch-component sw-effect play-more-related"><span></span><a>Play more like this</a></div>
+            <div class="switch-component sw-effect share-ssc"><span></span><a>Share track link</a></div>
+            <div class="switch-component sw-effect artist-profile-view"><span></span><a>View artist profile</a></div>
         </div>
     </div>
 </div>

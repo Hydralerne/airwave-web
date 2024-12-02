@@ -2356,7 +2356,9 @@ async function showMenu(parent, e) {
                 parent: '.switcher-menu-body',
                 back: '.switcher-menu-back',
                 onclose: () => {
-                    back.classList.add('hidden')
+                    document.querySelector('.switcher-menu-body').classList.remove('center-flex');
+                    document.querySelector('.switcher-menu-body').removeAttribute('style');
+                    document.querySelector('.switcher-menu').classList.add('hidden');
                 }
             });
         } else {
@@ -2388,6 +2390,12 @@ async function showMenu(parent, e) {
         document.querySelector('.switch-component.download-ssc').classList.remove('downloaded')
     }
 
+    if(lastSelected.albumID){
+        document.querySelector('.view-album-ssc').classList.remove('hidden')
+    }else {
+        document.querySelector('.view-album-ssc').classList.add('hidden')
+    }
+
     if (lastSelected.id == currentSong.id && (!isParty || isOwner())) {
         document.querySelector('.play-more-related').classList.remove('hidden')
     } else {
@@ -2414,7 +2422,7 @@ async function showMenu(parent, e) {
 }
 
 document.querySelector('.play-more-related')?.addEventListener('click', function () {
-    document.querySelector('.switcher-menu-back').click()
+    draggableSong.closeMenu()
     queueTracks = relatedGlobal.data || relatedGlobal.artist
     miniDialog('Related added to queue')
 })
@@ -2427,14 +2435,14 @@ document.querySelector('.saving-ssc')?.addEventListener('click', function () {
 })
 
 document.querySelector('.adding-list-ssc')?.addEventListener('click', async function () {
-    document.querySelector('.switcher-menu-back').click()
+    draggableSong.closeMenu()
     await delay(200)
     showAppendLists(this, lastSelected.id)
     return
 })
 
 document.querySelector('.lyrics-share')?.addEventListener('click', async function () {
-    document.querySelector('.switcher-menu-back').click()
+    draggableSong.closeMenu()
     await delay(200)
     openLyrics(lastSelected)
     return
@@ -2521,7 +2529,7 @@ document.querySelector('.sending-to-friend')?.addEventListener('click', async fu
 })
 
 async function sendMusicToFriend() {
-    document.querySelector('.switcher-menu-back').click()
+    draggableSong.closeMenu()
     await delay(200)
     musicStream.classList.remove('hidden');
     musicStream.classList.add('sending');
@@ -2536,6 +2544,48 @@ async function sendMusicToFriend() {
     }, 50)
     document.querySelector('.button-negrisco.main').sendMsg('onclick', `sendMsg(this)`)
 
+}
+
+let currentAlbum = {}
+
+async function printAlbum(data) {
+    const parent = document.querySelector('.album-page')
+    parent.classList.remove('hidden')
+    await delay(50)
+    parent.classList.add('center')
+    currentAlbum = data
+    const info = `
+        <span>${data.name}</span>
+        <p>${data.artist}</p>
+        <section><a>${data.tracks_count}</a><a>${data.tracks_time}</a></section>
+    `
+    parent.querySelector('.album-info').innerHTML = info
+    parent.querySelector('.album-poster').style.backgroundImage = `url('${pI(data.poster,true)}')`
+    getColors(pI(data.poster,true)).then(colors => {
+        document.querySelector('.album-back').style.background = `linear-gradient(to bottom, ${colors.muted}, transparent)`
+    })
+    let html = ''
+    data.tracks.forEach((song, index) => {
+        html += `
+        <div class="album-song" index="${index}" onclick="openSongAlbum(this)" trackid="${song.id}">
+            <div class="album-song-title">
+                <span>${song.title}</span>
+                <section>
+                    <a>${song.artist}</a>
+                    <a>${formatTime(song.duration / 1000)}</a>
+                </section>
+            </div>
+            <div class="album-song-more"></div>
+        </div>
+        `
+    })
+    document.querySelector('.album-wrapper').innerHTML = html
+}
+
+function openSongAlbum(el){
+    const index = parseInt(el.getAttribute('index'))
+    const track = currentAlbum.tracks[index]
+    playTrack(track)
 }
 
 async function sendMsg(el, user = currentProfile.id) {
@@ -2700,10 +2750,16 @@ async function showPremiumPage() {
     document.querySelector('.subscriptions').classList.add('center')
 }
 
-
+document.querySelector('.view-album-ssc')?.addEventListener('click',async function () {
+    draggableSong.closeMenu();
+    await closePages()
+    draggablePlayer.closeMenu()
+    const data = await getAlbum(lastSelected.albumID)
+    printAlbum(data)
+})
 
 document.querySelector('.download-ssc')?.addEventListener('click', function () {
-    document.querySelector('.switcher-menu-back').click();
+    draggableSong.closeMenu();
     if (this.classList.contains('downloaded')) {
         removeDownload(lastSelected)
         return
@@ -2800,17 +2856,17 @@ function getApiCut(api) {
 }
 
 document.querySelector('.share-player')?.addEventListener('click', async function () {
-    document.querySelector('.switcher-menu-back').click();
+    draggableSong.closeMenu();
     await delay(200)
     share(`https://oave.me/${getApiCut(currentSong.api)}/${currentSong.id}`, `Listen to ${currentSong.title} on Airwave`)
 })
 document.querySelector('.share-ssc')?.addEventListener('click', async function () {
-    document.querySelector('.switcher-menu-back').click();
+    draggableSong.closeMenu();
     await delay(200)
     share(`https://oave.me/${getApiCut(lastSelected.api)}/${lastSelected.id}`, `Listen to ${lastSelected.title} on Airwave`)
 })
 document.querySelector('.artist-profile-view')?.addEventListener('click', async function () {
-    document.querySelector('.switcher-menu-back').click();
+    draggableSong.closeMenu();
     await delay(200)
     if (lastSelected.api !== 'youtube') {
         dialog('Uavilable for now', 'Artist profile for this song is not avilable for now, will be avilable soon')
@@ -2823,7 +2879,7 @@ document.querySelector('.artist-profile-view')?.addEventListener('click', async 
 let globalInitialLive = {}
 
 async function startLive(song) {
-    document.querySelector('.switcher-menu-back').click();
+    draggableSong.closeMenu();
     await delay(200)
     if (!isPlus()) {
         showPremium(`Or continue with <text>Free trail</text>`)
@@ -2890,11 +2946,7 @@ async function downloadSong(song = lastSelected) {
 }
 
 document.querySelector('.switcher-menu-back').addEventListener('click', function () {
-    document.querySelector('.switcher-menu-body').classList.remove('center-flex');
-    document.querySelector('.switcher-menu-body').removeAttribute('style');
-    setTimeout(() => {
-        document.querySelector('.switcher-menu').classList.add('hidden');
-    }, 200)
+    draggableSong.closeMenu()
 })
 
 

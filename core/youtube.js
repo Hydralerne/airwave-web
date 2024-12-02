@@ -73,14 +73,24 @@ function filterYoutube(json) {
 }
 
 async function getVideoId(req, res) {
-    const { q } = req.query
     try {
-        const json = await scrapYoutube(`https://www.youtube.com/results?search_query=${q}`)
-        const data = filterYoutube(json)
-        if (data.length == 0) {
+        const date = Date.now()
+        let json = {}
+        if (req.query.yt) {
+            const response = await scrapYoutube(`https://www.youtube.com/results?search_query=${req.query.q}`)
+            json = filterYoutube(response)
+        } else {
+            const main = await request(req.query.q)
+            const type = req.query.type || 'songs'
+            const params = getTrackingParam(main)
+            const data = await request(req.query.q, params[type])
+            json = filterYoutubeSearch(data, type)
+        }
+        if (json.length == 0) {
             throw new Error('error yt')
         }
-        res.json({ id: data[0].id })
+        console.log(Date.now() - date)
+        res.json({ id: json[0].id })
     } catch (e) {
         console.log(e)
         res.json({ error: e })
@@ -612,8 +622,7 @@ const youtubeMusicSearch = async (req, res) => {
     }
 }
 
-
-const getVideoSections = async (id) => {
+const requestNext = async (id) => {
     const response = await fetch('https://music.youtube.com/youtubei/v1/next', {
         method: 'POST',
         headers: {
@@ -632,6 +641,10 @@ const getVideoSections = async (id) => {
         })
     })
     const data = await response.json();
+    return data
+}
+const getVideoSections = async (id) => {
+    const data = await requestNext(id)
     const sections = data?.contents
         ?.singleColumnMusicWatchNextResultsRenderer
         ?.tabbedRenderer
@@ -1065,11 +1078,175 @@ const getArtist = async (req, res) => {
     }
 }
 
+const filterAlbumTrack = (track, data) => {
+    const duration = timeToMilliseconds(track.fixedColumns[0].musicResponsiveListItemFixedColumnRenderer.text.runs[0].text)
+    return {
+        api: 'youtube',
+        id: track.playlistItemData.videoId,
+        title: track.flexColumns[0].musicResponsiveListItemFlexColumnRenderer.text.runs[0].text,
+        plays_count: track?.flexColumns?.[2]?.musicResponsiveListItemFlexColumnRenderer?.text?.runs?.[0]?.text,
+        ...data,
+        duration,
+    }
+}
+
+function timeToMss(timeString) {
+    try {
+        const timeUnits = {
+            hour: 3600000,
+            minute: 60000,
+            second: 1000,
+            millisecond: 1
+        };
+
+        let totalMilliseconds = 0;
+        const timeParts = timeString.match(/(\d+)\s*(hours?|minutes?|seconds?|milliseconds?)/gi);
+
+        if (timeParts) {
+            for (const part of timeParts) {
+                const [_, value, unit] = part.match(/(\d+)\s*(\w+)/);
+                const normalizedUnit = unit.toLowerCase().replace(/s$/, '');
+                totalMilliseconds += (parseInt(value, 10) || 0) * (timeUnits[normalizedUnit] || 0);
+            }
+        }
+
+        return totalMilliseconds;
+    } catch (e) {
+        console.log(e)
+        return timeString
+    }
+}
+const filterAlbumData = (data, id) => {
+    const tracksRaw = data.contents
+        ?.twoColumnBrowseResultsRenderer
+        ?.secondaryContents
+        ?.sectionListRenderer
+        ?.contents
+        ?.[0]
+        ?.musicShelfRenderer
+        ?.contents
+    const playlistID = tracksRaw?.[0]?.musicResponsiveListItemRenderer.flexColumns?.[0]?.musicResponsiveListItemFlexColumnRenderer?.text?.runs?.[0]?.navigationEndpoint?.watchEndpoint?.playlistId
+    const posterRaw = data?.background?.musicThumbnailRenderer?.thumbnail?.thumbnails
+    const info = data?.contents
+        ?.twoColumnBrowseResultsRenderer
+        ?.tabs
+        ?.[0]
+        ?.tabRenderer
+        ?.content
+        ?.sectionListRenderer
+        ?.contents
+        ?.[0]
+        ?.musicResponsiveHeaderRenderer
+    const tracksData = {
+        artist: info?.straplineTextOne?.runs?.[0]?.text,
+        artistID: info?.straplineTextOne?.runs?.[0]?.navigationEndpoint?.browseEndpoint?.browseId,
+        poster: posterRaw[0]?.url,
+        posterLarge: posterRaw[0]?.url?.split('=')[0] + '=w600-h600-l100-rj',
+        album: info?.title?.runs?.[0]?.text,
+        albumID: id
+    }
+    let tracks = []
+    tracksRaw.forEach(track => {
+        try {
+            tracks.push(filterAlbumTrack(track.musicResponsiveListItemRenderer, tracksData))
+        } catch (e) {
+            console.log(e)
+        }
+    })
+    return {
+        api: 'youtube',
+        name: info?.title?.runs?.[0]?.text,
+        year: info?.subtitle?.runs?.[2]?.text,
+        artist: info?.straplineTextOne?.runs?.[0]?.text,
+        artistID: info?.straplineTextOne?.runs?.[0]?.navigationEndpoint?.browseEndpoint?.browseId,
+        poster: posterRaw[posterRaw.length - 1]?.url,
+        tracks_count: info?.secondSubtitle?.runs?.[0]?.text,
+        tracks_duration: timeToMss(info?.secondSubtitle?.runs?.[2]?.text),
+        tracks_time: info?.secondSubtitle?.runs?.[2]?.text,
+        playlistID,
+        tracks,
+    }
+}
+
 
 const getAlbum = async (req, res) => {
     try {
-        const data = await requestBrowse(req.body.id)
-        res.json(data)
+        const data = await requestBrowse(req.query.id)
+        const content = filterAlbumData(data, req.query.id)
+        res.json(content)
+    } catch (e) {
+        console.log(e)
+        res.json({ error: e.message })
+    }
+}
+
+const requestPlayer = async (id) => {
+    const response = await fetch('https://music.youtube.com/youtubei/v1/player', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'User-Agent': userAgent
+        },
+        body: JSON.stringify({
+            "videoId": id,
+            "isAudioOnly": true,
+            "context": {
+                "client": {
+                    "clientName": "WEB_REMIX",
+                    "clientVersion": "1.20241106.01.00"
+                }
+            }
+        })
+    })
+    const data = await response.json()
+    return data
+}
+const getTrackData = async (req, res) => {
+    try {
+        const id = req.query.id
+        const [data, next] = await Promise.all([
+            requestPlayer(id),
+            requestNext(id)
+        ]);
+        const main = next?.contents
+            ?.singleColumnMusicWatchNextResultsRenderer
+            ?.tabbedRenderer
+            ?.watchNextTabbedResultsRenderer
+            ?.tabs?.[0]
+            ?.tabRenderer
+            ?.content
+            ?.musicQueueRenderer
+            ?.content
+            ?.playlistPanelRenderer
+            ?.contents?.[0]
+            ?.playlistPanelVideoRenderer
+        const albumID = main
+            ?.menu
+            ?.menuRenderer
+            ?.items
+            ?.filter(icon => icon?.menuNavigationItemRenderer?.icon?.iconType == 'ALBUM')
+            ?.[0]
+            ?.menuNavigationItemRenderer
+            ?.navigationEndpoint
+            ?.browseEndpoint
+            ?.browseId
+        const album = main?.longBylineText
+            ?.runs?.filter(run => run?.navigationEndpoint?.browseEndpoint?.browseId == albumID && albumID)
+            ?.[0]
+            ?.text
+        const track = {
+            api: 'youtube',
+            title: data.videoDetails.title,
+            artist: data.videoDetails.author,
+            artistID: data.videoDetails.channelId,
+            duration: (parseInt(data.videoDetails.lengthSeconds) * 1000) || undefined,
+            poster: data.videoDetails.thumbnail.thumbnails[0].url,
+            posterLarge: data.videoDetails.thumbnail.thumbnails[0].url?.split('=')[0] + '=w600-h600-l100-rj',
+            plays_count: parseInt(data.videoDetails.viewCount),
+            album,
+            albumID
+        }
+        res.json(track)
     } catch (e) {
         console.log(e)
         res.json({ error: e.message })
@@ -1087,5 +1264,6 @@ module.exports = {
     getArtist,
     getNativeSubtitles,
     getLyricsOnly,
-    getAlbum
+    getAlbum,
+    getTrackData
 }

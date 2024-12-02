@@ -2825,7 +2825,7 @@ async function parseRelated(e = 'main') {
 async function getAlbum(id){
     const response = await fetch(`/yt-music/album?id=${id}`)
     const data = await response.json()
-    console.log(data)
+    return data
 }
 
 document.querySelectorAll('.related-menu section').forEach((element, index) => {
