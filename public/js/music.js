@@ -164,7 +164,7 @@ const loader = {
 };
 
 
-loader.initialize();
+// loader.initialize();
 
 let playCallback;
 const isMobile = true;
@@ -674,7 +674,7 @@ if (!isMobile) {
     });
     sliderEl.addEventListener("mouseup", (event) => {
         playCallback = false;
-        loader.resume();
+        // loader.resume();
     });
     sliderEl.addEventListener('mouseleave', () => {
         tooltip.style.opacity = 0;
@@ -834,7 +834,7 @@ function playForce(trackid = currentSong.id, el = document.querySelector('.play-
     } catch (e) { }
     try {
         el.classList.add('played');
-        loader.resume();
+        // loader.resume();
         document.querySelectorAll('.song[trackid="' + trackid + '"]').forEach(sngel => {
             sngel.querySelector('.audio-control')?.classList.add('played');
             sngel.classList.remove('paused')
@@ -851,7 +851,7 @@ function pauseForce(trackid = currentSong.id, el = document.querySelector('.play
     } catch (e) { }
     try {
         el.classList.remove('played');
-        loader.pause();
+        // loader.pause();
         document.querySelectorAll('.song[trackid="' + trackid + '"]').forEach(sngel => {
             sngel.querySelector('.audio-control')?.classList.remove('played');
             sngel.classList.add('paused')
@@ -941,11 +941,21 @@ async function addPlayerMetadata(rawSongObj) {
             currentColors = data;
             const shades = generateShades(colorEqualizer('#fbfd82', data?.colors?.muted), 5)
             const ds = shades[3];
+            const main = colorEqualizer('#121416', data?.colors?.muted)
             document.querySelector('.styling').innerHTML = `<style>
             .visualisation .box.checked {background:  ${darkenColor(shades[3], 0.5)}!important;}
             .body.minimized { background: ${darkenColor(shades[3], 0.5)}!important;}
             .player .background-wave::before{
-                background: linear-gradient(to bottom, ${darkenColor(colorEqualizer('#7f7e79', data?.colors?.muted), 0.5)} 25%, #121416 50%);
+                background: linear-gradient(to bottom, ${darkenColor(colorEqualizer('#7f7e79', data?.colors?.muted), 0.5)} 25%, ${main} 50%);
+            }
+            .blured.player .background-wave:before {
+                background: linear-gradient(to bottom, ${hexToHSLA(main, 0.57)}, ${main})
+            }
+            .show-lyrics-section{ 
+                background: linear-gradient(to top, ${data?.colors?.muted} 50%, transparent);
+            }
+            .lyrics-wrapper {
+                background: ${data?.colors?.muted}
             }
             .song.running .bar {background: ${ds}}.song.running .artist-title span{color: ${ds}}
             .pottom-width-slider span{background: #fff}
@@ -1309,7 +1319,7 @@ async function playTrack(el, e) {
 
     updatePlaying(currentSong);
 
-    // getLyrics()
+    getLyrics()
 
     if (queueTracks.length > 0 && !isParty || isOwner()) {
         prepareNext()
@@ -1764,17 +1774,19 @@ function extractPlaylistId(url) {
 }
 
 async function minimizePlayer(page = document.querySelector('.body')) {
-    try {
-        lyricsPaused = true
-        loader.pause();
-    } catch (e) {
-        console.error(e)
-    }
+    // try {
+    //     loader.pause();
+    // } catch (e) {
+    //     console.error(e)
+    // }
+    lyricsPaused = true
+
     document.body.classList.remove('hideoverflow')
     page.scrollTop = 0;
     page.removeAttribute('style')
     page.classList.add('minimized');
-    page.classList.remove('blured')
+    page.classList.remove('blured', 'fullscreen', 'resizing')
+    isFullscreen = false
     if (page.classList.contains('live')) {
         page.classList.add('player')
     }
@@ -1788,12 +1800,12 @@ async function minimizePlayer(page = document.querySelector('.body')) {
 
 let scrollCurrent = 0;
 async function showThePlayer(page = liveBody) {
-    try {
-        lyricsPaused = false
-        loader.resume();
-    } catch (e) {
-        console.error(e)
-    }
+    // try {
+    //     loader.resume();
+    // } catch (e) {
+    //     console.error(e)
+    // }
+    lyricsPaused = false
     page.classList.remove('minimized')
     page.classList.add('center-flex')
     try {
@@ -1834,6 +1846,7 @@ async function showPlayer() {
     if (!draggablePlayer) {
         draggablePlayer = new DraggableMenu({
             parent: '.body',
+            inner: '.body',
             isHeight: true,
             minHeight: 55,
             minTransform: 90,
@@ -2809,6 +2822,12 @@ async function parseRelated(e = 'main') {
     }
 }
 
+async function getAlbum(id){
+    const response = await fetch(`/yt-music/album?id=${id}`)
+    const data = await response.json()
+    console.log(data)
+}
+
 document.querySelectorAll('.related-menu section').forEach((element, index) => {
     element?.addEventListener('click', function () {
         if (this.classList.contains('selected')) {
@@ -3517,28 +3536,20 @@ function createBlobURL(data) {
 }
 
 async function fetchLyrics(track, youtube) {
-    let data = {};
-    if (youtube && track.api !== 'soundcloud') {
-        const response = await fetch(`/youtube/lyrics?id=${youtube}`)
-        data = await response.json({ data })
-        console.log(data)
-    }
-    if (!data.lyrics) {
-        let params = new URLSearchParams({
-            artist: track.artist,
-            album: track.album || track.title,
-            title: track.title,
-            duration: track.duration,
-            api: track.api,
-            id: track.id
-        })
-        const response = await fetch(`https://api.onvo.me/music/lyrics?${params}`, {
-            headers: {
-                'Authorization': `Bearer ${await getToken()}`
-            }
-        })
-        data = await response.json()
-    }
+    let params = new URLSearchParams({
+        artist: track.artist,
+        album: track.album || track.title,
+        title: track.title,
+        duration: track.duration,
+        api: track.api,
+        id: track.id
+    })
+    const response = await fetch(`https://api.onvo.me/music/lyrics?${params}`, {
+        headers: {
+            'Authorization': `Bearer ${await getToken()}`
+        }
+    })
+    let data = await response.json()
     return data
 }
 
@@ -3710,36 +3721,38 @@ async function getLyrics(track = currentSong, youtube = currentSong.yt) {
     }
     jsonLyrics = data;
     jsonLyrics.track = track
-    if (!liveBody.classList.contains('minimized')) {
-        parseLyrics()
-    }
+    parseLyrics(liveBody.classList.contains('fullscreen') ? null : 10)
 }
 
 let currentLyricIndex;
 let endLyricTimeout;
+let isFullscreen;
 
 function updateLyricsUI(line, index, duration) {
-    const currentLine = document.querySelector('.inset-lyrics-container text[dataid="' + index + '"]')
-    let totalWidth = 0
-    currentLine.querySelectorAll('a').forEach(a => {
-        totalWidth += a.offsetWidth;
-    })
-    if (jsonLyrics.api == 'youtube') {
-        loadQueuer(currentLine, totalWidth, duration);
-        document.querySelectorAll('.inset-lyrics-container text').forEach(el => { el.classList.remove('selected') })
-    } else {
-        currentLine.classList.add('selected')
+    if (!isFullscreen && index > 10) {
+        return
     }
-    if (isParty) {
+    const currentLine = document.querySelector('.lyrics-wrapper-main text[dataid="' + index + '"]')
+    // let totalWidth = 0
+    // currentLine.querySelectorAll('a').forEach(a => {
+    //     totalWidth += a.offsetWidth;
+    // })
+    // if (jsonLyrics.api == 'youtube' && false) {
+    //     loadQueuer(currentLine, totalWidth, duration);
+    //     document.querySelectorAll('.lyrics-wrapper-main text').forEach(el => { el.classList.remove('selected') })
+    // } else {
+    currentLine.classList.add('selected')
+    // }
+    if (isFullscreen) {
         scrollLyricsToActiveLine(currentLine);
         return
     }
-    const oldSwiper = lyricsSwiper.slides[lyricsSwiper.activeIndex];
-    oldSwiper.querySelectorAll('a').forEach(a => { a.style.opacity = 0 })
-    setTimeout(() => {
-        oldSwiper.querySelectorAll('a').forEach(a => { a.removeAttribute('style') })
-    }, 200)
-    slideToSlideById(lyricsSwiper, index)
+    // const oldSwiper = lyricsSwiper.slides[lyricsSwiper.activeIndex];
+    // oldSwiper.querySelectorAll('a').forEach(a => { a.style.opacity = 0 })
+    // setTimeout(() => {
+    //     oldSwiper.querySelectorAll('a').forEach(a => { a.removeAttribute('style') })
+    // }, 200)
+    // slideToSlideById(lyricsSwiper, index)
 }
 
 function endLyricReached() {
@@ -3851,7 +3864,7 @@ function formatVttTime(seconds) {
     );
 }
 
-const lyricsContainer = document.querySelector('.outset-lyrics-container')
+const lyricsContainer = document.querySelector('.inner-lyrics-wrapper')
 
 function scrollLyricsToActiveLine(activeLine) {
     if (activeLine) {
@@ -3865,7 +3878,7 @@ function scrollLyricsToActiveLine(activeLine) {
             //     behavior: 'smooth'
             // });
             lyricsContainer.scrollTo({
-                top: lineTop - 60,
+                top: lineTop - 150,
                 behavior: 'smooth'
             });
         }
@@ -3909,9 +3922,9 @@ function lyricsClick(el) {
         selectLyricsShare(el);
         return
     }
-    try {
-        loader.reset();
-    } catch (e) { }
+    // try {
+    //     loader.reset();
+    // } catch (e) { }
     if (isParty) {
         if (!isOwner()) {
             return;
@@ -3990,13 +4003,11 @@ function loadingLyrics(e) {
         <text class="loading-lyrics-slider gradient-loader-main"><span></span></text>
         <text class="loading-lyrics-slider gradient-loader-main"><span></span></text>
         <text class="loading-lyrics-slider gradient-loader-main"><span></span></text>
-        <text class="loading-lyrics-slider gradient-loader-main"><span></span></text>
-        <text class="loading-lyrics-slider gradient-loader-main"><span></span></text>
-        <text class="loading-lyrics-slider gradient-loader-main"><span></span></text>
     </section>
     `
     if (e) return html
-    document.querySelector('.inset-lyrics-container').innerHTML = html
+    document.querySelector('.lyrics-wrapper-main').innerHTML = html
+    document.querySelector('.lyrics-wrapper').classList.remove('no-lyrics')
 }
 
 
@@ -4028,7 +4039,7 @@ const lyricsSlider = () => {
 
 }
 
-function renderLyrics(data) {
+function renderLyrics(data, perview) {
     let i = 0;
     let max = 100;
     let html = '';
@@ -4045,13 +4056,17 @@ function renderLyrics(data) {
     } else {
         shortenedLyrics = data.lyrics.slice(0, 150)
     }
-    shortenedLyrics.forEach((line, index) => {
-        html += `<text class="swiper-slide" onclick="lyricsClick(this)" ontouchmove="holdEffect(this);" ontouchend="holdEffect(this)" ontouchstart="holdEffect(this,true)" dataid="${index}" start="${line.start}" end="${line.end}">${line.text}</text>`;
-    })
-
-    const dir = data.language || (isArabic(html) ? 'ar' : 'en')
-    currentDir = dir == 'ar' ? 'right' : 'left'
-    return html.length > 0 ? `<section class="swiper-wrapper ${dir}">${html}</section>` : null
+    for (let index = 0; index < shortenedLyrics.length; index++) {
+        let line = shortenedLyrics[index];
+        if (perview && perview < index) {
+            break
+        }
+        if (typeof line.start !== 'undefined' && line.start <= 4) {
+            continue
+        }
+        html += `<text class="swiper-slide ${(isArabic(line.text) ? 'ar' : 'en')}${typeof line.start !== 'undefined' ? ' synced' : ''}" onclick="lyricsClick(this)" ontouchmove="holdEffect(this);" ontouchend="holdEffect(this)" ontouchstart="holdEffect(this,true)" dataid="${index}" start="${line.start}" end="${line.end}">${line.text}</text>`;
+    }
+    return html.length > 0 ? `<section class="swiper-wrapper">${html}</section>` : null
 }
 function requestLyrics() {
     dialog('Coming Soon', 'We’re preparing lyrics requests for you. Stay tuned!');
@@ -4067,41 +4082,55 @@ function noLyrics(e) {
         return html
     }
     liveBody.classList.add('no-lyrics');
-    document.querySelector('.inset-lyrics-container').innerHTML = html;
+    document.querySelector('.lyrics-wrapper').classList.add('no-lyrics')
+    document.querySelector('.lyrics-wrapper-main').innerHTML = html;
 }
 
+async function showLyrics() {
+    liveBody.classList.add('resizing')
+    await delay(20)
+    liveBody.classList.add('fullscreen')
+    isFullscreen = true
+    await delay(300)
+    draggablePlayer.addBlock('swiper-slide')
+    parseLyrics()
+}
 
 let parsedLyrics
-async function parseLyrics(data = jsonLyrics, api = jsonLyrics.api) {
-    let html;
-    if (parsedLyrics == data.track?.id && data.track?.id) {
+async function parseLyrics(perview, data = jsonLyrics, api = jsonLyrics.api) {
+    if (!perview && parsedLyrics && parsedLyrics == data?.track?.id) {
         return
     }
-    parsedLyrics = data.id
+    if(!perview){
+        parsedLyrics = jsonLyrics?.track?.id
+    }
+    let html;
     try {
-        html = renderLyrics(data)
+        html = renderLyrics(data, perview)
     } catch (e) {
+        console.log(e)
         return noLyrics()
     }
 
     if (!html) {
         return noLyrics()
     }
-    document.querySelector('.inset-lyrics-container').innerHTML = html
-    if (api == 'youtube') {
-        setTimeout(() => {
-            reformedText();
-        }, 2000)
-        document.querySelector('.inset-lyrics-container').classList.remove('glower')
-    } else {
-        document.querySelector('.inset-lyrics-container').classList.add('glower')
-    }
-    await delay(200)
-    if (!isParty) {
-        lyricsSlider();
-    }
+    document.querySelector('.lyrics-wrapper-main').innerHTML = html
+    // if (api == 'youtube') {
+    //     setTimeout(() => {
+    //         reformedText();
+    //     }, 2000)
+    //     document.querySelector('.lyrics-wrapper-main').classList.remove('glower')
+    // } else {
+    document.querySelector('.lyrics-wrapper-main').classList.add('glower')
+    // }
 }
 
+async function closeLyrics(){
+    liveBody.classList.remove('fullscreen')
+    await delay(300)
+    liveBody.classList.remove('resizing')
+}
 
 const getRecentlyPlayed = async (accessToken) => {
     try {
@@ -4245,18 +4274,22 @@ class DraggableMenu {
         if (data.inner) {
             this.scroller = document.querySelector(data.inner)
         }
+
         this.bindEvents();
     }
+
     update() {
         this.isOpen = this.isHeight ? false : true;
         this.menuHeight = this.menu.offsetHeight;
     }
+
     bindEvents() {
         this.menu.addEventListener("touchstart", (e) => this.onTouchStart(e));
         this.menu.addEventListener("touchmove", (e) => this.onTouchMove(e));
         this.menu.addEventListener("touchend", (e) => this.onTouchEnd(e));
         this.scroller?.addEventListener("scroll", (e) => this.onScroll(e))
     }
+
     shouldRefresh() {
         if (!this.scroller && this.isOpen) {
             return true
@@ -4269,15 +4302,23 @@ class DraggableMenu {
         }
         return false
     }
+
+    addBlock(cls) {
+        this.blockClass = cls
+    }
+
     onScroll(evt) {
 
     }
+
     open() {
         this.menu.classList.add('center-flex')
     }
+
     isDraggingDown(currentY) {
         return currentY > this.startY;
     }
+
     onTouchStart(evt) {
         if (this.blockClass) {
             if (evt.target.classList.contains(this.blockClass)) {

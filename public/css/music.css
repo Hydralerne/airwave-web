@@ -2506,6 +2506,7 @@ div#fireworks {
     overflow: hidden;
     text-overflow: ellipsis;
     font-weight: 500;
+    line-height: 24px;
 }
 
 .player .artist-inner-song section a {
@@ -2980,6 +2981,7 @@ div#fireworks {
 .player.minimized.body .artist-inner-song section p {
     font-size: 14px;
     margin-bottom: 0;
+    line-height: 20px;
 }
 
 .body.no-video .video-frame {
@@ -3944,7 +3946,7 @@ input#audioStatusBar {
     margin-left: 85px;
     margin-top: 20px;
     margin-right: 20px;
-    color: #ffffff7a;
+    color: #fff;
     height: fit-content;
     line-height: 20px;
     text-align: left;
@@ -3961,7 +3963,6 @@ input#audioStatusBar {
     -webkit-mask-position: center;
     -webkit-mask-size: contain;
     position: absolute;
-    opacity: 0.5;
 }
 
 .request-lyrics {

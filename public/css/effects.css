@@ -175,38 +175,38 @@ body.android .loader-music .gradient-loader,body.android .page .gradient-loader-
     opacity: 0.5;
 }
 
-.lyrics-container section text.loading-lyrics-slider {
+text.loading-lyrics-slider {
     height: 12px!important;
     display: flex;
     border-radius: 50px;
     margin-bottom: 20px;
 }
 
-.lyrics-container section text.loading-lyrics-slider:nth-of-type(1) {
+text.loading-lyrics-slider:nth-of-type(1) {
     width: 100px!important;
 }
-.lyrics-container section text.loading-lyrics-slider:nth-of-type(2) {
+text.loading-lyrics-slider:nth-of-type(2) {
     width: 200px!important;
 }
-.lyrics-container section text.loading-lyrics-slider:nth-of-type(3) {
+text.loading-lyrics-slider:nth-of-type(3) {
     width: 150px!important;
 }
-.lyrics-container section text.loading-lyrics-slider:nth-of-type(4) {
+text.loading-lyrics-slider:nth-of-type(4) {
     width: 250px!important;
 }
-.lyrics-container section text.loading-lyrics-slider:nth-of-type(5) {
+text.loading-lyrics-slider:nth-of-type(5) {
     width: 190px!important;
 }
-.lyrics-container section text.loading-lyrics-slider:nth-of-type(6) {
+text.loading-lyrics-slider:nth-of-type(6) {
     width: 140px!important;
 }
-.lyrics-container section text.loading-lyrics-slider:nth-of-type(7) {
+text.loading-lyrics-slider:nth-of-type(7) {
     width: 240px!important;
 }
-.lyrics-container section text.loading-lyrics-slider:nth-of-type(8) {
+text.loading-lyrics-slider:nth-of-type(8) {
     width: 200px!important;
 }
-.lyrics-container section text.loading-lyrics-slider:nth-of-type(9) {
+text.loading-lyrics-slider:nth-of-type(9) {
     width: 100px!important;
 }
 
