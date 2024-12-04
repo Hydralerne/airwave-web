@@ -435,12 +435,7 @@ async function getArtist(id) {
     return data
 }
 
-
 async function openArtist(id, api, el) {
-    await closePages()
-    try {
-        draggablePlayer.closeMenu()
-    } catch (e) { }
     const page = document.querySelector('.artist-page')
     page.classList.remove('hidden')
     await delay(10);
@@ -449,52 +444,64 @@ async function openArtist(id, api, el) {
         top: 0,
         behavior: 'smooth'
     })
-    resetArtist();
-    page.setAttribute('dataid', id)
-    if (el) {
-        const poster = el.querySelector('span').getAttribute('data-img') || el.getAttribute('data-img')
-        const name = el.querySelector('a')?.innerText
-        document.querySelector('.artist-back').style.backgroundImage = `url('${poster}')`
-        document.querySelector('.artist-name span').innerText = name
-        document.querySelector('.artist-follow').setAttribute('dataid', id)
-    }
+    try {
+        if (!el && !el?.closest('.artist-body')) {
+            await closePages()
+        }
+        try {
+            draggablePlayer.closeMenu()
+        } catch (e) { }
+        resetArtist();
+        page.setAttribute('dataid', id)
+        if (el) {
+            const poster = el.querySelector('span').getAttribute('data-img') || el.getAttribute('data-img')
+            const name = el.querySelector('a')?.innerText
+            document.querySelector('.artist-back').style.backgroundImage = `url('${poster}')`
+            document.querySelector('.artist-name span').innerText = name
+            document.querySelector('.artist-follow').setAttribute('dataid', id)
+        }
 
-    const data = await getArtist(id)
-    if (data.description) {
-        document.querySelector('.bio-artist p').innerText = data.description
-    }
-    console.log(data)
-    document.querySelector('.artist-back').style.backgroundImage = `url('${pI(data.poster, true)}')`
-    document.querySelector('.artist-name span').innerText = data.name
-    document.querySelector('.artist-follow').setAttribute('dataid', data.id)
+        const data = await getArtist(id)
+        if (data.description) {
+            document.querySelector('.bio-artist p').innerText = data.description
+        }
+        document.querySelector('.artist-back').style.backgroundImage = `url('${pI(data.poster, true)}')`
+        document.querySelector('.artist-name span').innerText = data.name
+        document.querySelector('.artist-follow').setAttribute('dataid', data.id)
 
-    let topData = printSongsRegular(data.songs.tracks)
-    document.querySelector('.artist-popular').innerHTML = `
-    ${topData.html}
-    <div class="bottom-rows-trending" onclick="openPlaylist(document.querySelector('.generes-section.selected').getAttribute('dataid'),'spotify')">
+        let topData = printSongsRegular(data.songs.tracks)
+        document.querySelector('.artist-popular').innerHTML = `
+        ${topData.html}
+        <div class="bottom-rows-trending" onclick="openPlaylist(document.querySelector('.generes-section.selected').getAttribute('dataid'),'spotify')">
             <span>Explore more</span>
         </div>
-    `
+        `
 
-    try {
-        let albumsData = ''
-        data.albums.data.forEach(album => {
-            albumsData += `
-        <div class="list-perview-home" dataid="${album.id}" api="${album.api}" onclick="openAlbum('${album.id}','${album.api}')">
+        try {
+            let albumsData = ''
+            data.albums.data.forEach(album => {
+                albumsData += `
+            <div class="list-perview-home" dataid="${album.id}" api="${album.api}" onclick="getAlbum('${album.id}','${album.api}')">
             <div class="list-poster" style="background-image: url('${pI(album.posterLarge, true)}')"></div>
             <section>
                 <span>${album.title}</span>
                 <div class="lable-list"><a>${album.artist}</a></div>
             </section>
-        </div>
-        `
-        })
-        document.querySelector('.inset-albums-popular').innerHTML = albumsData
+            </div>
+            `
+            })
+            document.querySelector('.inset-albums-popular').innerHTML = albumsData
+        } catch (e) {
+            console.error(e)
+        }
+        let artistData = artists(data.artists)
+        document.querySelector('.similar-artist-artist').innerHTML = artistData
     } catch (e) {
-        console.error(e)
+        page.classList.remove('center')
+        await delay(200)
+        page.classList.add('hidden')
+        dialog('Error occured','Error while fetching artist profile, code: '+e.message)
     }
-    let artistData = artists(data.artists)
-    document.querySelector('.similar-artist-artist').innerHTML = artistData
 }
 
 async function get_related_artists(artistId) {
@@ -2390,9 +2397,9 @@ async function showMenu(parent, e) {
         document.querySelector('.switch-component.download-ssc').classList.remove('downloaded')
     }
 
-    if(lastSelected.albumID){
+    if (lastSelected.albumID) {
         document.querySelector('.view-album-ssc').classList.remove('hidden')
-    }else {
+    } else {
         document.querySelector('.view-album-ssc').classList.add('hidden')
     }
 
@@ -2423,7 +2430,8 @@ async function showMenu(parent, e) {
 
 document.querySelector('.play-more-related')?.addEventListener('click', function () {
     draggableSong.closeMenu()
-    queueTracks = relatedGlobal.data || relatedGlobal.artist
+    queueTracks = relatedGlobal?.related?.tracks || relatedGlobal.list
+    prepareNext()
     miniDialog('Related added to queue')
 })
 
@@ -2548,9 +2556,37 @@ async function sendMusicToFriend() {
 
 let currentAlbum = {}
 
-async function printAlbum(data) {
+async function getPodcast(id) {
+    const response = await fetch(`/yt-music/podcast?id=${id}`)
+    const data = await response.json()
+    return data
+}
+
+async function openPodcast(el) {
+    await closePages()
     const parent = document.querySelector('.album-page')
     parent.classList.remove('hidden')
+    await delay(50)
+    parent.classList.add('center', 'podcast')
+    const data = await getPodcast(el.getAttribute('trackid'))
+    const info = `
+        <span>${data.title}</span>
+        <p><img src="${proxy(data.artistImage)}">${data.artist}</p>
+        <section><a>${data.description}</a></section>
+    `
+    parent.querySelector('.album-info').innerHTML = info
+    parent.querySelector('.album-poster').style.backgroundImage = `url('${proxy(data.posterLarge)}')`
+    getColors(proxy(data.poster, true)).then(colors => {
+        document.querySelector('.album-back').style.background = `linear-gradient(to bottom, ${colors.muted}, transparent)`
+    })
+    const { html } = printSongsRegular(data.tracks)
+    document.querySelector('.album-wrapper').innerHTML = html
+}
+
+
+async function printAlbum(data) {
+    const parent = document.querySelector('.album-page')
+    parent.classList.remove('hidden', 'podcast')
     await delay(50)
     parent.classList.add('center')
     currentAlbum = data
@@ -2560,8 +2596,8 @@ async function printAlbum(data) {
         <section><a>${data.tracks_count}</a><a>${data.tracks_time}</a></section>
     `
     parent.querySelector('.album-info').innerHTML = info
-    parent.querySelector('.album-poster').style.backgroundImage = `url('${pI(data.poster,true)}')`
-    getColors(pI(data.poster,true)).then(colors => {
+    parent.querySelector('.album-poster').style.backgroundImage = `url('${pI(data.poster, true)}')`
+    getColors(pI(data.poster, true)).then(colors => {
         document.querySelector('.album-back').style.background = `linear-gradient(to bottom, ${colors.muted}, transparent)`
     })
     let html = ''
@@ -2582,7 +2618,7 @@ async function printAlbum(data) {
     document.querySelector('.album-wrapper').innerHTML = html
 }
 
-function openSongAlbum(el){
+function openSongAlbum(el) {
     const index = parseInt(el.getAttribute('index'))
     const track = currentAlbum.tracks[index]
     playTrack(track)
@@ -2750,10 +2786,10 @@ async function showPremiumPage() {
     document.querySelector('.subscriptions').classList.add('center')
 }
 
-document.querySelector('.view-album-ssc')?.addEventListener('click',async function () {
+document.querySelector('.view-album-ssc')?.addEventListener('click', async function () {
     draggableSong.closeMenu();
     await closePages()
-    draggablePlayer.closeMenu()
+    draggablePlayer?.closeMenu()
     const data = await getAlbum(lastSelected.albumID)
     printAlbum(data)
 })

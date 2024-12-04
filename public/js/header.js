@@ -124,6 +124,9 @@ function isWeb() {
     return !window.webkit?.messageHandlers && typeof Android == 'undefined'
 }
 
+let proxy = (url, e) => {
+    return `${origin}/proxy?url=${encodeURIComponent(url)}${e ? '&cache=true' : ''}`
+}
 let pI = (url, e, c) => {
     if (isWeb() || c) {
         return url
@@ -403,7 +406,7 @@ async function sucessLog(data) {
     window.history.replaceState({}, document.title, url);
 }
 
-async function getRadio(id){
+async function getRadio(id) {
     const response = await fetch(`https://api.onvo.me/music/channels?id=${id}`, {
         headers: {
             Authorization: `Bearer ${await getToken()}`
@@ -438,7 +441,7 @@ async function filterUrl(data) {
         }
     }
 
-    if(data.host == 'radio'){
+    if (data.host == 'radio') {
         const data = await getRadio(data.query.id)
         fireJoinMethod(data)
     }

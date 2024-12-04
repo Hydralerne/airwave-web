@@ -54,8 +54,8 @@ function scolledSongs(data, e, c) {
     data.forEach(song => {
         const posterDetails = filterPosterLarge(song.posterLarge, song.poster);
         html += `
-            <div class="song-recent song ${currentSong?.id == song.id ? 'running' : ''}" duration="${song.duration}" ${song.album ? `album="${encodeURIComponent(song.album)}"` : ''} ${song.kind == 'album' ? 'kind="album"' : ''} ${song.artistID ? `artist-id="${song.artistID}" ` : ''} ${song.albumID ? `album-id="${song.albumID}"` : ''} api="${song.api}" trackid="${song.id}">
-                <div class="track-poster song-poster" onclick="${song.kind == 'playlist' ? `openPlaylist('${song.id}','${song.api}')` : 'playTrack(this)'}" data-poster="${song.poster?.url || song.poster}" data-size-large="${posterDetails.size}" data-poster-large="${posterDetails.image}" style="background-image: url('${pI(posterDetails.image.replace('600x600', '500x500'), e, c)}')"></div>
+            <div class="song-recent song ${currentSong?.id == song.id ? 'running' : ''}" onclick="${song.kind == 'playlist' ? `openPlaylist('${song.id}','${song.api}')` : (song.kind == 'podcast' ? 'openPodcast(this)' : 'playTrack(this)')}" duration="${song.duration}" ${song.album ? `album="${encodeURIComponent(song.album)}"` : ''} ${song.kind == 'album' ? 'kind="album"' : ''} ${song.artistID ? `artist-id="${song.artistID}" ` : ''} ${song.albumID ? `album-id="${song.albumID}"` : ''} api="${song.api}" trackid="${song.id}">
+                <div class="track-poster song-poster" data-poster="${song.poster?.url || song.poster}" data-size-large="${posterDetails.size}" data-poster-large="${posterDetails.image}" style="background-image: url('${pI(posterDetails.image.replace('600x600', '500x500'), e, c)}')"></div>
                 <section class="artist-title">
                     <span class="track-title">${song.title}</span>
                     <a class="track-artist">${song.artist}</a>

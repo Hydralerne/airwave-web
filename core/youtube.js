@@ -529,8 +529,9 @@ const filterYTMusicPodcasts = (track) => {
     const artist = track.musicResponsiveListItemRenderer.flexColumns?.[1]?.musicResponsiveListItemFlexColumnRenderer?.text?.runs
     const data = {
         api: 'youtube',
-        kind: 'playlist',
-        id: track.musicResponsiveListItemRenderer.overlay.musicItemThumbnailOverlayRenderer.content.musicPlayButtonRenderer.playNavigationEndpoint.watchPlaylistEndpoint.playlistId,
+        kind: 'podcast',
+        id: track.musicResponsiveListItemRenderer?.navigationEndpoint?.browseEndpoint?.browseId,
+        playlist: track.musicResponsiveListItemRenderer.overlay.musicItemThumbnailOverlayRenderer.content.musicPlayButtonRenderer.playNavigationEndpoint.watchPlaylistEndpoint.playlistId,
         title: track.musicResponsiveListItemRenderer.flexColumns[0].musicResponsiveListItemFlexColumnRenderer.text.runs[0].text,
         artist: artist?.[2]?.text || artist?.[0]?.text,
         artistID: artist?.[2]?.navigationEndpoint?.browseEndpoint?.browseId || artist?.[0]?.navigationEndpoint?.browseEndpoint?.browseId,
@@ -1253,6 +1254,118 @@ const getTrackData = async (req, res) => {
     }
 }
 
+function timeToMis(timeString) {
+    const timeParts = timeString.match(/(\d+)\s*hr|(\d+)\s*min/g);
+    let totalMilliseconds = 0;
+
+    if (timeParts) {
+        timeParts.forEach(part => {
+            if (part.includes("hr")) {
+                const hours = parseInt(part);
+                totalMilliseconds += hours * 60 * 60 * 1000; // Convert hours to ms
+            } else if (part.includes("min")) {
+                const minutes = parseInt(part);
+                totalMilliseconds += minutes * 60 * 1000; // Convert minutes to ms
+            }
+        });
+    }
+
+    return totalMilliseconds;
+}
+
+const filterPoadcast = (data, id) => {
+    const tracksRaw = data.contents
+        ?.twoColumnBrowseResultsRenderer
+        ?.secondaryContents
+        ?.sectionListRenderer
+        ?.contents
+        ?.[0]
+        ?.musicShelfRenderer
+        ?.contents
+    const main = data.contents
+        ?.twoColumnBrowseResultsRenderer
+        ?.tabs
+        ?.[0]
+        ?.tabRenderer
+        ?.content
+        ?.sectionListRenderer
+        ?.contents
+        ?.[0]
+        ?.musicResponsiveHeaderRenderer
+    const artistRaw = main
+        ?.straplineTextOne
+        ?.runs
+        ?.[0]
+    const artist = artistRaw.text
+    const artistID = artistRaw?.navigationEndpoint
+        ?.browseEndpoint
+        ?.browseId
+    const title = main?.title?.runs?.[0]?.text
+    const posterRaw = data?.background
+        ?.musicThumbnailRenderer
+        ?.thumbnail
+        ?.thumbnails
+    const description = main
+        ?.description
+        ?.musicDescriptionShelfRenderer
+        ?.description
+        ?.runs
+        ?.[0]
+        ?.text
+    const poster = posterRaw[0].url
+    const posterLarge = posterRaw[posterRaw.length - 1].url
+    const artistImage = main?.straplineThumbnail
+        ?.musicThumbnailRenderer
+        ?.thumbnail
+        ?.thumbnails
+        ?.[1]
+        ?.url
+    let tracks = []
+    tracksRaw.forEach(track => {
+        try {
+            tracks.push({
+                api: 'youtube',
+                kind: 'podcast',
+                id: track?.musicMultiRowListItemRenderer?.playNavigationEndpoint?.watchEndpoint?.videoId || track.musicMultiRowListItemRenderer?.onTap?.watchEndpoint?.videoId,
+                title: track?.musicMultiRowListItemRenderer?.title?.runs?.[0]?.text,
+                description: track?.musicMultiRowListItemRenderer?.description?.runs?.[0]?.text,
+                poster: track?.musicMultiRowListItemRenderer?.thumbnail?.musicThumbnailRenderer?.thumbnail?.thumbnails?.[0]?.url,
+                posterLarge: track?.musicMultiRowListItemRenderer?.thumbnail?.musicThumbnailRenderer?.thumbnail?.thumbnails?.[2]?.url,
+                artist: artist,
+                artistID: artistID,
+                album: title,
+                albumID: id,
+                release_date: track?.musicMultiRowListItemRenderer?.subtitle?.runs?.[0]?.text,
+                duration: timeToMis(track?.musicMultiRowListItemRenderer?.playbackProgress?.musicPlaybackProgressRenderer?.durationText?.runs?.[1]?.text)
+            })
+        } catch (e) {
+            console.log(e)
+        }
+    })
+    return {
+        api: 'youtube',
+        id,
+        title,
+        artist,
+        artistID,
+        poster,
+        posterLarge,
+        description,
+        artistImage,
+        tracks,
+    }
+}
+
+const getPodcast = async (req, res) => {
+    try {
+        const data = await requestBrowse(req.query.id)
+        const json = filterPoadcast(data, req.query.id)
+        res.json(json)
+    } catch (e) {
+        res.json({ error: e.message })
+    }
+}
+
 module.exports = {
     youtubeMusicSearch,
     getYotubeMusicList,
@@ -1265,5 +1378,6 @@ module.exports = {
     getNativeSubtitles,
     getLyricsOnly,
     getAlbum,
-    getTrackData
+    getTrackData,
+    getPodcast
 }

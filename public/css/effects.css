@@ -224,8 +224,13 @@ text.loading-lyrics-slider:nth-of-type(9) {
 }
 
 .artist-element.loader-artist a {
-    border-radius: 20px;
-    height: 12px;
+  border-radius: 20px;
+  height: 12px;
+  width: 80%;
+  right: 0;
+  left: 0;
+  margin-right: auto;
+  margin-left: auto;
 }
 
 .playlist-inner-container.loading-playlist-perview a.gradient-loader-main,.playlist-inner-container.loading-playlist-perview p.gradient-loader-main {

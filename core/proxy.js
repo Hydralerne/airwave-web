@@ -14,7 +14,7 @@ let socket = {};
     fetch = (await import('node-fetch')).default;
 })();
 
-process.argv[2] = (process.argv[3] == "ios" || process.argv[3] == "android") ? process.argv[2] : path.join(__dirname,'../')
+process.argv[2] = (process.argv[3] == "ios" || process.argv[3] == "android") ? process.argv[2] : path.join(__dirname, '../')
 
 const createDownload = (id) => {
     const downloadsDir = path.join(process.argv[2], 'downloads', `${id}`);
@@ -273,7 +273,7 @@ const urlToFilename = (urlString) => {
 
 const proxyImages = (req, res, next) => {
     const imageUrl = req.query.url;
-    const noCache = req.query.nocache
+    const cache = req.query.cache
     if (!imageUrl) {
         return res.status(400).send('URL query parameter is required');
     }
@@ -281,13 +281,16 @@ const proxyImages = (req, res, next) => {
     const filename = urlToFilename(imageUrl);
     const filePath = path.join(IMAGES_DIR, filename);
 
-    if (fs.existsSync(filePath)) {
-        return res.sendFile(filePath, (err) => {
-            if (err) {
-                return res.status(500).send('Error retrieving the cached image');
-            }
-        });
+    if (cache) {
+        if (fs.existsSync(filePath)) {
+            return res.sendFile(filePath, (err) => {
+                if (err) {
+                    return res.status(500).send('Error retrieving the cached image');
+                }
+            });
+        }
     }
+
 
     const requestOptions = {
         headers: {
@@ -300,7 +303,7 @@ const proxyImages = (req, res, next) => {
             return res.status(proxyRes.statusCode).send('Error fetching the image');
         }
         proxyRes.pipe(res);
-        if (!noCache) {
+        if (cache) {
             const fileStream = fs.createWriteStream(filePath);
             proxyRes.pipe(fileStream);
 
@@ -484,6 +487,7 @@ const handleIncomming = async (ws, message) => {
 }
 
 const StreamZip = require('node-stream-zip');
+const { cache } = require('ejs');
 
 async function cloneRepo(repoUrl, targetDir, onProgress) {
     try {

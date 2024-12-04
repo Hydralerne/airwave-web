@@ -171,7 +171,7 @@
     border-top: 0;
     height: 90px;
     background: #161616d1;
-    border-top: 1px solid #ffffff26;
+    border-top: 1px solid rgb(255 255 255 / 10%);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 }
@@ -204,7 +204,7 @@
 
 .inset-menu-bottom {
     width: 88%;
-    margin-top: -12px;
+    margin-top: -18px;
 }
 
 .button-page.selected {
@@ -214,10 +214,10 @@
 }
 
 .button-page span {
-    margin-top: 38px;
+    margin-top: 36px;
     opacity: 0.5;
     font-weight: 300;
-    font-size: 12px;
+    font-size: 10px;
 }
 
 .button-page.search-flex:before {
@@ -1421,4 +1421,31 @@ text.swiper-slide.ar {
 }
 .switch-component.view-album-ssc span {
     -webkit-mask-image: url(/assets/png-icons/record%20circle-302-1658234823.png);
+}
+.album-wrapper {
+    margin-bottom: 180px;
+}
+.album-header {
+    position: absolute;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    margin-top: 60px;
+}
+.podcast .album-info p img {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.podcast .album-info p {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.resizing .visualisation {
+    display: none;
 }
