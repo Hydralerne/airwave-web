@@ -332,8 +332,8 @@ function muteUser(id) {
 function userSettings(id) {
     let options = `
     <div class="switch-options">
-    ${party.owner == localStorage.getItem('userid') ? `<div onclick="document.querySelector('.back-replyer-switching').click();kickUser('${id}');" ontouchstart="op(this,true)" ontouchend="op(this)" ontouchmove="op(this)" class="swtich-option-tap kick-live"><span></span><section><a>Kick user</a></section></div>
-    <div ontouchstart="op(this,true)" ontouchend="op(this)" ontouchmove="op(this)" class="swtich-option-tap mute-user" onclick="document.querySelector('.back-replyer-switching').click();muteUser('${id}')"><span></span><section><a>Mute user messages</a></section></div>
+    ${party.owner == localStorage.getItem('userid') ? `<div onclick="draggableMusic.closeMenu();kickUser('${id}');" ontouchstart="op(this,true)" ontouchend="op(this)" ontouchmove="op(this)" class="swtich-option-tap kick-live"><span></span><section><a>Kick user</a></section></div>
+    <div ontouchstart="op(this,true)" ontouchend="op(this)" ontouchmove="op(this)" class="swtich-option-tap mute-user" onclick="draggableMusic.closeMenu();muteUser('${id}')"><span></span><section><a>Mute user messages</a></section></div>
     `: '<div ontouchstart="op(this,true)" ontouchend="op(this)" ontouchmove="op(this)" class="swtich-option-tap report-list-tap" onclick="report()"><span></span><section><a>Report user</a></section></div>'}</div>
     `
 
@@ -2002,16 +2002,14 @@ async function callbackSource(data, e) {
 }
 
 document.querySelector('.back-replyer-switching').addEventListener('click', function () {
-    setTimeout(() => {
-        document.querySelector('.switching-replyer').classList.add('hidden');
-    }, 200)
+    draggableMusic.closeMenu()
 })
 
 let draggableMusic
 
 async function reflexReply() {
     document.querySelector('.inset-live-chat textarea').value = '';
-    document.querySelector('.back-music-search').click()
+    draggableSearch.closeMenu()
     await delay(200)
     document.querySelector('.switching-replyer').classList.remove('hidden')
     await delay(50)
@@ -2021,7 +2019,10 @@ async function reflexReply() {
     } else {
         draggableMusic = new DraggableMenu({
             parent: '.body-replyer-switching',
-            back: '.back-replyer-switching'
+            back: '.back-replyer-switching',
+            onclose: () => {
+                document.querySelector('.switching-replyer').classList.add('hidden');
+            }
         });
     }
 }
@@ -2093,7 +2094,7 @@ async function replyRequest(el, id, text = document.querySelector('.textarea-msg
     }).then(data => {
         console.log(data)
         el.classList.remove('disabled')
-        document.querySelector('.back-replyer-switching').click()
+        draggableMusic.closeMenu()
         removeMessage(id)
     }).catch(e => {
         el.classList.remove('disabled')
@@ -2140,21 +2141,17 @@ function sendTrack(el) {
         return
     }
     actualAddTrack(song)
-    document.querySelector('.back-music-search').click()
+    draggableSearch.closeMenu()
 }
 
 async function fetchSoundCloud(dir = 'trending', offset, q) {
-    fetch(`${origin}/soundcloud/${dir}?${offset ? `&offset=${offset}` : ''}${dir == 'search' ? `&q=${q}` : ''}`, {
+    const response = await fetch(`${origin}/soundcloud/${dir}?${offset ? `&offset=${offset}` : ''}${dir == 'search' ? `&q=${q}` : ''}`, {
         headers: {
             'Authorization': `Bearer ${await getToken()}`
         }
-    }).then(response => {
-        return response.json();
-    }).then(data => {
-        printSongs(data, dir)
-    }).catch(error => {
-        console.error(error);
     })
+    const data = await response.json()
+    return data
 }
 
 function callAnghami(query, dir) {
@@ -2201,11 +2198,6 @@ const musicSearchContainer = document.querySelector('.music-search-main');
 
 // getTrending('soundcloud')
 
-document.querySelector('.back-music-search')?.addEventListener('click', function () {
-    setTimeout(() => {
-        musicStream.classList.add('hidden');
-    }, 200)
-})
 
 document.querySelector('.search-edit-list')?.addEventListener('click', function () {
     musicStream.classList.remove('hidden');
@@ -2394,8 +2386,8 @@ async function search(q, e, dir) {
 
     let data = {}
 
-    if (dir == 'users') {
-        searchDir = 'users'
+    if (dir == 'users' || dir == 'soundcloud') {
+        searchDir = dir
     }
     switch (searchDir) {
         case 'spotify':
@@ -2474,6 +2466,7 @@ async function search(q, e, dir) {
             console.log('ass')
             break;
     }
+    console.log(data)
 
     let html = ''
     if (dir == 'artists') {
@@ -2485,7 +2478,6 @@ async function search(q, e, dir) {
     } else {
         html = printSongs(data, 'search')
     }
-    console.log(data)
     document.querySelector(e ? '.search-result' : '.inset-search-songs').innerHTML = html
 }
 
@@ -2738,7 +2730,7 @@ async function getRelated(e) {
         //     }
         // }
 
-        if (queueTracks.length < 5 && e) {
+        if (queueTracks.length < 2 && e) {
             queueTracks = currentSong.api == 'youtube' ? (data?.list || data?.related?.tracks) : data?.related?.tracks
         }
 
@@ -2768,6 +2760,14 @@ function addQueue(el, type) {
 
 }
 
+function clearQueue() {
+    document.querySelectorAll('.related-container .music-component').forEach(el => {
+        el.remove()
+    })
+    queueTracks = []
+    miniDialog('Queue cleared')
+}
+
 let sorter
 async function parseRelated(e = 'main') {
     const relatedParent = document.querySelector('.related-container')
@@ -2779,7 +2779,7 @@ async function parseRelated(e = 'main') {
     let data = await getRelated(true)
     let queue = e == 'main' ? (data?.list || data?.related?.tracks) : data?.related?.tracks
     let helper = e == 'main' ? `
-    <div class="container-adding-queue"><div class="add-to-queue"><span>Add to queue</span></div><div class="clear-queue"><span>Clear queue</span></div></div>
+    <div class="container-adding-queue"><div class="add-to-queue" onclick="sendSong('queue')"><span>Add to queue</span></div><div class="clear-queue" onclick="clearQueue()"><span>Clear queue</span></div></div>
     ` : ''
     if (queue) {
         let html = ''
@@ -2822,15 +2822,22 @@ async function parseRelated(e = 'main') {
     }
 }
 
-async function getAlbum(id){
+async function getAlbum(id) {
     const response = await fetch(`/yt-music/album?id=${id}`)
     const data = await response.json()
     return data
 }
 
 document.querySelectorAll('.related-menu section').forEach((element, index) => {
-    element?.addEventListener('click', function () {
+    element?.addEventListener('click', async function () {
         if (this.classList.contains('selected')) {
+            return
+        }
+        if (this.getAttribute('dataid') == 'album') {
+            relatedDraggable?.closeMenu();
+            await closePages()
+            draggablePlayer?.closeMenu()
+            openAlbum(currentSong.albumID, currentSong.api)
             return
         }
         document.querySelectorAll('.related-menu section').forEach(el => { el.classList.remove('selected') })
@@ -3314,8 +3321,12 @@ function sendSong(e) {
     document.body.classList.remove('searching')
     document.querySelector('.flex-search-platforms').scrollLeft = 0
     document.querySelector('.inset-search-songs').innerHTML = ''
-    musicStream.classList.remove('hidden');
-    musicStream.classList.add('sending');
+    musicStream.classList.remove('hidden', 'queue');
+    if (e !== 'queue') {
+        musicStream.classList.add('sending');
+    } else {
+        musicStream.classList.add('queue')
+    }
     musicStream.setAttribute('sdir', e);
     if (!musicSearchContainer.getAttribute('dataid')) {
         getTrending('soundcloud', 25, 'search')
@@ -4039,10 +4050,11 @@ const lyricsSlider = () => {
 
 }
 
-function renderLyrics(data, perview) {
+function renderLyrics(data, perview, selected) {
     let i = 0;
     let max = 100;
     let html = '';
+    console.log('selected image',selected)
     let shortenedLyrics = [];
     if (data.autoGenerated == true || !data.lyrics) {
         data.raw?.forEach(vers => {
@@ -4056,6 +4068,7 @@ function renderLyrics(data, perview) {
     } else {
         shortenedLyrics = data.lyrics.slice(0, 150)
     }
+    let ix = 0;
     for (let index = 0; index < shortenedLyrics.length; index++) {
         let line = shortenedLyrics[index];
         if (perview && perview < index) {
@@ -4064,7 +4077,8 @@ function renderLyrics(data, perview) {
         if (typeof line.start !== 'undefined' && line.start <= 4) {
             continue
         }
-        html += `<text class="swiper-slide ${(isArabic(line.text) ? 'ar' : 'en')}${typeof line.start !== 'undefined' ? ' synced' : ''}" onclick="lyricsClick(this)" ontouchmove="holdEffect(this);" ontouchend="holdEffect(this)" ontouchstart="holdEffect(this,true)" dataid="${index}" start="${line.start}" end="${line.end}">${line.text}</text>`;
+        ix++;
+        html += `<text class="swiper-slide ${selected && (ix <= selected) ? 'selected ' : ''}${(isArabic(line.text) ? 'ar' : 'en')}${typeof line.start !== 'undefined' ? ' synced' : ''}" onclick="lyricsClick(this)" ontouchmove="holdEffect(this);" ontouchend="holdEffect(this)" ontouchstart="holdEffect(this,true)" dataid="${index}" start="${line.start}" end="${line.end}">${line.text}</text>`;
     }
     return html.length > 0 ? `<section class="swiper-wrapper">${html}</section>` : null
 }
@@ -4101,12 +4115,14 @@ async function parseLyrics(perview, data = jsonLyrics, api = jsonLyrics.api) {
     if (!perview && parsedLyrics && parsedLyrics == data?.track?.id) {
         return
     }
-    if(!perview){
+    let selected
+    if (!perview) {
         parsedLyrics = jsonLyrics?.track?.id
+        selected = document.querySelectorAll('.lyrics-wrapper-main section text.selected').length
     }
     let html;
     try {
-        html = renderLyrics(data, perview)
+        html = renderLyrics(data, perview, selected)
     } catch (e) {
         console.log(e)
         return noLyrics()
@@ -4126,7 +4142,7 @@ async function parseLyrics(perview, data = jsonLyrics, api = jsonLyrics.api) {
     // }
 }
 
-async function closeLyrics(){
+async function closeLyrics() {
     liveBody.classList.remove('fullscreen')
     await delay(300)
     liveBody.classList.remove('resizing')
@@ -4492,9 +4508,16 @@ const getPopularArtists = async (accessToken) => {
 const draggableSearch = new DraggableMenu({
     parent: '.music-search-main',
     back: '.back-music-search',
-    inner: '.search-container-songs'
+    inner: '.search-container-songs',
+    onclose: () => {
+        musicStream.classList.add('hidden');
+        document.querySelector('.back-music-search').classList.add('hidden')
+    }
 });
 
+document.querySelector('.back-music-search')?.addEventListener('click', function () {
+    draggableSearch.closeMenu()
+})
 
 const mainButtoning = document.querySelector('.buttons-container')
 const mainSectionParent = document.querySelector('.bottom-live-control')

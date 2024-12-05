@@ -111,6 +111,21 @@ function updateListSlider() {
     mvhot.slideTo(4)
 }
 
+async function loadFullList() {
+    for (i = 0; i < listOffset && listOffset < currentList.tracks_count; i++) {
+        if (doneloadList || i > 50) {
+            break
+        }
+        const { tracks } = await performTracks(currentList.id, currentList.api, currentList.userid, listOffset, 50)
+        listOffset += tracks.length
+        if (listOffset == currentList.tracks_count || tracks.length == 0) {
+            doneloadList = true
+        }
+        await delay(500)
+        console.log(i, listOffset)
+    }
+}
+
 const playlistsPage = document.querySelector('.playlists-page')
 const musicSection = document.querySelector('.music-section')
 let loadingList = false;
@@ -257,16 +272,16 @@ async function openPlaylist(id, type, userid, public_id) {
         const randomImages = getShffledArray(tracks);
 
         let listPerview = ''
-        let backdropPerview = '';
+        // let backdropPerview = '';
 
         randomImages.forEach(random => {
             const posterDetails = filterPosterLarge(random.posterLarge, random.poster)
             listPerview += `<span data-img="${random.poster?.url || random.poster}" style="background-image: url('${(random.poster?.url || random.poster)}')"></span>`;
-            backdropPerview += `<div class="playlist-poster" style="background-image: url(${(posterDetails.image)});"></div>`
+            // backdropPerview += `<div class="playlist-poster" style="background-image: url(${(posterDetails.image)});"></div>`
         })
 
         document.querySelector('.list-perview section').innerHTML = listPerview
-        document.querySelector('.inset-playlist-posters').innerHTML = backdropPerview
+        // document.querySelector('.inset-playlist-posters').innerHTML = backdropPerview
 
         updateListSlider();
 
@@ -436,6 +451,9 @@ async function getArtist(id) {
 }
 
 async function openArtist(id, api, el) {
+    if (!el || !el?.closest('.artist-body')) {
+        await closePages()
+    }
     const page = document.querySelector('.artist-page')
     page.classList.remove('hidden')
     await delay(10);
@@ -445,12 +463,9 @@ async function openArtist(id, api, el) {
         behavior: 'smooth'
     })
     try {
-        if (!el && !el?.closest('.artist-body')) {
-            await closePages()
-        }
-        try {
-            draggablePlayer.closeMenu()
-        } catch (e) { }
+        draggablePlayer.closeMenu()
+    } catch (e) { }
+    try {
         resetArtist();
         page.setAttribute('dataid', id)
         if (el) {
@@ -481,7 +496,7 @@ async function openArtist(id, api, el) {
             let albumsData = ''
             data.albums.data.forEach(album => {
                 albumsData += `
-            <div class="list-perview-home" dataid="${album.id}" api="${album.api}" onclick="getAlbum('${album.id}','${album.api}')">
+            <div class="list-perview-home" dataid="${album.id}" api="${album.api}" onclick="openAlbum('${album.id}','${album.api}')">
             <div class="list-poster" style="background-image: url('${pI(album.posterLarge, true)}')"></div>
             <section>
                 <span>${album.title}</span>
@@ -500,7 +515,7 @@ async function openArtist(id, api, el) {
         page.classList.remove('center')
         await delay(200)
         page.classList.add('hidden')
-        dialog('Error occured','Error while fetching artist profile, code: '+e.message)
+        dialog('Error occured', 'Error while fetching artist profile, code: ' + e.message)
     }
 }
 
@@ -557,7 +572,7 @@ async function createWelcome() {
 
 async function importPlaylist() {
     document.body.classList.add('importing-list')
-    document.querySelector('.back-replyer-switching').click()
+    draggableMusic.closeMenu()
     await delay(200)
     const html = await getImportings(true)
     document.querySelector('.menu-bottom').insertAdjacentHTML('beforebegin', html)
@@ -577,28 +592,28 @@ function shareFire(dir, header, text = '') {
     let link = ''
     if (dir == "twitter") {
         link = 'https://twitter.com/intent/tweet?text=';
-        interface('open', link + encodeURIComponent(text) + '%0A' + encodeURIComponent(header));
+        interface('open', link + (text) + '%0A' + encodeURIComponent(header));
     } else if (dir == 'copy') {
-        navigator.clipboard.writeText(text + '\n' + header);
+        navigator.clipboard.writeText(decodeURIComponent(text) + '\n' + header);
     } else if (dir == "facebook") {
         link = 'http://www.facebook.com/sharer.php?u=';
         interface('open', link + encodeURIComponent(header));
     } else if (dir == "whatsapp") {
-        interface('open', 'whatsapp://send?text=' + encodeURIComponent(text) + '%0A' + encodeURIComponent(header));
+        interface('open', 'whatsapp://send?text=' + (text) + '%0A' + encodeURIComponent(header));
     } else if (dir == "reddit") {
         link = 'https://www.reddit.com/submit?url=';
-        interface('open', link + encodeURIComponent(header) + '&title=' + encodeURIComponent(text));
+        interface('open', link + encodeURIComponent(header) + '&title=' + (text));
     } else if (dir == "linkedin") {
         link = ' http://www.linkedin.com/shareArticle?mini=true&url=';
-        interface('open', link + encodeURIComponent(header) + '&title=' + encodeURIComponent(text));
+        interface('open', link + encodeURIComponent(header) + '&title=' + (text));
     } else if (dir == "instagram") {
-        interface('share', 'Share Link', { text, header });
+        interface('share', 'Share Link', { text: decodeURIComponent(text), header });
     } else {
         navigator.clipboard.writeText(header, (error) => {
 
         })
     }
-    document.querySelector('.back-replyer-switching').click()
+    draggableMusic.closeMenu()
 
 }
 
@@ -612,13 +627,13 @@ async function share(url, text) {
     let html = `
     <div class="top-share-flex">
         <div class="inner-flex-shares">
-            <div class="share-btns btneffect copylink" onclick="shareFire('copy','${url}',\`${text}\`);"></div>
-            <div class="share-btns btneffect twitter" onclick="shareFire('twitter','${url}',\`${text}\`);"></div>
-            <div class="share-btns btneffect facebook onclick="shareFire('facebook','${url}',\`${text}\`);""></div>
-            <div class="share-btns btneffect whatsapp" onclick="shareFire('whatsapp','${url}',\`${text}\`);"></div>
-            <div class="share-btns btneffect reddit" onclick="shareFire('reddit','${url}',\`${text}\`);"></div>
-            <div class="share-btns btneffect linkedin" onclick="shareFire('linkedin','${url}',\`${text}\`);"></div>
-            <div class="share-btns btneffect instagram" onclick="shareFire('instagram','${url}',\`${text}\`);"></div>
+            <div class="share-btns btneffect copylink" onclick="shareFire('copy','${url}',\`${encodeURIComponent(text)}\`);"></div>
+            <div class="share-btns btneffect twitter" onclick="shareFire('twitter','${url}',\`${encodeURIComponent(text)}\`);"></div>
+            <div class="share-btns btneffect facebook onclick="shareFire('facebook','${url}',\`${encodeURIComponent(text)}\`);""></div>
+            <div class="share-btns btneffect whatsapp" onclick="shareFire('whatsapp','${url}',\`${encodeURIComponent(text)}\`);"></div>
+            <div class="share-btns btneffect reddit" onclick="shareFire('reddit','${url}',\`${encodeURIComponent(text)}\`);"></div>
+            <div class="share-btns btneffect linkedin" onclick="shareFire('linkedin','${url}',\`${encodeURIComponent(text)}\`);"></div>
+            <div class="share-btns btneffect instagram" onclick="shareFire('instagram','${url}',\`${encodeURIComponent(text)}\`);"></div>
         </div>
     </div>
     <button class="cansle-menu-share"></button>
@@ -632,7 +647,7 @@ function infoProfile() {
     let options = `
     <div class="switch-options options-profile">
     ${!isOwner ? `<div ${touchPackage} class="swtich-option-tap block-list-tap"><span></span><section><a>Block user</a></section></div>` : ''}
-        <div ${touchPackage} class="swtich-option-tap share-list-tap" onclick="document.querySelector('.back-replyer-switching').click();setTimeout(() => {shareProfile()},200)"><span></span><section><a>Share Link</a></section></div>
+        <div ${touchPackage} class="swtich-option-tap share-list-tap" onclick="draggableMusic.closeMenu();setTimeout(() => {shareProfile()},200)"><span></span><section><a>Share Link</a></section></div>
         <div ${touchPackage} class="swtich-option-tap report-list-tap" onclick="report()"><span></span><section><a>Report ${!isOwner ? 'user' : 'bug'}</a></section></div>
         <div ${touchPackage} class="swtich-option-tap open-onvo-list-tap" onclick="interface('web','https://onvo.me/${currentProfile.username}')"><span></span><section><a>Open in ONVO</a></section></div>
  </div>
@@ -1074,8 +1089,8 @@ function liveMenu(el) {
     lastSelectedLive = el.closest('.live-card');
     let options = `
     <div class="switch-options options-profile">
-   <div onclick="document.querySelector('.back-replyer-switching').click();setTimeout(() => {lastSelectedLive.remove();},200);" ${touchPackage} class="swtich-option-tap block-list-tap"><span></span><section><a>Hide this live</a></section></div>
-        <div ${touchPackage} class="swtich-option-tap share-list-tap" onclick="document.querySelector('.back-replyer-switching').click();setTimeout(() => {share('https://oave.me/radio/${lastSelectedLive.getAttribute('dataid')}','Join live party ${lastSelectedLive.querySelector('.live-description-info a').innerText}')},200)"><span></span><section><a>Share Live link</a></section></div>
+   <div onclick="draggableMusic.closeMenu();setTimeout(() => {lastSelectedLive.remove();},200);" ${touchPackage} class="swtich-option-tap block-list-tap"><span></span><section><a>Hide this live</a></section></div>
+        <div ${touchPackage} class="swtich-option-tap share-list-tap" onclick="draggableMusic.closeMenu();setTimeout(() => {share('https://oave.me/radio/${lastSelectedLive.getAttribute('dataid')}','Join live party ${lastSelectedLive.querySelector('.live-description-info a').innerText}')},200)"><span></span><section><a>Share Live link</a></section></div>
         <div ${touchPackage} class="swtich-option-tap report-list-tap" onclick="report(this,'live')"><span></span><section><a>Report live</a></section></div>
  </div>
     `
@@ -1568,14 +1583,14 @@ async function showCreation() {
     if (!page.classList.contains('hosted')) {
         options = `
         <div class="switch-options">
-        <div onclick="document.querySelector('.back-replyer-switching').click();setTimeout(createList,200);" ontouchstart="op(this,true)" ontouchend="op(this)" ontouchmove="op(this)" class="swtich-option-tap list-create-tap"><span></span><section><a>Create playlist</a><p>Build with songs from multiple platfroms</p></section></div>
+        <div onclick="draggableMusic.closeMenu();setTimeout(createList,200);" ontouchstart="op(this,true)" ontouchend="op(this)" ontouchmove="op(this)" class="swtich-option-tap list-create-tap"><span></span><section><a>Create playlist</a><p>Build with songs from multiple platfroms</p></section></div>
         <div ${touchPackage} class="swtich-option-tap import-list-tap" onclick="importPlaylist()"><span></span><section><a>Import playlist</a><p>Host from other platform in your library</p></section></div>
         </div>
         `
     } else {
         options = `
         <div class="switch-options">
-        <div onclick="document.querySelector('.back-replyer-switching').click();setTimeout(shareLib,200);" ontouchstart="op(this,true)" ontouchend="op(this)" ontouchmove="op(this)" class="swtich-option-tap share-list-tap"><span></span><section><a>Share Library</a><p>Share this library with your friends</p></section></div>
+        <div onclick="draggableMusic.closeMenu();setTimeout(shareLib,200);" ontouchstart="op(this,true)" ontouchend="op(this)" ontouchmove="op(this)" class="swtich-option-tap share-list-tap"><span></span><section><a>Share Library</a><p>Share this library with your friends</p></section></div>
         <div ${touchPackage} class="swtich-option-tap report-list-tap" onclick="importPlaylist()"><span></span><section><a>Report library</a><p>Report this library</p></section></div>
         </div>
         `
@@ -1685,7 +1700,7 @@ document.querySelector('.button-page.library-flex').addEventListener('click', as
 })
 
 async function deleteList() {
-    document.querySelector('.back-replyer-switching').click();
+    draggableMusic.closeMenu();
     const response = await fetch(`https://api.onvo.me/music/playlists/${currentList.id}`, {
         method: 'DELETE',
         headers: {
@@ -1717,6 +1732,10 @@ document.querySelector('.share-playlist')?.addEventListener('click', async funct
     share(url, text)
 });
 document.querySelector('.save-playlist')?.addEventListener('click', async function () {
+    if (currentList.userid == localStorage.getItem('userid') || String(currentList.owner?.id) == localStorage.getItem('userid')) {
+        miniDialog('Cannot resave list')
+        return
+    }
     if (this.classList.contains('disabled')) {
         return;
     }
@@ -1743,7 +1762,7 @@ document.querySelector('.save-playlist')?.addEventListener('click', async functi
             return
         }
     })
-    const list = currentList;
+    const list = structuredClone(currentList);
     delete list['tracks'];
 
     const paylod = {
@@ -1924,7 +1943,7 @@ async function submitPlaylist(el) {
 
 
 async function deleteMessage(id) {
-    document.querySelector('.back-replyer-switching').click();
+    draggableMusic.closeMenu();
     const response = await fetch('https://api.onvo.me/onvo/message/send', {
         method: 'POST',
         headers: {
@@ -2457,36 +2476,6 @@ document.querySelector('.lyrics-share')?.addEventListener('click', async functio
 })
 
 
-async function saveList(el, id = currentList.id, api = currentList.api) {
-    if (el.classList.contains('disabled')) {
-        return;
-    }
-    let e = true;
-    if (el.classList.contains('saved')) {
-        e = false;
-        el.classList.remove('saved')
-    } else {
-        el.classList.add('saved')
-    }
-    el.classList.add('disabled')
-    fetch(`https://api.onvo.me/music/save${!e ? `/${id}` : ''}`, {
-        method: e ? 'POST' : 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${await getToken()}`
-        },
-        body: JSON.stringify({ trackid: id, api, data, type: 'track' })
-    }).then(response => {
-        return response.json();
-    }).then(data => {
-        el.classList.remove('disabled')
-
-    }).catch(e => {
-        el.classList.remove('disabled')
-        console.error(e)
-    })
-}
-
 
 async function appendToList(el, id) {
     if (el.classList.contains('disabled')) {
@@ -2506,7 +2495,7 @@ async function appendToList(el, id) {
     }).then(data => {
 
         el.classList.remove('disabled')
-        // document.querySelector('.back-replyer-switching').click()
+        // draggableMusic.closeMenu()
         if (method == 'DELETE') {
             el.classList.remove('added')
         } else {
@@ -2584,6 +2573,12 @@ async function openPodcast(el) {
 }
 
 
+async function openAlbum(id) {
+    await closePages()
+    const data = await getAlbum(id)
+    await printAlbum(data)
+}
+
 async function printAlbum(data) {
     const parent = document.querySelector('.album-page')
     parent.classList.remove('hidden', 'podcast')
@@ -2648,7 +2643,7 @@ async function sendMsg(el, user = currentProfile.id) {
         const data = await response.json();
         if (data.statue == 'done') {
             dialog('Done!', 'Your message has been sent successfully')
-            document.querySelector('.back-replyer-switching').click();
+            draggableMusic.closeMenu();
         }
         if (data.error) {
             dialog(data.title, data.error)
@@ -2665,7 +2660,7 @@ async function sendMsg(el, user = currentProfile.id) {
 
 async function showAppendLists(el, id) {
     const add = `
-    <div class="playlist-create-container" onclick="document.querySelector('.back-replyer-switching').click();setTimeout(() => {createList()},200)" ${touchPackage}>
+    <div class="playlist-create-container" onclick="draggableMusic.closeMenu();setTimeout(() => {createList()},200)" ${touchPackage}>
          <span></span>
          <a>Create playlist</a>
       </div>
@@ -2787,7 +2782,7 @@ async function showPremiumPage() {
 }
 
 document.querySelector('.view-album-ssc')?.addEventListener('click', async function () {
-    draggableSong.closeMenu();
+    draggableSong?.closeMenu();
     await closePages()
     draggablePlayer?.closeMenu()
     const data = await getAlbum(lastSelected.albumID)
@@ -2795,7 +2790,7 @@ document.querySelector('.view-album-ssc')?.addEventListener('click', async funct
 })
 
 document.querySelector('.download-ssc')?.addEventListener('click', function () {
-    draggableSong.closeMenu();
+    draggableSong?.closeMenu();
     if (this.classList.contains('downloaded')) {
         removeDownload(lastSelected)
         return
@@ -2892,17 +2887,17 @@ function getApiCut(api) {
 }
 
 document.querySelector('.share-player')?.addEventListener('click', async function () {
-    draggableSong.closeMenu();
+    draggableSong?.closeMenu();
     await delay(200)
     share(`https://oave.me/${getApiCut(currentSong.api)}/${currentSong.id}`, `Listen to ${currentSong.title} on Airwave`)
 })
 document.querySelector('.share-ssc')?.addEventListener('click', async function () {
-    draggableSong.closeMenu();
+    draggableSong?.closeMenu();
     await delay(200)
     share(`https://oave.me/${getApiCut(lastSelected.api)}/${lastSelected.id}`, `Listen to ${lastSelected.title} on Airwave`)
 })
 document.querySelector('.artist-profile-view')?.addEventListener('click', async function () {
-    draggableSong.closeMenu();
+    draggableSong?.closeMenu();
     await delay(200)
     if (lastSelected.api !== 'youtube') {
         dialog('Uavilable for now', 'Artist profile for this song is not avilable for now, will be avilable soon')
@@ -2915,7 +2910,7 @@ document.querySelector('.artist-profile-view')?.addEventListener('click', async 
 let globalInitialLive = {}
 
 async function startLive(song) {
-    draggableSong.closeMenu();
+    draggableSong?.closeMenu();
     await delay(200)
     if (!isPlus()) {
         showPremium(`Or continue with <text>Free trail</text>`)
@@ -2965,7 +2960,6 @@ async function downloadSong(song = lastSelected) {
             }
             const response = await fetch(`/get-source/?id=${YTCode}`)
             data = await response.json();
-            console.log('downloading', data)
         } else {
             console.log('soundclouding')
             data = await getTrackByUrl(song.id, 'soundcloud', 'id');
@@ -2975,7 +2969,16 @@ async function downloadSong(song = lastSelected) {
     }
     downloading[song.id] = song
     downloading[song.id].yt = YTCode
-    coreSocket.send(JSON.stringify({ ct: 'download', trackid: song.id, id: YTCode, url: data.audio || data.url }))
+    const response = await fetch('/download', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ trackid: song.id, id: YTCode, url: data.audio || data.url })
+
+    });
+    const json = await response.json()
+    // coreSocket.send(JSON.stringify({ ct: 'download', trackid: song.id, id: YTCode, url: data.audio || data.url }))
     fetch(pI(song.posterLarge))
     fetch(pI(song.poster))
     songs.forEach(song => { song.querySelector('.loader-mini').remove() })
@@ -3134,3 +3137,91 @@ document.querySelector('.input-search input').addEventListener('input', function
 //         globalResolve = null;
 //     }
 // }
+
+
+
+async function saveAlbum(el) {
+    if (el.classList.contains('disabled')) {
+        return;
+    }
+    let e = true;
+    if (el.classList.contains('saved')) {
+        e = false;
+        el.classList.remove('saved')
+    } else {
+        el.classList.add('saved')
+    }
+    el.classList.add('disabled')
+    let album = structuredClone(currentAlbum)
+    fetch(`https://api.onvo.me/music/save`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${await getToken()}`
+        },
+        body: JSON.stringify({
+            type: 'album',
+            id: album.id,
+            album
+        })
+    }).then(response => {
+        return response.json();
+    }).then(data => {
+        el.classList.remove('disabled')
+    }).catch(e => {
+        el.classList.remove('disabled')
+        console.error(e)
+    })
+}
+
+document.querySelector('.run-album')?.addEventListener('click', function () {
+    if (this.classList.contains('played')) {
+        this.classList.remove('played')
+        pause()
+        return
+    }
+    this.classList.add('played')
+    const track = currentAlbum.tracks[0]
+    queueTracks = currentAlbum.tracks
+    playTrack(track)
+})
+document.querySelector('.save-album')?.addEventListener('click', function () {
+    saveAlbum(this)
+})
+document.querySelector('.queue-add-ssc')?.addEventListener('click', function () {
+    draggableSong.closeMenu()
+    if (queueTracks.filter(item => item.id == lastSelected.id).length == 0) {
+        queueTracks.push(lastSelected)
+    }
+    miniDialog('Added to queue')
+})
+
+document.querySelector('.shuffle-album')?.addEventListener('click', function () {
+    if (this.classList.contains('shuffled')) {
+        shuffleSelector.classList.remove('shuffled')
+        this.classList.remove('shuffled')
+        return
+    }
+    shuffleSelector.classList.add('shuffled')
+    this.classList.add('shuffled')
+})
+async function closeAlbum() {
+    const parent = document.querySelector('.album-page')
+    parent.classList.remove('center')
+    await delay(300)
+    parent.classList.add('hidden')
+    parent.querySelector('.album-wrapper').innerHTML = ''
+    parent.querySelector('.album-info').innerHTML = ''
+}
+function shareAlbum() {
+    share(`https://oave.me/album/${currentAlbum.id}`, `View ${currentAlbum.name} Album on Airwave`)
+}
+
+
+async function downloadList() {
+    await loadFullList()
+    for (let track of currentList.tracks) {
+        await downloadSong(track)
+        console.log('downloaded', track.title, track.artist)
+    }
+}

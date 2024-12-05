@@ -1156,6 +1156,7 @@ const filterAlbumData = (data, id) => {
     })
     return {
         api: 'youtube',
+        id,
         name: info?.title?.runs?.[0]?.text,
         year: info?.subtitle?.runs?.[2]?.text,
         artist: info?.straplineTextOne?.runs?.[0]?.text,

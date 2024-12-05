@@ -26,7 +26,8 @@
 </div>
 <div class="album-page page hidden">
     <div class="album-header container">
-        <div onclick="closeAlbum()" class="minimize-live sw-effect"></div>
+        <div onclick="closeAlbum()" class="minimize-live close-album"></div>
+        <div onclick="shareAlbum()" class="minimize-live share-album"></div>
     </div>
     <div class="album-back"></div>
     <div class="album-body">
@@ -41,7 +42,7 @@
             <div class="btns-album shuffle-album"></div>
             <div class="btns-album save-album"></div>
         </div>
-        <div class="album-wrapper container">   
+        <div class="album-wrapper container">
         </div>
     </div>
 </div>
@@ -191,6 +192,7 @@
                 <section dataid="users"><span>Users</span></section>
                 <section dataid="artists"><span>Artists</span></section>
                 <section dataid="podcasts"><span>Podcasts</span></section>
+                <section dataid="soundcloud"><span>Soundcloud</span></section>
                 <section dataid="playlists"><span>Playlists</span></section>
                 <section dataid="episodes"><span>Episodes</span></section>
 
@@ -208,7 +210,6 @@
     <div class="top-header-wave">
         <div class="real-top-wave">
             <div class="logo-set-wave">
-                <div class="logo-wave"></div>
                 <div class="imgs-colls-bv list-perview">
                     <section>
                     </section>
@@ -223,23 +224,8 @@
     <div class="playlist-body">
         <div class="playlist-head">
             <div class="blured-backdrop-list">
-                <div class="inset-playlist-posters shower">
-                    <div class="playlist-poster"
-                        style="background-image: url('https://i.scdn.co/image/ab67616d00004851754b2fddebe7039fdb912837')">
-                    </div>
-                    <div class="playlist-poster"
-                        style="background-image: url('https://i.scdn.co/image/ab67616d00004851d6d24aee7b49a2db98a76856')">
-                    </div>
-                    <div class="playlist-poster"
-                        style="background-image: url('https://i.scdn.co/image/ab67616d000048519ed5fcf212f05d55b1e61eae')">
-                    </div>
-                    <div class="playlist-poster"
-                        style="background-image: url('https://i.scdn.co/image/ab67616d000048512bfb97c135445f83927049ca')">
-                    </div>
-                </div>
                 <div class="swiper main-playlists">
                     <div class="swiper-wrapper inset-playlist-posters-slider main-slider-wrapper"></div>
-                    <div class="songs-info-current-list"><span>Song name</span></div>
                     <div class="panger-vgrs indecator-playlist"></div>
                 </div>
             </div>
@@ -468,6 +454,7 @@
             <div class="switch-component sw-effect sending-to-friend"><span></span><a>Send to friends</a></div>
             <div class="switch-component sw-effect live-ssc"><span></span><a>Start live radio</a></div>
             <div class="switch-component sw-effect view-album-ssc"><span></span><a>Go to album</a></div>
+            <div class="switch-component sw-effect queue-add-ssc"><span></span><a>Add to queue</a></div>
             <div class="switch-component sw-effect download-ssc"><span></span><a></a></div>
             <div class="switch-component sw-effect play-more-related"><span></span><a>Play more like this</a></div>
             <div class="switch-component sw-effect share-ssc"><span></span><a>Share track link</a></div>

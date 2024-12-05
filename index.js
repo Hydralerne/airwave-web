@@ -365,7 +365,7 @@ app.get('/raw/:body', (req, res) => {
     }
 });
 
-app.post('/download', blockWeb, async (req, res) => {
+app.post('/remove', blockWeb, async (req, res) => {
     const { id, path } = req.body;
     try {
         let outputPath = path.join(process.argv[2], 'downloads', String(id));

@@ -1207,7 +1207,7 @@ text.swiper-slide.ar {
     margin-right: 20px;
 }
 
-.run-album:before {
+.run-album:before,.run-album:after {
     content: '';
     width: 100%;
     height: 100%;
@@ -1448,4 +1448,70 @@ text.swiper-slide.ar {
 
 .resizing .visualisation {
     display: none;
+}
+.resizing .copyrigth-padge {
+    display: none!important;
+}
+.queue .flex-search-platforms {
+    display: none;
+}
+.queue .search-container-songs {
+    height: calc(100% - 170px);
+}
+.video-frame {
+    background-color: hsl(0deg 0% 100% / 10%);
+}
+.run-album:after {
+    -webkit-mask-image: url(/assets/png-icons/pause-44-1663075945.png);
+    visibility: hidden;
+}
+
+.run-album.played:after {
+    visibility: visible;
+}
+
+.run-album.played:before {
+    visibility: hidden;
+}
+
+
+.minimize-live.share-album:before {
+    -webkit-mask-image: url(/assets/png-icons/Share_uW5tAxkk9km3moG6kJ9dM875oyD8p7Of2RF8.png);
+    -webkit-mask-position: center right;
+}
+
+.minimize-live.close-album {
+    left: 0;
+}
+
+.minimize-live.close-album:before {
+    -webkit-mask-position: center left;
+}
+.btns-album.shuffle-album.shuffled:before {
+    opacity: 1;
+}
+.btns-album.shuffle-album.shuffled:before {
+    opacity: 1;
+}
+
+.minimize-live.close-album {
+    display: flex;
+    align-items: center;
+}
+
+.minimize-live.close-album:before {
+    width: 24px;
+    height: 24px;
+    transform: rotate(-90deg);
+}
+.switch-component.queue-add-ssc span {
+    -webkit-mask-image: url(/assets/png-icons/add%20documents-0-1662364367.png);
+}
+.imgs-colls-bv.list-perview {
+    margin-left: 24px;
+}
+
+.playlists-page .text-live-wave {
+    margin-left: 75px;
+    margin-right: 50px;
 }
