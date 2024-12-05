@@ -2809,8 +2809,16 @@ document.querySelector('.live-ssc')?.addEventListener('click', function () {
 document.querySelector('.shuffle-playlist')?.addEventListener('click', function () {
     this.classList.toggle('shuffled')
 })
-document.querySelector('.download-playlist')?.addEventListener('click', function () {
-    dialog('Comming soon', 'Downloading entire playlist is currently unavilable, it will be avilable soon')
+let ongoingListDownload;
+document.querySelector('.download-playlist')?.addEventListener('click',async function () {
+    miniDialog('Downloading')
+    if(ongoingListDownload){
+        miniDialog('Already downloading list please wait')
+        return
+    }
+    ongoingListDownload = currentList.id
+    await downloadList()
+    ongoingListDownload = null
 })
 
 document.querySelector('.run-playlist').addEventListener('click', function () {
