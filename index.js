@@ -313,6 +313,7 @@ app.get('/yt-music/artist', youtube.getArtist);
 app.get('/yt-music/album', youtube.getAlbum);
 app.get('/yt-music/track', youtube.getTrackData);
 app.get('/yt-music/podcast', youtube.getPodcast);
+app.get('/yt-music/home', youtube.getHome);
 app.get('/youtube/playlist', youtube.getYotubeMusicList);
 
 app.get('/youtube/lyrics', async (req, res) => {

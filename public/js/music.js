@@ -2021,7 +2021,7 @@ async function reflexReply() {
             parent: '.body-replyer-switching',
             back: '.back-replyer-switching',
             onclose: () => {
-                document.querySelector('.switching-replyer').classList.add('hidden');
+                document.querySelector('.switching-replyer').classList.add('hidden')
             }
         });
     }
@@ -2045,7 +2045,10 @@ let drag = async (dir, html) => {
     } else {
         draggableMusic = new DraggableMenu({
             parent: '.body-replyer-switching',
-            back: '.back-replyer-switching'
+            back: '.back-replyer-switching',
+            onclose: () => {
+                document.querySelector('.switching-replyer').classList.add('hidden');
+            }
         });
     }
     if (html) {
@@ -2062,7 +2065,10 @@ async function replyPage(el) {
     } else {
         draggableMusic = new DraggableMenu({
             parent: '.body-replyer-switching',
-            back: '.back-replyer-switching'
+            back: '.back-replyer-switching',
+            onclose: () => {
+                document.querySelector('.switching-replyer').classList.add('hidden');
+            }
         });
     }
     const post = el.closest('.post')

@@ -1515,3 +1515,31 @@ text.swiper-slide.ar {
     margin-left: 75px;
     margin-right: 50px;
 }
+
+.blured-backdrop-list:before {
+    display: none;
+}
+.card section span {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+a.hide-keyds {
+    width: 35px;
+    height: 35px;
+    position: absolute;
+    right: 0;
+    margin-right: 12px;
+    background: #fff;
+    -webkit-mask-image: url(/assets/png-icons/keyboard%20close%20down-13-1661161825.png);
+    -webkit-mask-size: 24px;
+    -webkit-mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    visibility: hidden;
+}
+
+.input-search section.focused .hide-keyds {
+    visibility: visible;
+    margin-top: 7px;
+    margin-right: 38px;
+}

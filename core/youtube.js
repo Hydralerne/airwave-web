@@ -509,6 +509,7 @@ const filterMenu = (data) => {
 
 const filterYTMusicTracks = (track) => {
     const duration = timeToMilliseconds(track.musicResponsiveListItemRenderer.flexColumns[1].musicResponsiveListItemFlexColumnRenderer.text.runs[4]?.text)
+    const poster = track.musicResponsiveListItemRenderer.thumbnail.musicThumbnailRenderer.thumbnail.thumbnails
     const ids = filterMenu(track)
     return {
         api: 'youtube',
@@ -517,8 +518,8 @@ const filterYTMusicTracks = (track) => {
         artist: track.musicResponsiveListItemRenderer.flexColumns[1].musicResponsiveListItemFlexColumnRenderer.text.runs[0].text,
         artists: ids.artists,
         artistID: ids.artist,
-        poster: track.musicResponsiveListItemRenderer.thumbnail.musicThumbnailRenderer.thumbnail.thumbnails[1].url,
-        posterLarge: track.musicResponsiveListItemRenderer.thumbnail.musicThumbnailRenderer.thumbnail.thumbnails[1].url?.split('=')[0] + '=w600-h600-l100-rj',
+        poster: poster?.[1]?.url || poster?.[0]?.url,
+        posterLarge: ((poster?.[1]?.url || poster?.[0]?.url) ? poster?.[1]?.url || poster?.[0]?.url?.split('=')[0] + '=w600-h600-l100-rj' : undefined),
         duration: duration,
         album: ids.album,
         albumID: ids.albumID,
@@ -1367,6 +1368,44 @@ const getPodcast = async (req, res) => {
     }
 }
 
+const filterHome = (data) => {
+    const sections = data.contents
+        ?.singleColumnBrowseResultsRenderer
+        ?.tabs
+        ?.[0]
+        ?.tabRenderer
+        ?.content
+        ?.sectionListRenderer
+        ?.contents
+    let body = {}
+    sections.forEach(section => {
+        try {
+            const type = section.musicCarouselShelfRenderer.header.musicCarouselShelfBasicHeaderRenderer.title.runs?.[0].text
+            if (type == 'Quick picks') {
+                let tracks = []
+                section.musicCarouselShelfRenderer.contents.forEach(track => {
+                    tracks.push(filterYTMusicTracks(track))
+                })
+                body.picks = tracks
+            }
+        } catch (e) {
+            console.log(e)
+        }
+    })
+    return body
+}
+
+const getHome = async (req, res) => {
+    try {
+        const request = await requestBrowse('FEmusic_home')
+        const json = filterHome(request)
+        res.json(json)
+    } catch (e) {
+        console.log(e)
+        res.json({ error: e.message })
+    }
+}
+
 module.exports = {
     youtubeMusicSearch,
     getYotubeMusicList,
@@ -1380,5 +1419,6 @@ module.exports = {
     getLyricsOnly,
     getAlbum,
     getTrackData,
-    getPodcast
+    getPodcast,
+    getHome
 }

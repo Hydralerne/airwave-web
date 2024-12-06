@@ -111,9 +111,12 @@ function updateListSlider() {
     mvhot.slideTo(4)
 }
 
+let stopLoading = false; 
+
 async function loadFullList() {
+    stopLoading = false
     for (i = 0; i < listOffset && listOffset < currentList.tracks_count; i++) {
-        if (doneloadList || i > 50) {
+        if (doneloadList || i > 50 || stopLoading) {
             break
         }
         const { tracks } = await performTracks(currentList.id, currentList.api, currentList.userid, listOffset, 50)
@@ -1701,6 +1704,9 @@ document.querySelector('.button-page.library-flex').addEventListener('click', as
 
 async function deleteList() {
     draggableMusic.closeMenu();
+    if(currentList.id == 'saved'){
+        return miniDialog('Cannot delete saved')
+    }
     const response = await fetch(`https://api.onvo.me/music/playlists/${currentList.id}`, {
         method: 'DELETE',
         headers: {
@@ -2813,7 +2819,8 @@ let ongoingListDownload;
 document.querySelector('.download-playlist')?.addEventListener('click',async function () {
     miniDialog('Downloading')
     if(ongoingListDownload){
-        miniDialog('Already downloading list please wait')
+        miniDialog('stoping download')
+        stopDownloadList()
         return
     }
     ongoingListDownload = currentList.id
@@ -2832,7 +2839,12 @@ document.querySelector('.run-playlist').addEventListener('click', function () {
         handlePlayPause()
     }
 })
-
+document.querySelector('.input-search input')?.addEventListener('focus', function (event) {
+    this.closest('.input-search section').classList.add('focused')
+});
+document.querySelector('.input-search input')?.addEventListener('blur', function (event) {
+    this.closest('.input-search section').classList.remove('focused')
+});
 async function showMainMenu() {
     let html = `
         <div class="mobile-menu">
@@ -3225,11 +3237,20 @@ function shareAlbum() {
     share(`https://oave.me/album/${currentAlbum.id}`, `View ${currentAlbum.name} Album on Airwave`)
 }
 
-
+let stopDownloading = false
 async function downloadList() {
+    stopDownloading = false
     await loadFullList()
     for (let track of currentList.tracks) {
+        if(stopDownloading){
+            break
+        }
         await downloadSong(track)
         console.log('downloaded', track.title, track.artist)
     }
+}
+
+function stopDownloadList(){
+    stopDownloading = true
+    stopLoading = true
 }
