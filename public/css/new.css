@@ -234,12 +234,12 @@
 }
 
 .button-page.home-flex:before {
-    -webkit-mask-image: url(https://s3-iconly.sfo3.digitaloceanspaces.com/png-icons/home-83-1658433576.png);
+    -webkit-mask-image: url(/assets/png-icons/home-83-1658433576.png);
     opacity: 0.5;
 }
 
 .button-page.library-flex:before {
-    -webkit-mask-image: url(https://s3-iconly.sfo3.digitaloceanspaces.com/png-icons/docs-45-1662364367.png);
+    -webkit-mask-image: url(/assets/png-icons/docs-45-1662364367.png);
     opacity: 0.5;
 }
 
@@ -248,12 +248,12 @@
 }
 
 .button-page.profile-flex:before {
-    -webkit-mask-image: url(https://s3-iconly.sfo3.digitaloceanspaces.com/png-icons/user-350-1658436041.png);
+    -webkit-mask-image: url(/assets/png-icons/user-350-1658436041.png);
     opacity: 0.5;
 }
 
 .button-page.live-flex:before {
-    -webkit-mask-image: url(https://s3-iconly.sfo3.digitaloceanspaces.com/png-icons/hotspot-71-1658436340.png);
+    -webkit-mask-image: url(/assets/png-icons/hotspot-71-1658436340.png);
     opacity: 0.5;
 }
 
@@ -262,11 +262,11 @@
 }
 
 .button-page.search-flex:after {
-    -webkit-mask-image: url(https://s3-iconly.sfo3.digitaloceanspaces.com/png-icons/search-1-49-1666688362.png);
+    -webkit-mask-image: url(/assets/png-icons/search-1-49-1666688362.png);
 }
 
 .button-page.library-flex:after {
-    -webkit-mask-image: url(https://s3-iconly.sfo3.digitaloceanspaces.com/png-icons/docs-45-1660809654.png);
+    -webkit-mask-image: url(/assets/png-icons/docs-45-1660809654.png);
 }
 
 .library-body {

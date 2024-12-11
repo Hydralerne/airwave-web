@@ -85,7 +85,7 @@ function printSongRegular(track, e, c) {
     const posterDetails = filterPosterLarge(track.posterLarge, track.poster)
     return `
         <div class="song-music-element song ${currentSong?.id == track.id ? 'running' : ''}"${track.path ? ` path="${track.path}" ` : ''}${track.youtube ? ` yt="${track.youtube}" ` : ''} duration="${track.duration}" ${track.album ? `album="${encodeURIComponent(track.album)}"` : ''} ${track.kind == 'album' ? 'kind="album"' : ''} ${track.artistID ? `artist-id="${track.artistID}" ` : ''} ${track.albumID ? `album-id="${track.albumID}"` : ''} trackid="${track.id}" api="${track.api}">
-            <div onclick="playTrack(this)" class="song-element-poster song-poster" data-poster="${track.poster?.url || track.poster}" data-size-large="${posterDetails.size}" data-poster-large="${posterDetails.image}" style="background-image: url('${e ? pI(track.poster?.url || track.poster, c) : (track.poster?.url || track.poster)}')"></div>
+            <div onclick="playTrack(this)" class="song-element-poster song-poster" data-poster="${track.poster?.url || track.poster}" data-size-large="${posterDetails.size}" data-poster-large="${posterDetails.image}" style="background-image: url('${e ? proxy(track.poster?.url || track.poster, e, c) : (track.poster?.url || track.poster)}')"></div>
             <section class="artist-title" onclick="playTrack(this)"><span>${track.title}</span><a>${track.artist}</a></section>
             <div class="song-complay" ${touchPackageV2}>
                 <span></span>
@@ -93,7 +93,7 @@ function printSongRegular(track, e, c) {
             </div>
         </div>`;
 }
-function printSongsRegular(tracks, limit = 20, offset = 0, e, c) {
+function printSongsRegular(tracks, data = { limit: 20, offset: 0 }, limit = data.limit || 20, offset = data.offset || 0, e = data.proxy, c = data.download) {
     let html = '';
     let slider = '';
     for (let index = offset; index < tracks.length; index++) {
@@ -106,7 +106,7 @@ function printSongsRegular(tracks, limit = 20, offset = 0, e, c) {
         if (index < 9) {
             try {
                 const posterDetails = filterPosterLarge(track.posterLarge, track.poster)
-                slider += `<div trackid="${track.id}" onclick="playTrack(document.querySelector(\`.song[trackid='${track.id}']\`));" class="swiper-slide playlist-poster-slider" style="background-image: url(${posterDetails.image});"></div>`
+                slider += `<div trackid="${track.id}" onclick="playTrack(document.querySelector(\`.song[trackid='${track.id}']\`));" class="swiper-slide playlist-poster-slider" style="background-image: url(${proxy(posterDetails.image, e, c)});"></div>`
             } catch (e) {
 
             }

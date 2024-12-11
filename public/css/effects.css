@@ -887,7 +887,7 @@ text.loading-lyrics-slider:nth-of-type(9) {
   background: hsl(0deg 0% 0% / 50%);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
-  border-radius: 15px;
+  border-radius: 10px;
   overflow: hidden;
 }
 

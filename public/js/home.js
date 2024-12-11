@@ -144,7 +144,7 @@ playlistsPage.addEventListener('scroll', async function () {
                 musicSection.insertAdjacentHTML('beforeend', loaders)
                 const { tracks } = await performTracks(currentList.id, currentList.api, currentList.userid, listOffset, 50)
                 listOffset += tracks.length
-                let { html } = printSongsRegular(tracks, tracks.length)
+                let { html } = printSongsRegular(tracks, { limit: tracks.length })
                 musicSection.insertAdjacentHTML('beforeend', html)
                 loadingList = false
                 if (listOffset == currentList.tracks_count || tracks.length == 0) {
@@ -246,8 +246,8 @@ async function performTracks(id, type, userid, offset = listOffset, limit = 25) 
     return { tracks, list };
 }
 async function openPlaylist(id, type, userid, public_id) {
-    if(ongoingDownloadList && ongoingDownloadList !== currentList.id){
-        dialog('Wait for list','You are downloading other playlist, please wait untill downloading is complete')
+    if (ongoingDownloadList && ongoingDownloadList !== currentList.id) {
+        dialog('Wait for list', 'You are downloading other playlist, please wait untill downloading is complete')
         return
     }
     try {
@@ -264,7 +264,7 @@ async function openPlaylist(id, type, userid, public_id) {
         parent.setAttribute('list-api', type)
         document.querySelector('.playlist-name-header').innerText = list.name
         document.querySelector('.tracks-numbers-count').innerText = `${list.tracks_count} Tracks`
-        let { html, slider } = printSongsRegular(tracks)
+        let { html, slider } = printSongsRegular(tracks, { proxy: userid == 'downloads', download: userid == 'downloads' })
         musicSection.innerHTML = html
         document.querySelector('.saved-numbers-count').innerText = list.api == 'soundcloud' ? `${list.likes || 0} Likes` : `12 saved`
         document.querySelector('.duration-numbers-count').innerText = formatRuntime(list.duration) || `1hr 53min`
@@ -985,7 +985,7 @@ async function printHome(data) {
 
     const list = await getSpotifyList(data.home.trending, 0, 20);
     const tracks = (list.tracks)
-    const songsData = printSongsRegular(tracks, 5);
+    const songsData = printSongsRegular(tracks, { limit: 5 });
     document.querySelector('.main-inset-hits').innerHTML = songsData.html
 }
 
@@ -1125,7 +1125,7 @@ let topTracksApple = async () => {
     document.querySelector('.main-inset-hits').innerHTML = loaders
     const data = await getAppleHome()
     localStorage.setItem('home_tracks', JSON.stringify(data.songs))
-    const songsData = printSongsRegular(data.songs, 5);
+    const songsData = printSongsRegular(data.songs, { limit: 5 });
 
     document.querySelector('.main-inset-hits').innerHTML = songsData.html
 }
@@ -1154,7 +1154,7 @@ async function printCache() {
     document.querySelector('.inset-going-live').innerHTML = live
     const tracks = localStorage.getItem('home_tracks')
     if (tracks) {
-        const songsData = printSongsRegular(JSON.parse(tracks), 5);
+        const songsData = printSongsRegular(JSON.parse(tracks), { limit: 5 });
         document.querySelector('.main-inset-hits').innerHTML = songsData.html
     }
 }
@@ -1240,7 +1240,7 @@ document.querySelectorAll('.generes-section').forEach(btn => {
         console.log(this.getAttribute('dataid'))
         const list = await getSpotifyList(this.getAttribute('dataid'), 0, 5)
         console.log(list)
-        const songsData = printSongsRegular(list.tracks, 5);
+        const songsData = printSongsRegular(list.tracks, { limit: 5 });
         document.querySelector('.main-inset-hits').innerHTML = songsData.html
         sectionsParent.classList.remove('disabled')
 
@@ -1283,7 +1283,7 @@ document.querySelectorAll('.soundgenre-section').forEach(btn => {
             genre: this.getAttribute('dataid')
         });
         console.log(tracks)
-        const songsData = printSongsRegular(tracks, 5);
+        const songsData = printSongsRegular(tracks, { limit: 5 });
         document.querySelector('.soundcloud-inset-hits').innerHTML = songsData.html
         sectionsParent.classList.remove('disabled')
 
@@ -1378,7 +1378,7 @@ async function getSoundcloudHome(e) {
 let soundCloudBanner = ''
 
 function clearReformLib() {
-
+    document.querySelector('.downloads-tracks-container').innerHTML = ''
 }
 
 let offsetLib = 0
@@ -1513,10 +1513,10 @@ function setJson(data, dir, expire) {
     }
 }
 
-function getJson(dir) {
+function getJson(dir, e) {
     const isExpire = parseInt(localStorage.getItem(`expire_${dir}`)) || null
     const data = localStorage.getItem(dir)
-    if (!isNaN(isExpire) && isExpire && (isExpire < Date.now()) && data) {
+    if ((!isNaN(isExpire) && isExpire && (isExpire < Date.now()) && data) || (!isExpire && e)) {
         return null
     }
     if (data) {
@@ -2959,8 +2959,8 @@ async function downloadSong(song = lastSelected, isList) {
     });
     const json = await response.json()
     // coreSocket.send(JSON.stringify({ ct: 'download', trackid: song.id, id: YTCode, url: data.audio || data.url }))
-    fetch(proxy(song.posterLarge, true))
-    fetch(proxy(song.poster, true))
+    fetch(proxy(song.posterLarge, true, true))
+    fetch(proxy(song.poster, true, true))
     songs.forEach(song => { song.querySelector('.loader-mini').remove() })
 
     delete downloading[song.id].source
@@ -2983,17 +2983,47 @@ document.querySelector('.switcher-menu-back').addEventListener('click', function
 })
 
 
+function printListsSquare(data, e, isDownloads) {
+    let lists = ''
+    data.forEach(list => {
+        try {
+            const perviews = list?.perview?.map(img => { return `<span style="background-image: url('${proxy(img, e, isDownloads)}')"></span>` })
+            if (perviews.length < 4) {
+                for (i = 0; i < (6 - perviews.length); i++) {
+                    perviews.push('<span></span>')
+                }
+            }
+            lists += `
+            <div class="playlist-component-square" api="${list.api}" onclick="openPlaylist('${list.type == 'saved' ? 'saved' : list.playlist_id}','${list.api}'${(list.type == 'saved' && !isDownloads) ? `,'${list.id}'` : (isDownloads ? ",'downloads'" : ',null')},'${list.public_id}')">
+                <div class="perview-lists">
+                    <section>${perviews.join('')}</section>
+                </div>
+                <div class="playlist-description-square">
+                    <span>${list.name}</span>
+                    <a>${list.tracks_count} Tracks</a>
+                </div>
+                <div class="more-list"></div>
+            </div>
+            `
+        } catch (e) {
+            console.error(e)
+        }
+    })
+    return lists
+}
+
 
 let downloaded = []
 
 async function runReformLib(e, limit = 20, offset = 0) {
     if (e === 'downloads') {
+        let body = ''
         if (offset == 0) {
             const playlistsCount = await getObjectCount('playlists')
             if (playlistsCount > 0) {
                 const lists = await getAllObjects('playlists')
                 const listsHTML = printListsSquare(lists, true, true)
-                document.querySelector('.downloads-tracks-container').insertAdjacentHTML('afterbegin', `
+                body += `
                 <div class="favorites-head">
                 <span>Downloaded Playlists<a>${playlistsCount}</a></span>
                 </div>
@@ -3002,19 +3032,27 @@ async function runReformLib(e, limit = 20, offset = 0) {
                         ${listsHTML}
                     </div>
                 </div>
-                
-                `)
+                `
             }
         }
         const downloaded = await getAllObjects('downloads', 'musicDB', limit, offset);
-        offsetLib += downloaded.length
         const { html } = printSongsRegular(downloaded);
-        document.querySelector('.downloads-container').insertAdjacentHTML('beforeend', html);
         const count = await getObjectCount('downloads');
-        document.querySelector('.downloads-tracks-container .favorites-head span a').innerText = count;
-    } else {
-
-    }
+        if (downloaded.length > 0 && (offsetLib == 0 || !offsetLib)) {
+            body += `
+            <div class="favorites-head">
+                <span>Downloaded tracks<a>${count}</a></span>
+            </div>
+            <div class="outset-playlists-container downloads-container owner">
+            ${html}
+            </div>
+            `
+        } else if (offsetLib > 0) {
+            document.querySelector('.downloads-container').insertAdjacentHTML('beforeend', html);
+        }
+        offsetLib += downloaded.length
+        document.querySelector('.downloads-tracks-container').insertAdjacentHTML('afterbegin', body)
+    } else { }
 }
 
 async function handleDownloadProccess(data) {
@@ -3067,7 +3105,7 @@ async function goOffline(e) {
     if (count > 0) {
         downloaded = await getAllObjects('downloads')
         if (count < 10) {
-            const { html } = printSongsRegular(downloaded, 100, 0, true);
+            const { html } = printSongsRegular(downloaded, { limit: 100, offset: 0, proxy: true, download: true });
             mini = `
                 <div class="most-terinding-hits home-section">
                     <div class="head-tag container"><span>Your downloads</span></div>
@@ -3252,7 +3290,7 @@ async function downloadList(el) {
         miniDialog('Playlist download stoped')
         return
     }
-    if(ongoingDownloadList == currentList.id){
+    if (ongoingDownloadList == currentList.id) {
         miniDialog('Downloading other playlist not completed')
         return
     }
@@ -3261,6 +3299,9 @@ async function downloadList(el) {
     el.classList.add('loading')
     el.innerHTML = '<div class="loader-3 loader-list"><a></a><span></span></div>'
     await loadFullList()
+    if (currentList?.owner?.image) {
+        fetch(proxy(currentList?.owner?.image, true, true))
+    }
     currentList.perview = currentList.tracks.slice(0, 4).map(track => track.poster)
     currentList.playlist_id = currentList.id
     await setObject(currentList.id, currentList, 'playlists')
@@ -3299,8 +3340,8 @@ const printYTHome = (data) => {
 }
 
 async function getYTHome() {
-    let data = getJson('ythome')
-    if (data) {
+    let data = getJson('ythome', true)
+    if (data?.picks?.length > 2) {
         printYTHome(data)
     } else {
         const response = await fetch('/yt-music/home')
@@ -3361,7 +3402,7 @@ let globalArtists = {};
 
 async function getArtistsShuffle(data) {
     let artists = [];
-    const old = getJson('artists')
+    const old = getJson('artists', true)
     if (old) {
         return old
     }

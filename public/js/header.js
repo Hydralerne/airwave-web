@@ -124,8 +124,8 @@ function isWeb() {
     return !window.webkit?.messageHandlers && typeof Android == 'undefined'
 }
 
-let proxy = (url, e) => {
-    return `${origin}/proxy?url=${encodeURIComponent(url)}${e ? '&cache=true' : ''}`
+let proxy = (url, e, isDownload) => {
+    return `${origin}/proxy?url=${encodeURIComponent(url)}${e ? '&cache=true' : ''}${isDownload ? '&download=true' : ''}`
 }
 let pI = (url, e, c) => {
     if (isWeb() || c) {

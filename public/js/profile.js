@@ -93,35 +93,6 @@ function printLists(data, e) {
     return lists
 }
 
-function printListsSquare(data, e, isDownloads) {
-    let lists = ''
-    data.forEach(list => {
-        try {
-            const perviews = list?.perview?.map(img => { return `<span style="background-image: url('${pI(img, e, e)}')"></span>` })
-            if (perviews.length < 4) {
-                for (i = 0; i < (6 - perviews.length); i++) {
-                    perviews.push('<span></span>')
-                }
-            }
-            lists += `
-            <div class="playlist-component-square" api="${list.api}" onclick="openPlaylist('${list.type == 'saved' ? 'saved' : list.playlist_id}','${list.api}'${(list.type == 'saved' && !isDownloads) ? `,'${list.id}'` : (isDownloads ? ",'downloads'" : ',null')},'${list.public_id}')">
-                <div class="perview-lists">
-                    <section>${perviews.join('')}</section>
-                </div>
-                <div class="playlist-description-square">
-                    <span>${list.name}</span>
-                    <a>${list.tracks_count} Tracks</a>
-                </div>
-                <div class="more-list"></div>
-            </div>
-            `
-        } catch (e) {
-            console.error(e)
-        }
-    })
-    return lists
-}
-
 async function printProfile(data) {
     if (data.live) {
         document.querySelector('.profile-image').setAttribute('onclick', `joinParty('${data.live}')`)

@@ -17,17 +17,22 @@ let socket = {};
 process.argv[2] = (process.argv[3] == "ios" || process.argv[3] == "android") ? process.argv[2] : path.join(__dirname, '../')
 
 const createDownload = (id) => {
-    const downloadsDir = path.join(process.argv[2], 'downloads', `${id}`);
+    const downloadsDir = path.join(DOWNLOADS_DIR, `${id}`);
     if (!fs.existsSync(downloadsDir)) {
         fs.mkdirSync(downloadsDir, { recursive: true });
     }
 };
 
 const IMAGES_DIR = path.join(process.argv[2], 'images');
-
+const DOWNLOADS_IMAGES = path.join(process.argv[2], 'downloads', 'images');
+const DOWNLOADS_DIR = path.join(process.argv[2], 'downloads', 'tracks')
 // Ensure that the image directory exists
 if (!fs.existsSync(IMAGES_DIR)) {
-    fs.mkdirSync(IMAGES_DIR);
+    fs.mkdirSync(IMAGES_DIR, { recursive: true });
+}
+
+if (!fs.existsSync(DOWNLOADS_IMAGES)) {
+    fs.mkdirSync(DOWNLOADS_IMAGES, { recursive: true });
 }
 
 const downloadFile = (url, outputPath) => {
@@ -233,7 +238,7 @@ const downloadParallel = async (url, trackid, outputPath, numChunks = 10) => {
 const downloadHandler = async (id, url, trackid, isTmp) => {
     createDownload(id);
     console.log('recived Dwonload')
-    let outputPath = path.join(process.argv[2], 'downloads', String(id));
+    let outputPath = path.join(DOWNLOADS_DIR, String(id));
     const dirFiles = fs.readdirSync(outputPath);
     if (dirFiles.length > 0) {
         //        return dirFiles[0]
@@ -279,7 +284,7 @@ const proxyImages = (req, res, next) => {
     }
 
     const filename = urlToFilename(imageUrl);
-    const filePath = path.join(IMAGES_DIR, filename);
+    const filePath = req.query.download ? path.join(DOWNLOADS_IMAGES, filename) : path.join(IMAGES_DIR, filename);
 
     if (cache) {
         if (fs.existsSync(filePath)) {
@@ -290,7 +295,6 @@ const proxyImages = (req, res, next) => {
             });
         }
     }
-
 
     const requestOptions = {
         headers: {
@@ -319,6 +323,7 @@ const proxyImages = (req, res, next) => {
             });
         }
     }).on('error', (err) => {
+        res.send(err.message)
         // console.error('Error proxying the image:', err);
         // return res.send('Error proxying the image');
     });
