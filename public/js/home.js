@@ -2972,7 +2972,10 @@ async function downloadSong(song = lastSelected, isList) {
     const lyrics = await fetchLyrics(downloading[song.id], downloading[song.id].yt)
     await setObject(song.id, lyrics, 'lyrics')
     delete downloading[song.id]
-    miniDialog(isList ? `` : 'Download complete')
+    currentList.tracks.filter(track => track.id == song.id)[0].downloaded = true
+    const all = currentList.tracks.length
+    const downloaded = currentList.tracks.filter(track => track.downloaded == true).length
+    miniDialog(isList ? `Downloaded ${downloaded} of ${all}` : 'Download complete')
 }
 
 document.querySelector('.switcher-menu-back').addEventListener('click', function () {
