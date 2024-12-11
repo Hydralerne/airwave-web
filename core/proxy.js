@@ -487,7 +487,6 @@ const handleIncomming = async (ws, message) => {
 }
 
 const StreamZip = require('node-stream-zip');
-const { cache } = require('ejs');
 
 async function cloneRepo(repoUrl, targetDir, onProgress) {
     try {

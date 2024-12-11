@@ -101,7 +101,7 @@ const setObject = async (id, data, storeName, dbName = 'musicDB') => {
     const transaction = db.transaction(storeName, 'readwrite');
     const store = transaction.objectStore(storeName);
 
-    const object = { id, ...data };
+    const object = { id: String(id), ...data };
 
     return new Promise((resolve, reject) => {
         const request = store.put(object);
@@ -155,7 +155,7 @@ const getObject = async (id, storeName, dbName = 'musicDB') => {
     const store = transaction.objectStore(storeName);
 
     return new Promise((resolve, reject) => {
-        const request = store.get(id);
+        const request = store.get(String(id));
 
         request.onsuccess = () => {
             if (request.result) {
@@ -184,6 +184,10 @@ const getAllObjects = async (storeName, dbName = 'musicDB', limit = Infinity, of
         request.onsuccess = (event) => {
             const cursor = event.target.result;
             if (cursor) {
+                if(storeName == 'downloads' && !cursor.value.poster){
+                    cursor.continue();
+                    return
+                }
                 if (count >= offset && results.length < limit) {
                     results.push(cursor.value);
                 }
@@ -206,7 +210,7 @@ const removeObject = async (id, storeName, dbName = 'musicDB') => {
     const store = transaction.objectStore(storeName);
 
     return new Promise((resolve, reject) => {
-        const request = store.delete(id);
+        const request = store.delete(String(id));
 
         request.onsuccess = () => {
             resolve(`Object with ID ${id} removed successfully`);

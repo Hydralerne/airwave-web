@@ -367,10 +367,10 @@ app.get('/raw/:body', (req, res) => {
 });
 
 app.post('/remove', blockWeb, async (req, res) => {
-    const { id, path } = req.body;
     try {
-        let outputPath = path.join(process.argv[2], 'downloads', String(id));
-        fs.rmSync(outputPath)
+        let outputPath = path.join(process.argv[2], 'downloads', String(req.body.id));
+        fs.rmdirSync(outputPath, { recursive: true });
+        // fs.rmSync(req.body.path)
     } catch (e) {
         console.log(e)
         res.json({ error: e.message })

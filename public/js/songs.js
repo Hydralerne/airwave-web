@@ -67,10 +67,10 @@ function scolledSongs(data, e, c) {
 
 function printMiniSongs(data, e) {
     let miniSongs = ''
-    data.forEach(track => {
+    data?.forEach(track => {
         miniSongs += `
-        <div class="song mini-song" trackid="${track.id}" api="${track.api}" kind="${track.kind}">
-            <div class="song-poster" onclick="playTrack(this)" data-poster="${track.poster}" data-poster-large="${track.posterLarge}" style="background-image: url('${pI(track.poster, e, e)}');"></div>
+        <div class="song mini-song" duration="${track.duration}" ${track.album ? `album="${encodeURIComponent(track.album)}"` : ''} ${track.kind == 'album' ? 'kind="album"' : ''} ${track.artistID ? `artist-id="${track.artistID}" ` : ''} ${track.albumID ? `album-id="${track.albumID}"` : ''} trackid="${track.id}" api="${track.api}">
+            <div class="song-poster" onclick="playTrack(this)" data-poster="${track.poster}" data-poster-large="${track.posterLarge}" style="background-image: url('${proxy(track.poster, e)}');"></div>
             <section class="artist-title" onclick="playTrack(this)"><span>${track.title}</span><a>${track.artist}</a></section>
             <div class="song-complay">
                 <span></span>
@@ -183,4 +183,20 @@ function filterPosterLarge(large, poster) {
     }
 
     return { image, size }
+}
+
+function printAlbums(data) {
+    let albumsData = ''
+    data?.forEach(album => {
+        albumsData += `
+            <div class="list-perview-home" dataid="${album.id}" api="${album.api}" onclick="openAlbum('${album.id}','${album.api}')">
+            <div class="list-poster" style="background-image: url('${pI(album.posterLarge, true)}')"></div>
+            <section>
+                <span>${album.title}</span>
+                <div class="lable-list"><a>${album.artist}</a></div>
+            </section>
+            </div>
+            `
+    })
+    return albumsData
 }

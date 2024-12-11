@@ -945,7 +945,7 @@ async function addPlayerMetadata(rawSongObj) {
             document.querySelector('.styling').innerHTML = `<style>
             .visualisation .box.checked {background:  ${darkenColor(shades[3], 0.5)}!important;}
             .body.minimized { background: ${darkenColor(shades[3], 0.5)}!important;}
-            .player .background-wave::before{
+            .background-wave::before{
                 background: linear-gradient(to bottom, ${darkenColor(colorEqualizer('#7f7e79', data?.colors?.muted), 0.5)} 25%, ${main} 50%);
             }
             .blured.player .background-wave:before {
@@ -1668,7 +1668,7 @@ async function loadNative(id, e, d) {
 }
 
 async function prepareNext(next) {
-    if (currentSong.api == 'song') {
+    if (currentSong.api == 'song' || currentSong.api == 'soundcloud') {
         return
     }
     if (!next) {
@@ -2392,7 +2392,7 @@ async function search(q, e, dir) {
 
     let data = {}
 
-    if (dir == 'users' || dir == 'soundcloud') {
+    if (dir == 'users' || dir == 'soundcloud' || dir == 'youtube') {
         searchDir = dir
     }
     switch (searchDir) {

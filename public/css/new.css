@@ -307,7 +307,7 @@
     display: none;
 }
 
-.body * {
+.player * {
     transition: none;
 }
 
@@ -1207,7 +1207,8 @@ text.swiper-slide.ar {
     margin-right: 20px;
 }
 
-.run-album:before,.run-album:after {
+.run-album:before,
+.run-album:after {
     content: '';
     width: 100%;
     height: 100%;
@@ -1337,7 +1338,7 @@ text.swiper-slide.ar {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to bottom, #945b5c, transparent);
+    background: linear-gradient(rgb(109 109 109), transparent) !important;
     z-index: -1;
 }
 
@@ -1419,12 +1420,15 @@ text.swiper-slide.ar {
 .switch-component.artist-profile-view span {
     -webkit-mask-image: url(/assets/png-icons/user%20music-203-1658436042.png);
 }
+
 .switch-component.view-album-ssc span {
     -webkit-mask-image: url(/assets/png-icons/record%20circle-302-1658234823.png);
 }
+
 .album-wrapper {
     margin-bottom: 180px;
 }
+
 .album-header {
     position: absolute;
     height: 50px;
@@ -1432,6 +1436,7 @@ text.swiper-slide.ar {
     align-items: center;
     margin-top: 60px;
 }
+
 .podcast .album-info p img {
     width: 20px;
     height: 20px;
@@ -1449,18 +1454,23 @@ text.swiper-slide.ar {
 .resizing .visualisation {
     display: none;
 }
+
 .resizing .copyrigth-padge {
-    display: none!important;
+    display: none !important;
 }
+
 .queue .flex-search-platforms {
     display: none;
 }
+
 .queue .search-container-songs {
     height: calc(100% - 170px);
 }
+
 .video-frame {
     background-color: hsl(0deg 0% 100% / 10%);
 }
+
 .run-album:after {
     -webkit-mask-image: url(/assets/png-icons/pause-44-1663075945.png);
     visibility: hidden;
@@ -1487,9 +1497,11 @@ text.swiper-slide.ar {
 .minimize-live.close-album:before {
     -webkit-mask-position: center left;
 }
+
 .btns-album.shuffle-album.shuffled:before {
     opacity: 1;
 }
+
 .btns-album.shuffle-album.shuffled:before {
     opacity: 1;
 }
@@ -1504,9 +1516,11 @@ text.swiper-slide.ar {
     height: 24px;
     transform: rotate(-90deg);
 }
+
 .switch-component.queue-add-ssc span {
     -webkit-mask-image: url(/assets/png-icons/add%20documents-0-1662364367.png);
 }
+
 .imgs-colls-bv.list-perview {
     margin-left: 24px;
 }
@@ -1519,11 +1533,13 @@ text.swiper-slide.ar {
 .blured-backdrop-list:before {
     display: none;
 }
+
 .card section span {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
 }
+
 a.hide-keyds {
     width: 35px;
     height: 35px;
@@ -1542,4 +1558,458 @@ a.hide-keyds {
     visibility: visible;
     margin-top: 7px;
     margin-right: 38px;
+}
+
+.home-trend {
+    margin-top: 25px;
+    margin-bottom: 200px;
+}
+
+.spacer {
+    margin-top: 25px;
+    display: grid;
+    width: 100%;
+    height: 1px;
+}
+
+.list-perview-home section .lable-list a {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.list-poster {
+    background-color: rgb(255 255 255 / 10%);
+}
+
+/* new msgs */
+/* 
+.sender-user {
+    width: 100%;
+}
+
+.user-replyer {
+    width: 100%;
+}
+
+.reccomendation-poster-image.song-poster {
+    margin-left: 0;
+}
+
+body .generes-brows-container .suggestions-container .reccomendation-body section {
+    margin-left: 75px;
+}
+
+.thread.swiper-slide {
+    width: 250px!important;
+    border: none
+} */
+
+
+
+.user-suggest {
+    width: 280px;
+    height: 175px;
+    position: relative;
+    margin-right: 15px;
+    border: none;
+    overflow: hidden;
+    border-radius: 20px;
+}
+
+.forgetpass:before,
+.main-switch-page:before,
+.sg-bc,
+.sg-bc a,
+.sg-bc:before,
+.sg-cn,
+.suggest-follow,
+.suggest-follow:after {
+    position: absolute
+}
+
+.swiper.swiper-suggest {
+    overflow-x: scroll;
+    overflow-y: hidden;
+    width: 100%;
+}
+
+.suggest-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    left: 0;
+    margin-top: 20px;
+    margin-left: 15px;
+    margin-right: 20px;
+    position: absolute;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-color: hsl(0deg 0% 100% / 10%);
+}
+
+.suggest-info {
+    display: grid;
+    padding-left: 20px;
+    margin-top: 20px;
+    font-size: 13px;
+    padding-right: 15px;
+    margin-left: 60px;
+    height: fit-content;
+    padding-bottom: 20px;
+}
+
+.suggest-info a {
+    color: #999;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.suggest-info span {
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.suggest-info p {
+    margin-top: 5px;
+    line-height: 16px !important;
+    font-size: 13px !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    color: #fff;
+}
+
+button.cansle-menu-share,
+p.switch-description,
+span.top-switch-header {
+    text-align: center;
+    line-height: 20px;
+    left: 0
+}
+
+.sg-cn {
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    display: flex;
+}
+
+.sg-bc {
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.forgetpass,
+.sg-bc a {
+    z-index: 2
+}
+
+.sg-bc a {
+    width: 115%;
+    height: 125%;
+    filter: blur(15px);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: -7%;
+    margin-left: -7%;
+    opacity: 0.5;
+}
+
+.sg-bc:before {
+    content: '';
+    width: 100%;
+    height: 102%;
+    z-index: 9;
+    border-radius: 20px;
+}
+
+.dark .sg-bc:before {
+    background: linear-gradient(to top left, rgb(10 10 10 / 75%), rgb(0 0 0), rgb(0 0 0 / 50%));
+    background: hsl(0deg 0% 0% / 65%);
+    /* backdrop-filter: blur(5px) grayscale(0.25) contrast(0.85) saturate(0.75) brightness(1.1); */
+}
+
+.sg-bc {
+    background: hsl(0deg 0% 100% / 25%);
+}
+.inset-user-suggest {
+    margin-left: 6%;
+    padding-right: 6%;
+    width: fit-content;
+}
+
+.user-suggest:last-child {
+    margin-right: 0 !important;
+}
+
+.dark .suggest-follow:after {
+    color: #000007
+}
+
+.forgetpass:before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    margin-top: 15px;
+    -webkit-mask-size: cover;
+    -webkit-mask-position: center;
+    background-color: #999;
+    -webkit-mask-repeat: no-repeat;
+    margin-left: 14px;
+    -webkit-mask-image: url(../media/svg/Broken/Edit.svg);
+    display: flex
+}
+
+.dark .forgetpass:before {
+    background-color: #fff
+}
+
+.inner-users-suggesions {
+    margin-left: 6%;
+    display: flex;
+    width: fit-content;
+}
+
+.users-suggestions {
+    width: 100%;
+    overflow-x: scroll;
+    overflow-y: hidden;
+}
+
+.user-suggest:after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 9;
+    top: 0;
+    border-radius: 10px;
+    background: hsl(0deg 0% 100% / 2%);
+    overflow: hidden;
+}
+
+.bottom-suggest-users {
+    position: absolute;
+    z-index: 999;
+    margin-top: 95px;
+    width: 100%;
+}
+
+.bottom-suggest-users .imgs-colls-bv {
+    margin-top: 0;
+    margin-left: 38px;
+}
+
+.suggest-info p {
+    max-height: none;
+}
+
+.info-text {
+    color: hsl(0deg 0% 100% / 75%);
+    margin-left: 42px;
+    position: absolute;
+    display: flex;
+    white-space: nowrap;
+    font-size: 14px;
+    margin-top: 27px;
+    opacity: 0.5;
+    background: hsl(0deg 0% 100% / 10%);
+    width: fit-content;
+    padding: 0 10px;
+    line-height: 20px;
+    height: 32px;
+    align-items: center;
+    border-radius: 50px;
+}
+
+.info-text a {
+    margin-top: -2px;
+}
+
+.view-profile-icon {
+    position: absolute;
+    width: 35px;
+    height: 35px;
+    right: 0;
+    margin-top: 25px;
+    margin-right: 15px;
+}
+
+.view-profile-icon:before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    -webkit-mask-image: url(/assets/png-icons/add%20user-132-1658436041.png);
+    -webkit-mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-size: 24px;
+}
+
+.more-user-suggest {
+    width: 35px;
+    height: 35px;
+    background: #fff;
+    -webkit-mask-size: 24px;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    right: 0;
+    -webkit-mask-image: url(/assets/png-icons/more_dots.svg);
+    position: absolute;
+    z-index: 99;
+    margin-top: 10px;
+    margin-right: 15px;
+}
+
+.users-suggestions {
+    margin-top: 20px;
+}
+
+.music-timeline {
+    margin-bottom: 100px;
+}
+
+.home-trend .list-poster {
+    height: 100px;
+}
+
+.home-trend .list-perview-home {
+    width: 100px;
+}
+
+.home-trend .artist-element {
+    margin-bottom: 0;
+    margin-right: 15px;
+}
+
+.home-trend .artists-container {
+    margin-bottom: 0;
+}
+.home-section.cards-home {
+    margin-bottom: 30px;
+}
+
+.features-artists {
+    padding-bottom: 65px;
+}
+
+.owner-image-list {
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    right: 0;
+    left: 0;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    border: 2px solid #000;
+    background-size: cover;
+    background-position: center;
+}
+
+.playlist-component-square {
+    position: relative;
+}
+
+.perview-lists {
+    position: relative;
+}
+
+.live .visualisation {
+    display: none;
+}
+
+.live .lyrics-wrapper {
+    display: none;
+}
+.liberary .inset-playlists-slider-square {
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.liberary .playlist-component-square {
+    margin-bottom: 25px;
+    margin-right: 22px;
+}
+.liberary .host-image {
+    margin-left: 0;
+}
+
+.liberary .text-live-wave {
+    margin-left: 60px;
+}
+.liberary .host-image {
+    margin-left: 0;
+}
+
+.liberary .text-live-wave {
+    margin-left: 60px;
+}
+
+.liberary .right-lib-wave.msgs-page {
+    margin-right: 45px;
+}
+
+.liberary .right-lib-wave.msgs-page span {
+    -webkit-mask-image: url(/assets/png-icons/email-37-1659689482.png);
+    -webkit-mask-size: 24px;
+}
+
+.playlist-action.download-playlist.loading:before {
+    display: none;
+}
+
+.playlist-action.download-playlist.loading {
+    overflow: visible!important;
+}
+
+.playlist-action.download-playlist.loading span {
+    overflow: visible;
+}
+
+
+.loader-list a {
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    -webkit-mask-size: contain;
+    -webkit-mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-image: url(/assets/png-icons/close%20remove-8-1662452248.png);
+    opacity: 0.5;
+}
+
+.loader-3.loader-list span:after {
+    display: none;
+}
+
+.loader-3.loader-list span {
+    opacity: 0.5;
+}
+
+.loader-3.loader-list span:before {
+    border: 2px solid #fff;
+    border-bottom: 3px solid transparent;
+}
+
+.downloaded .playlist-action.download-playlist:before {
+    -webkit-mask-image: url(/assets/png-icons/delete-24-1692683695.png);
 }

@@ -11,16 +11,6 @@
         <span></span>
     </div>
 </div>
-<!-- <div class="search-index-core">
-    <div class="search-home">
-        <input type="text" class="search-input" onfocus="showBrowse(this)" oninput="searchInput(this,event)"
-            placeholder="Search for track or artist or user">
-    </div>
-    <div class="search-generes">
-        <div class="grid-inset-lists">
-        </div>
-    </div>
-</div> -->
 <div class="page profile">
     <%- include('../ejs/profileCore') %>
 </div>
@@ -50,88 +40,8 @@
     <div class="going-live">
         <div class="inset-going-live"></div>
     </div>
-    <!-- <div class="most-terinding-hits home-section">
-        <div class="outset-container-seeker">
-            <div class="container-seeker-lists">
-                <div class="cart-home-slider">
-                    <div class="header-list-main">
-                        <section><span>Trending right now</span>
-                            <p>Most played songs ON apple music for today</p>
-                        </section>
-                        <div class="play-icon"></div>
-                    </div>
-                    <div class="trendings-inset-hits main-inset-hits">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> -->
-
-    <div class="most-terinding-hits home-section">
-        <div class="head-tag container"><span>Explore by genre</span><a onclick="showDiscovery()"></a></div>
-        <div class="generes-by-generes">
-            <div class="inset-generes-search home-main-genres">
-                <div class="generes-section switcher-tap bgwf-effect selected trending" dataid="37i9dQZF1DXcBWIGoYBM5M">
-                    <span>Trending</span>
-                </div>
-                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DWVuV87wUBNwc">
-                    <span>Pop</span>
-                </div>
-                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DX1X23oiQRTB5">
-                    <span>Hip Hop</span>
-                </div>
-                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DWWSuZL7uNdVA">
-                    <span>Rock</span>
-                </div>
-                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DX1S1NduGwpsa">
-                    <span>Jazz</span>
-                </div>
-                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DWWEJlAGA9gs0">
-                    <span>Classical</span>
-                </div>
-                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DX10zKzsJ2jva">
-                    <span>Latin</span>
-                </div>
-                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DX1lVhptIYRda">
-                    <span>Country</span>
-                </div>
-                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DXd9rSDyQguIk">
-                    <span>Blues</span>
-                </div>
-                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DX2LoIIQLAhdb">
-                    <span>RNB</span>
-                </div>
-                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DX4iPyiZG8RHQ">
-                    <span>Reggae</span>
-                </div>
-                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DX06ea0x0qwKU">
-                    <span>Metal</span>
-                </div>
-                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DXdOAw8BT7AHt">
-                    <span>Punk</span>
-                </div>
-                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DWXncK9DGeLh7">
-                    <span>Soul</span>
-                </div>
-                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DWSrj7tqQ9IOu">
-                    <span>Indie</span>
-                </div>
-                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DX9tPFwDMOaN1">
-                    <span>Kpop</span>
-                </div>
-                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DWXncK9DGeLh7">
-                    <span>Funk</span>
-                </div>
-                <div class="generes-section switcher-tap bgwf-effect" dataid="37i9dQZF1DWZSdcRHMl2tT">
-                    <span>House</span>
-                </div>
-            </div>
-        </div>
-        <div class="trendings-inset-hits main-inset-hits"></div>
+    <div class="home-trend">
     </div>
-    <div class="recently-played outset-recently-played home-section">
-    </div>
-
 </div>
 <div class="music-stream-search hidden">
     <div class="back-music-search"></div>
@@ -193,12 +103,13 @@
                 <section dataid="artists"><span>Artists</span></section>
                 <section dataid="podcasts"><span>Podcasts</span></section>
                 <section dataid="soundcloud"><span>Soundcloud</span></section>
+                <section dataid="youtube"><span>Youtube</span></section>
                 <section dataid="playlists"><span>Playlists</span></section>
                 <section dataid="episodes"><span>Episodes</span></section>
-
             </div>
             <div class="input-search container">
-                <section><input type="text" placeholder="Search for tracks or"><a class="clear-search" onclick=""></a><a class="hide-keyds" onclick="hideKeyboard()"></a></section>
+                <section><input type="text" placeholder="Search for tracks or"><a class="clear-search" onclick=""></a><a
+                        class="hide-keyds" onclick="hideKeyboard()"></a></section>
                 <div class="filter"></div>
             </div>
         </div>
@@ -253,13 +164,13 @@
     <div class="top-header-wave">
         <div class="real-top-wave">
             <div class="logo-set-wave">
-                <div class="logo-wave"></div>
                 <div class="host-image">
                 </div>
                 <div class="text-live-wave"><span>ONVO Airwave</span>
                     <p>Your library</p>
                 </div>
                 <div class="right-lib-wave sw-effect" onclick="showCreation()"><span></span></div>
+                <div class="right-lib-wave msgs-page sw-effect" onclick="openMessages()"><span></span></div>
             </div>
         </div>
     </div>
@@ -318,21 +229,6 @@
         </div>
     </div>
 </div>
-<!-- <div class="host-image"></div> -->
-<!-- <div class="playing-music">
-    <div class="background-playing-music"><span></span></div>
-    <div class="left-playing-music">
-        <div class="song-poster-playing"></div>
-        <section>
-            <span>So far away</span>
-            <a>Martin grix</a>
-        </section>
-    </div>
-    <div class="pottom-width-slider"><span></span></div>
-    <div class="right-playing-music">
-        <div class="play-pause-playing"></div>
-    </div>
-</div> -->
 <div class="playlist-create page hidden">
     <div class="top-header-wave">
         <div class="real-top-wave">

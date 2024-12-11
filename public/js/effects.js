@@ -71,7 +71,7 @@ const messageLoaderEffect = `
 
 async function resetPlayList(e) {
     let slide = '<div class="swiper-slide playlist-poster-slider"></div>'
-    document.querySelector('.imgs-colls-bv section').innerHTML = '<span></span><span></span><span></span><span></span>'
+    document.querySelector('.playlists-page .imgs-colls-bv section').innerHTML = '<span></span><span></span><span></span><span></span>'
     document.querySelector('.playlist-name-header').innerText = ''
     document.querySelector('.user-list-avatar').removeAttribute('style')
     document.querySelector('.playlist-name span').innerText = ''

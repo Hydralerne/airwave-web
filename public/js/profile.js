@@ -93,7 +93,7 @@ function printLists(data, e) {
     return lists
 }
 
-function printListsSquare(data, e) {
+function printListsSquare(data, e, isDownloads) {
     let lists = ''
     data.forEach(list => {
         try {
@@ -104,7 +104,7 @@ function printListsSquare(data, e) {
                 }
             }
             lists += `
-            <div class="playlist-component-square" api="${list.api}" onclick="openPlaylist('${list.type == 'saved' ? 'saved' : list.playlist_id}','${list.api}'${list.type == 'saved' ? `,'${list.id}'` : ',null'},'${list.public_id}')">
+            <div class="playlist-component-square" api="${list.api}" onclick="openPlaylist('${list.type == 'saved' ? 'saved' : list.playlist_id}','${list.api}'${(list.type == 'saved' && !isDownloads) ? `,'${list.id}'` : (isDownloads ? ",'downloads'" : ',null')},'${list.public_id}')">
                 <div class="perview-lists">
                     <section>${perviews.join('')}</section>
                 </div>
