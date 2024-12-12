@@ -1648,9 +1648,7 @@ async function printLibrary(data) {
     }
     if (data.playlists?.length > 0) {
         let lists = printListsSquare(data.playlists, e)
-        document.querySelector('.library-body .libraries-lists-container').innerHTML = `<div class="favorites-head">
-        <span>Playlists<a>12</a></span>
-    </div>
+        document.querySelector('.library-body .libraries-lists-container').innerHTML = `
     <div class="outset-playlists-slider-square">
         <div class="inset-playlists-slider-square">
             ${lists}
@@ -1672,22 +1670,16 @@ async function printLibrary(data) {
             html += printSong(song)
         })
         document.querySelector('.library-body .outset-playlists-container').innerHTML = html
-    } else {
-        document.querySelector('.saved-tracks-container').classList.add('hidden')
     }
 
     if (data.recently_played?.length > 0) {
         let recent = scolledSongs(data.recently_played)
         document.querySelector('.library-body .library-recent').innerHTML = recent
-    } else {
-        document.querySelector('.recent-library').classList.add('hidden')
     }
 
     if (data.following?.length > 0) {
         let artists = printArtistsLib(data.following)
         document.querySelector('.library-body .inset-artists').innerHTML = artists
-    } else {
-        document.querySelector('.features-artists-lib').classList.add('hidden')
     }
 }
 
@@ -3024,9 +3016,6 @@ async function runReformLib(e, limit = 20, offset = 0) {
                 const lists = await getAllObjects('playlists')
                 const listsHTML = printListsSquare(lists, true, true)
                 body += `
-                <div class="favorites-head">
-                <span>Downloaded Playlists<a>${playlistsCount}</a></span>
-                </div>
                 <div class="outset-playlists-slider-square">
                     <div class="inset-playlists-slider-square">
                         ${listsHTML}
@@ -3040,9 +3029,6 @@ async function runReformLib(e, limit = 20, offset = 0) {
         const count = await getObjectCount('downloads');
         if (downloaded.length > 0 && (offsetLib == 0 || !offsetLib)) {
             body += `
-            <div class="favorites-head">
-                <span>Downloaded tracks<a>${count}</a></span>
-            </div>
             <div class="outset-playlists-container downloads-container owner">
             ${html}
             </div>

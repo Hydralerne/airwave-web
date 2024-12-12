@@ -1312,17 +1312,25 @@ body.searching {
     z-index: 999999;
     bottom: 0;
     width: 100%;
+    height: 90px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top-right-radius: 40px;
+    border-top-left-radius: 40px;
     overflow: hidden;
+    background: rgb(0 0 0 / 50%);
+    border-top: 1px solid hsl(0deg 0% 100% / 10%);
 }
 
 .inset-menu-bottom {
     display: flex;
     height: 80px;
     align-items: center;
-    width: calc(100% - 50px);
+    width: calc(100% - 40px);
     right: 0;
     left: 0;
     margin: auto;
+    margin-top: -5px;
 }
 
 .button-page {
@@ -1441,7 +1449,7 @@ body.searching {
 }
 
 .menu-bottom:before {
-    background: hsl(0deg 0% 100% / 8%);
+    background: hsl(0deg 0% 100% / 10%);
     content: '';
     position: absolute;
     width: 100%;
@@ -7034,7 +7042,9 @@ body .generes-brows-container .suggestions-container .reccomendation-body sectio
 .liberary[action='downloads'] .downloads-tracks-container {
     display: block;
 }
-
+.features-artists-lib {
+    display: none;
+}
 .downloads-tracks-containe,
 .liberary[action='downloads'] .recent-library,
 .liberary[action='downloads'] .libraries-lists-container,

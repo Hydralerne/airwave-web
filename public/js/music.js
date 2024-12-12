@@ -1205,7 +1205,7 @@ async function handleSource() {
 }
 
 let sendingSong = {}
-
+const bottomMenu = document.querySelector('.menu-bottom')
 async function playTrack(el, e) {
     let api, id, rawSongObj
     if (el?.poster) {
@@ -1336,6 +1336,7 @@ async function playTrack(el, e) {
     if (!isParty) {
         // printCopyrights(currentSong);
     }
+
 
 }
 
@@ -1828,6 +1829,7 @@ async function removePlayer() {
     const parent = document.querySelector('.body')
     pause();
     resetPlayer()
+    bottomMenu.classList.remove('no-redius')
     parent.classList.add('hidden')
 }
 async function showPlayer() {
@@ -1843,6 +1845,7 @@ async function showPlayer() {
     parent.classList.add('minimized')
     await delay(50)
     parent.classList.add('center-flex')
+    bottomMenu.classList.add('no-redius')
     if (!draggablePlayer) {
         draggablePlayer = new DraggableMenu({
             parent: '.body',

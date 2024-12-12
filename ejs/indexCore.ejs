@@ -181,18 +181,21 @@
     <div class="library-body">
         <div class="generes-by-generes lib-genres">
             <div class="inset-generes-search">
-                <div class="libgnre-section switcher-tap bgwf-effect" action="saved">
-                    <span>Saved</span>
-                </div>
-                <div class="libgnre-section switcher-tap bgwf-effect" action="playlists">
+                <div class="libgnre-section switcher-tap bgwf-effect selected" action="playlists">
                     <span>Playlists</span>
                 </div>
                 <div class="libgnre-section switcher-tap bgwf-effect" action="downloads">
                     <span>Downloads</span>
                 </div>
+                <div class="libgnre-section switcher-tap bgwf-effect" action="saved">
+                    <span>Saved</span>
+                </div>
                 <div class="libgnre-section switcher-tap bgwf-effect" action="artists"><span>Artists</span>
                 </div>
             </div>
+        </div>
+        <div class="libraries-lists-container">
+
         </div>
         <div class="recent-library">
             <div class="favorites-head" onclick="document.querySelector('.library-flex').click()">
@@ -204,21 +207,18 @@
                 </div>
             </div>
         </div>
-        <div class="libraries-lists-container">
-
-        </div>
         <div class="features-artists-lib">
-            <div class="favorites-head">
+            <!-- <div class="favorites-head">
                 <span>Followed artists<a>0</a></span>
-            </div>
+            </div> -->
             <div class="artists-container">
                 <div class="inset-artists"></div>
             </div>
         </div>
         <div class="libraries-container saved-tracks-container">
-            <div class="favorites-head">
+            <!-- <div class="favorites-head">
                 <span>Saved tracks</span>
-            </div>
+            </div> -->
             <div class="outset-playlists-container owner"></div>
         </div>
         <div class="libraries-container downloads-tracks-container">
