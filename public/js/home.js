@@ -2908,6 +2908,16 @@ async function removeDownload(song = lastSelected) {
 let downloading = {}
 
 async function downloadSong(song = lastSelected, isList) {
+    if (downloading[song.id]) {
+        setTimeout(() => {
+            delete downloading[song.id]
+        }, 60000)
+        return miniDialog('Downloading in progress')
+    }
+    const isExist = await checkObjectExists(song.id, 'downloads')
+    if (isExist) {
+        return miniDialog('Already downloaded')
+    }
     await delay(200)
     if (!isPlus()) {
         showPremium('Join premium to <text>download</text>')
@@ -3041,11 +3051,15 @@ async function runReformLib(e, limit = 20, offset = 0) {
     } else { }
 }
 
+let errorDownloadings = {}
+
 async function handleDownloadProccess(data) {
-    if (data.ct == 'download_progress') {
+    if (data.ct == 'download_progress' && data.status == 'started') {
         document.querySelectorAll(`.song[trackid="${data.trackid}"] .song-poster`).forEach(poster => {
             poster.innerHTML = `<div class="loader-conter p-${data.percent}"></div>`
         })
+    } else if (data.ct == 'download_progress' && data.status == 'error') {
+        errorDownloadings[data.trackid] = data.error
     }
 }
 
@@ -3291,7 +3305,7 @@ async function downloadList(el) {
     currentList.perview = currentList.tracks.slice(0, 4).map(track => track.poster)
     currentList.playlist_id = currentList.id
     await setObject(currentList.id, currentList, 'playlists')
-    await processInBatches(currentList);
+    await processInBatches(currentList, 5);
     el.classList.remove('loading')
     el.innerHTML = ''
     ongoingDownloadList = null

@@ -237,12 +237,7 @@ const downloadParallel = async (url, trackid, outputPath, numChunks = 10) => {
 
 const downloadHandler = async (id, url, trackid, isTmp) => {
     createDownload(id);
-    console.log('recived Dwonload')
     let outputPath = path.join(DOWNLOADS_DIR, String(id));
-    const dirFiles = fs.readdirSync(outputPath);
-    if (dirFiles.length > 0) {
-        //        return dirFiles[0]
-    }
     try {
         const isHLS = await isHLSStream(url);
         if (isHLS) {
@@ -252,6 +247,7 @@ const downloadHandler = async (id, url, trackid, isTmp) => {
         }
     } catch (e) {
         console.log(e)
+        return { error: e.message }
     }
     return outputPath;
 }
@@ -477,7 +473,10 @@ const handleIncomming = async (ws, message) => {
         const json = JSON.parse(message)
         if (json.ct == 'download') {
             ws.send(JSON.stringify({ ct: 'download_progress', status: 'started', trackid: json.trackid }))
-            const outputPath = await downloadHandler(json.id, json.url, json.trackid);
+            const downloadProccess = await downloadHandler(json.id, json.url, json.trackid);
+            if (downloadProccess?.error) {
+                ws.send(JSON.stringify({ ct: 'download_progress', status: 'error', trackid: json.trackid, error: downloadProccess?.error }))
+            }
             return
         }
         if (json.ct == 'yt') {

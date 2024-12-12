@@ -948,9 +948,7 @@ async function addPlayerMetadata(rawSongObj) {
             .player .background-wave::before{
                 background: linear-gradient(to bottom, ${darkenColor(colorEqualizer('#7f7e79', data?.colors?.muted), 0.5)} 25%, ${main} 50%);
             }
-            .player.dragging .background-wave::before{
-                background: linear-gradient(to bottom, ${darkenColor(colorEqualizer('#7f7e79', data?.colors?.muted), 0.5)} 25%, ${main} 50%)!important;
-            }
+            
             .blured.player .background-wave:before {
                 background: linear-gradient(to bottom, ${hexToHSLA(main, 0.57)}, ${main})
             }
