@@ -384,13 +384,13 @@ app.post('/download', blockWeb, async (req, res) => {
             return res.status(400).send('Missing required parameters');
         }
         const outputPath = await downloadHandler(id, url, trackid, true);
-        if(outputPath?.error){
+        if (outputPath?.error || !fs.existsSync(outputPath)) {
             return res.json({ status: 'error', error: outputPath?.error });
         }
-        res.json({ status: 'success', file: outputPath });
+        res.json({ status: 'success', path: outputPath });
     } catch (error) {
         console.error('Error during download:', error);
-        res.status(500).send('Error downloading file');
+        return res.json({ status: 'error', error });
     }
 });
 

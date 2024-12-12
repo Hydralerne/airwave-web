@@ -126,6 +126,8 @@ async function loadFullList() {
         }
         await delay(500)
     }
+    listOffset = document.querySelectorAll('.playlists-page .song-music-element').length
+    doneloadList = false
 }
 
 const playlistsPage = document.querySelector('.playlists-page')
@@ -1379,6 +1381,7 @@ let soundCloudBanner = ''
 
 function clearReformLib() {
     document.querySelector('.downloads-tracks-container').innerHTML = ''
+    offsetLib = 0
 }
 
 let offsetLib = 0
@@ -2909,9 +2912,6 @@ let downloading = {}
 
 async function downloadSong(song = lastSelected, isList) {
     if (downloading[song.id]) {
-        setTimeout(() => {
-            delete downloading[song.id]
-        }, 60000)
         return miniDialog('Downloading in progress')
     }
     const isExist = await checkObjectExists(song.id, 'downloads')
@@ -2931,7 +2931,9 @@ async function downloadSong(song = lastSelected, isList) {
     songs.forEach(song => { song.insertAdjacentHTML('beforeend', '<div class="loader-mini"><div class="loader-3 loader-main"><span></span></div></div>') })
     if (!song.source) {
         if (song.api !== 'soundcloud') {
-            if (!YTCode) {
+            if (song.api == 'youtube') {
+                YTCode = song.id
+            } else if (!YTCode) {
                 const response = await fetch(`${origin}/get-id?q=${encodeURIComponent(`${song.title} ${song.artist}`)}`)
                 const data = await response.json();
                 YTCode = data.id
@@ -2960,15 +2962,18 @@ async function downloadSong(song = lastSelected, isList) {
 
     });
     const json = await response.json()
+    if (json.error) {
+        return { error: json.error }
+    }
     // coreSocket.send(JSON.stringify({ ct: 'download', trackid: song.id, id: YTCode, url: data.audio || data.url }))
     fetch(proxy(song.posterLarge, true, true))
     fetch(proxy(song.poster, true, true))
     songs.forEach(song => { song.querySelector('.loader-mini').remove() })
 
     delete downloading[song.id].source
-    downloading[song.id].path = json.file
+    downloading[song.id].path = json.path
     let track = isList ? {
-        path: json.file
+        path: json.path
     } : downloading[song.id]
     await setObject(song.id, track, 'downloads')
     const lyrics = await fetchLyrics(downloading[song.id], downloading[song.id].yt)
@@ -2978,6 +2983,7 @@ async function downloadSong(song = lastSelected, isList) {
     const all = currentList.tracks.length
     const downloaded = currentList.tracks.filter(track => track.downloaded == true).length
     miniDialog(isList ? `Downloaded ${downloaded} of ${all}` : 'Download complete')
+    return {status: 'success'}
 }
 
 document.querySelector('.switcher-menu-back').addEventListener('click', function () {
@@ -3258,10 +3264,62 @@ function shareAlbum() {
     share(`https://oave.me/album/${currentAlbum.id}`, `View ${currentAlbum.name} Album on Airwave`)
 }
 
-async function processInBatches(list, batchSize = 20) {
+async function processInBatches(list, maxActive = 20, timeout = 30000) {
+    const tracks = list.tracks;
+    const queue = [...tracks];
+    const failedQueue = [];
+    let activeCount = 0;
+
+    async function startDownload(track) {
+        try {
+            activeCount++;
+            await downloadSong(track, true)
+                .then(() => console.log("Downloaded:", track.title, track.artist))
+                .catch((err) => {
+                    console.error("Failed to download:", track.title, track.artist, err);
+                    if (err && err.error) {
+                        failedQueue.push(track);
+                    }
+                });
+        } catch (err) {
+            console.error("Timeout or error for:", track.title, track.artist, err);
+            if (err && err.error) {
+                failedQueue.push(track);
+            }
+        } finally {
+            activeCount--;
+            if (queue.length > 0) {
+                const nextTrack = queue.shift();
+                startDownload(nextTrack);
+            }
+        }
+    }
+
+    async function processQueue() {
+        while (queue.length > 0 || activeCount > 0) {
+            while (queue.length > 0 && activeCount < maxActive) {
+                const track = queue.shift();
+                startDownload(track);
+            }
+            await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+    }
+
+    await processQueue();
+
+    if (failedQueue.length > 0) {
+        console.log("Retrying failed downloads...");
+        queue.push(...failedQueue); // Move failed tracks back to the main queue
+        failedQueue.length = 0; // Clear the failed queue
+        await processQueue();
+    }
+
+    console.log("All downloads completed, including retries.");
+}
+
+async function processInBatchesas(list, batchSize = 20) {
     for (let i = 0; i < list.tracks.length; i += batchSize) {
         if (stopDownloading) {
-            console.log('Stopped downloading.');
             break;
         }
         const batch = list.tracks.slice(i, i + batchSize);
@@ -3284,10 +3342,7 @@ let stopDownloading = false
 let ongoingDownloadList
 async function downloadList(el) {
     if (el.classList.contains('loading')) {
-        stopDownloadList()
-        el.classList.remove('loading')
-        el.innerHTML = ''
-        miniDialog('Playlist download stoped')
+        stopDownloadList(el)
         return
     }
     if (ongoingDownloadList == currentList.id) {
@@ -3305,7 +3360,7 @@ async function downloadList(el) {
     currentList.perview = currentList.tracks.slice(0, 4).map(track => track.poster)
     currentList.playlist_id = currentList.id
     await setObject(currentList.id, currentList, 'playlists')
-    await processInBatches(currentList, 5);
+    await processInBatches(currentList);
     el.classList.remove('loading')
     el.innerHTML = ''
     ongoingDownloadList = null
@@ -3313,9 +3368,13 @@ async function downloadList(el) {
 
 }
 
-function stopDownloadList() {
+function stopDownloadList(el = document.querySelector('.download-playlist')) {
     stopDownloading = true
     stopLoading = true
+    el.classList.remove('loading')
+    el.innerHTML = ''
+    miniDialog('Playlist download stoped')
+    ongoingDownloadList = null
 }
 
 const printYTHome = (data) => {

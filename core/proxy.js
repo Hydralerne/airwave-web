@@ -180,20 +180,17 @@ const downloadChunk = (url, start, end, index) => {
     });
 };
 
-const downloadParallel = async (url, trackid, outputPath, numChunks = 10) => {
+const downloadParallel = async (url, trackid, outputPath, numChunks = 15) => {
     return new Promise((resolve, reject) => {
         https.get(url, (response) => {
             const totalSize = parseInt(response.headers['content-length'], 10);
             const chunkSize = Math.ceil(totalSize / numChunks);
             const contentType = response.headers['content-type'];
-            console.log(response.headers)
-            const extension = mime.extension(contentType) || 'mp3';  // Default to 'mp3' if unknow
-            // Get the file name from headers or URL, and append the correct extension
+            const extension = mime.extension(contentType) || 'mp3';
             const fileName = `audio.${extension}`;
 
             let downloadedTotal = 0;
 
-            // Progress callback to update the total downloaded size and show the percentage
             const progressCallback = (chunkDownloaded) => {
                 downloadedTotal += chunkDownloaded;
                 const progressPercentage = ((downloadedTotal / totalSize) * 100).toFixed(0);
@@ -231,6 +228,8 @@ const downloadParallel = async (url, trackid, outputPath, numChunks = 10) => {
                 .catch((err) => {
                     console.error('Error downloading file:', err.message);
                 });
+        }).on('error', (err) => {
+            resolve({ error: err })
         });
     });
 };
@@ -362,7 +361,7 @@ function proxyConnect(id) {
             }, 5000)
             resolve(proxyWS)
         });
-        // Handle incoming messages from the WebSocket server
+
         proxyWS.on('message', async (data) => {
             let message = data.toString('utf8')
             if (message == 'pong' || message == 'ping') {
@@ -378,14 +377,11 @@ function proxyConnect(id) {
                 console.log('not valid message', message, globalId)
                 return
             }
-            // Extract details from the server message
+
             const { requestId, method, url, headers, body, ct } = message;
 
-            // Construct full URL
             try {
                 if (ct == 'request') {
-                    console.log('requesting', requestId)
-                    // Make the HTTP request using axios with the constructed full URL
                     const response = await fetch(url, {
                         method: method,
                         headers: headers,
@@ -395,12 +391,11 @@ function proxyConnect(id) {
                     const arrayBuffer = await response.arrayBuffer();
                     const buffer = Buffer.from(arrayBuffer);
 
-                    // Create a response object to send back to WebSocket
                     const responseData = {
                         requestId,
                         statusCode: response.status,
                         headers: response.headers,
-                        data: buffer.toString('utf8'), // or whatever encoding you need
+                        data: buffer.toString('utf8'),
                     };
 
                     try {
