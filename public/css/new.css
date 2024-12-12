@@ -974,8 +974,8 @@ text.swiper-slide.ar {
 
 .fullscreen .lyrics-wrapper-main section text {
     font-size: 30px;
-    line-height: 40px;
-    margin-bottom: 15px;
+    line-height: 45px;
+    margin-bottom: 20px;
 }
 
 .fullscreen .lyrics-wrapper-main section text.synced.selected {

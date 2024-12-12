@@ -945,8 +945,11 @@ async function addPlayerMetadata(rawSongObj) {
             document.querySelector('.styling').innerHTML = `<style>
             .visualisation .box.checked {background:  ${darkenColor(shades[3], 0.5)}!important;}
             .body.minimized { background: ${darkenColor(shades[3], 0.5)}!important;}
-            .background-wave::before{
+            .player .background-wave::before{
                 background: linear-gradient(to bottom, ${darkenColor(colorEqualizer('#7f7e79', data?.colors?.muted), 0.5)} 25%, ${main} 50%);
+            }
+            .player.dragging .background-wave::before{
+                background: linear-gradient(to bottom, ${darkenColor(colorEqualizer('#7f7e79', data?.colors?.muted), 0.5)} 25%, ${main} 50%)!important;
             }
             .blured.player .background-wave:before {
                 background: linear-gradient(to bottom, ${hexToHSLA(main, 0.57)}, ${main})
@@ -1835,6 +1838,7 @@ async function removePlayer() {
 async function showPlayer() {
     const parent = document.querySelector('.body')
     parent.classList.remove('hidden')
+    bottomMenu.classList.add('no-redius')
     if (parent.classList.contains('center-flex')) {
         parent.scrollTo({
             top: 0,
@@ -1845,7 +1849,6 @@ async function showPlayer() {
     parent.classList.add('minimized')
     await delay(50)
     parent.classList.add('center-flex')
-    bottomMenu.classList.add('no-redius')
     if (!draggablePlayer) {
         draggablePlayer = new DraggableMenu({
             parent: '.body',
@@ -1856,7 +1859,7 @@ async function showPlayer() {
             onclose: minimizePlayer,
             onopen: async () => {
                 parent.classList.remove('minimized')
-                await delay(300)
+                await delay(500)
                 if (typeof Android == 'undefined') {
                     parent.classList.add('blured')
                 }
@@ -4296,6 +4299,7 @@ class DraggableMenu {
         this.onclose = data.onclose || (() => { })
         this.onopen = data.onopen || (() => { })
         this.blockClass = data.blockClass
+        this.dragging = false
         if (data.inner) {
             this.scroller = document.querySelector(data.inner)
         }
@@ -4375,6 +4379,10 @@ class DraggableMenu {
             this.dragDirection = Math.abs(translateY) >= Math.abs(translateX) ? "vertical" : "horizontal";
         }
         if (this.dragDirection === "vertical" && this.isDraggingDown(this.currentY) && this.shouldRefresh()) {
+            if(!this.dragging){
+                this.dragging = true
+                this.menu.classList.add('dragging');
+            }
             evt.preventDefault();
             this.movelY = this.calculateMoveY(this.currentY - this.lastY);
             this.updateUI();
@@ -4394,7 +4402,12 @@ class DraggableMenu {
         if (this.background) {
             this.background.classList.remove("no-transition");
         }
-
+        if(this.dragging){
+            this.dragging = false
+            setTimeout(() => {
+                this.menu.classList.remove('dragging');
+            },300)
+        }
         if (!this.isOpen) {
             if ((Math.abs(this.moveOffset) < this.menuHeight / 3) && this.moveOffset > 20) {
                 this.openMenu();
