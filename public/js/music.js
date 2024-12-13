@@ -614,7 +614,7 @@ function playNext(e) {
     }
 
     document.querySelector('.play-pause').classList.remove('played')
-    if ((globalNext.id && !e && globalNext.id !== currentSong.id) || isShuffle()) {
+    if (((globalNext.id && !e && globalNext.id !== currentSong.id) || isShuffle()) && currentSong.api !== 'soundcloud') {
         playTrack(globalNext)
         // globalNext = {}
     } else {
@@ -736,12 +736,10 @@ document.querySelectorAll('.section-wave').forEach(element => {
             el.classList.remove('selected')
         });
         this.classList.add('selected');
-        document.querySelector('.inset-scroller-container').style.transform = `translateX(${this.getAttribute('tsx')}%)`
-        await delay(200)
         if (this.classList.contains('player-wave')) {
-            if (document.querySelectorAll('.inset-playlist-compine .music-component').length < 4) {
-                parseQueue(true)
-            }
+            parseQueue();
+        } else if (this.classList.contains('settings-wave')) {
+            showLyrics()
         } else {
             closeQueue();
         }
@@ -895,7 +893,7 @@ audioPlayer.addEventListener('pause', function () {
 })
 
 async function addPlayerMetadata(rawSongObj) {
-    const { id, api, url, poster, posterLarge, title, artist, posterLargeSize, protocol } = rawSongObj;
+    let { id, api, url, poster, posterLarge, title, artist, protocol } = rawSongObj;
 
 
     if (id) {
@@ -916,8 +914,16 @@ async function addPlayerMetadata(rawSongObj) {
     }
 
     if (posterLarge || poster) {
+        const isExist = await checkObjectExists(currentSong.id, 'downloads')
+        if (isExist) {
+            poster = proxy(poster, true, true)
+            posterLarge = proxy(posterLarge, true, true)
+        } else {
+            poster = pI(poster)
+            posterLarge = pI(posterLarge)
+        }
         setTimeout(() => {
-            document.querySelector('.artist-inner-song img').src = pI((filterPosterLarge(posterLarge, poster).image), true);
+            document.querySelector('.artist-inner-song img').src = (filterPosterLarge(posterLarge, poster).image);
         }, 50)
     }
 
@@ -931,13 +937,13 @@ async function addPlayerMetadata(rawSongObj) {
 
     if (poster) {
         document.querySelectorAll('.player .wave-back-component').forEach(back => {
-            back.style.backgroundImage = `url('${pI((poster?.url || poster), true)}')`;
+            back.style.backgroundImage = `url('${(poster)}')`;
         });
-        document.querySelector('.background-wave').innerHTML = `<span style="background-image: url('${pI((poster), true)}')"></span>`
+        document.querySelector('.background-wave').innerHTML = `<span style="background-image: url('${(poster)}')"></span>`
     }
 
     if (poster) {
-        processColors(pI(poster, true), 5).then(data => {
+        processColors(poster, 5).then(data => {
             currentColors = data;
             const shades = generateShades(colorEqualizer('#fbfd82', data?.colors?.muted), 5)
             const ds = shades[3];
@@ -1159,6 +1165,7 @@ async function handleSource() {
     let path = currentSong.path
 
     const isExist = await checkObjectExists(currentSong.id, 'downloads')
+
     if (!window.webkit?.messageHandlers && typeof Android == 'undefined' && currentSong.source) {
         source = currentSong.source
         if (isSafari() && currentSong.source.aac) {
@@ -1256,6 +1263,7 @@ async function playTrack(el, e) {
 
     let handler = {}
 
+
     if (e) {
         if (currentSong.path) {
             delete currentSong.path
@@ -1264,6 +1272,7 @@ async function playTrack(el, e) {
         onGoingId = currentSong.id
         handler = await handleSource(currentSong)
     }
+
 
     resetPlayer(currentSong.id);
     addPlayerMetadata(currentSong)
@@ -1291,6 +1300,8 @@ async function playTrack(el, e) {
         return
     }
 
+
+    console.log('aaaaaaaaaaaaaaaaaaa', handler.source)
     lyricsInitialize = false
 
     playSource(handler.source);
@@ -1801,22 +1812,25 @@ async function minimizePlayer(page = document.querySelector('.body')) {
 }
 
 let scrollCurrent = 0;
-async function showThePlayer(page = liveBody) {
+async function showThePlayer() {
     // try {
     //     loader.resume();
     // } catch (e) {
     //     console.error(e)
     // }
     lyricsPaused = false
-    page.classList.remove('minimized')
-    page.classList.add('center-flex')
+    if (liveBody.classList.contains('live')) {
+        liveBody.classList.remove('player')
+    } else { }
+    liveBody.classList.remove('minimized')
+    liveBody.classList.add('center-flex')
     try {
         draggablePlayer.openMenu()
     } catch (e) { }
     document.body.classList.add('hideoverflow')
     await delay(300)
-    if (page.classList.contains('live')) {
-        history.pushState({ page: 'player' }, null, `/radio/${page.getAttribute('dataid')}`)
+    if (liveBody.classList.contains('live')) {
+        history.pushState({ page: 'player' }, null, `/radio/${liveBody.getAttribute('dataid')}`)
     }
     // parseLyrics();
     if (isOffline) {
@@ -1833,8 +1847,11 @@ async function removePlayer() {
     bottomMenu.classList.remove('no-redius')
     parent.classList.add('hidden')
 }
-async function showPlayer() {
+async function showPlayer(live) {
     const parent = document.querySelector('.body')
+    if (live) {
+        parent.classList.add(live, 'live')
+    }
     parent.classList.remove('hidden')
     bottomMenu.classList.add('no-redius')
     if (parent.classList.contains('center-flex')) {
@@ -2945,9 +2962,10 @@ function joinParty(id) {
     const fireIt = async () => {
         const parent = document.querySelector('.body')
         parent.setAttribute('dataid', id)
-        parent.className = `body page loading ${party.owner == localStorage.getItem('userid') ? 'owner' : 'member'} live`
+        showPlayer(party.owner == localStorage.getItem('userid') ? 'owner' : 'member')
         await closePages()
-        showThePlayer()
+        await delay(300)
+        showThePlayer(true)
         destroyYoutube()
     }
     return new Promise((resolve, reject) => {
@@ -4064,7 +4082,7 @@ function renderLyrics(data, perview, selected) {
     let i = 0;
     let max = 100;
     let html = '';
-    console.log('selected image',selected)
+    console.log('selected image', selected)
     let shortenedLyrics = [];
     if (data.autoGenerated == true || !data.lyrics) {
         data.raw?.forEach(vers => {
@@ -4112,7 +4130,11 @@ function noLyrics(e) {
 
 async function showLyrics() {
     liveBody.classList.add('resizing')
-    await delay(20)
+    if (!liveBody.classList.contains('live')) {
+        await delay(20)
+    }else {
+        liveBody.classList.add('player')
+    }
     liveBody.classList.add('fullscreen')
     isFullscreen = true
     await delay(300)
@@ -4153,6 +4175,10 @@ async function parseLyrics(perview, data = jsonLyrics, api = jsonLyrics.api) {
 }
 
 async function closeLyrics() {
+    if(liveBody.classList.contains('live')){
+        liveBody.classList.remove('player')
+        liveBody.classList.remove('resizing')
+    }
     liveBody.classList.remove('fullscreen')
     await delay(300)
     liveBody.classList.remove('resizing')
@@ -4377,7 +4403,7 @@ class DraggableMenu {
             this.dragDirection = Math.abs(translateY) >= Math.abs(translateX) ? "vertical" : "horizontal";
         }
         if (this.dragDirection === "vertical" && this.isDraggingDown(this.currentY) && this.shouldRefresh()) {
-            if(!this.dragging){
+            if (!this.dragging) {
                 this.dragging = true
                 this.menu.classList.add('dragging');
             }
@@ -4400,11 +4426,11 @@ class DraggableMenu {
         if (this.background) {
             this.background.classList.remove("no-transition");
         }
-        if(this.dragging){
+        if (this.dragging) {
             this.dragging = false
             setTimeout(() => {
                 this.menu.classList.remove('dragging');
-            },300)
+            }, 300)
         }
         if (!this.isOpen) {
             if ((Math.abs(this.moveOffset) < this.menuHeight / 3) && this.moveOffset > 20) {

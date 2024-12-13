@@ -6740,6 +6740,7 @@ body .generes-brows-container .suggestions-container .reccomendation-body sectio
     display: grid;
     font-size: 14px;
     margin-top: 12px;
+    overflow: hidden;
 }
 
 .list-perview-home section span {
@@ -7529,7 +7530,7 @@ body .generes-brows-container .suggestions-container .reccomendation-body sectio
     width: 100%;
     height: 100%;
     background: #000;
-    background-image: url(/assets/c.png);
+    background-image: url(/assets/w.jpg);
     background-size: 130vw;
     background-position: right bottom;
 }

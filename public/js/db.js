@@ -47,10 +47,10 @@ const checkObjectExists = async (id, storeName, dbName = 'musicDB') => {
     const store = transaction.objectStore(storeName);
 
     return new Promise((resolve, reject) => {
-        const request = store.getKey(id);  // Efficiently checks if key exists
+        const request = store.getKey(id);
 
         request.onsuccess = () => {
-            resolve(!!request.result);  // Returns true if ID exists, false otherwise
+            resolve(!!request.result);
         };
 
         request.onerror = (event) => {

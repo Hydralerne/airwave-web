@@ -2527,16 +2527,16 @@ async function openPodcast(el) {
 
 async function openAlbum(id) {
     await closePages()
-    const data = await getAlbum(id)
-    await printAlbum(data)
-}
-
-async function printAlbum(data) {
     const parent = document.querySelector('.album-page')
     parent.classList.remove('hidden', 'podcast')
     await delay(50)
     parent.classList.add('center')
+    const data = await getAlbum(id)
     currentAlbum = data
+    await printAlbum(data, parent)
+}
+
+async function printAlbum(data, parent) {
     const info = `
         <span>${data.name}</span>
         <p>${data.artist}</p>
@@ -2962,7 +2962,7 @@ async function downloadSong(song = lastSelected, isList) {
 
     });
     const json = await response.json()
-    if (json.error) {
+    if (json.error || !json.path) {
         return { error: json.error }
     }
     // coreSocket.send(JSON.stringify({ ct: 'download', trackid: song.id, id: YTCode, url: data.audio || data.url }))
@@ -2983,7 +2983,7 @@ async function downloadSong(song = lastSelected, isList) {
     const all = currentList.tracks.length
     const downloaded = currentList.tracks.filter(track => track.downloaded == true).length
     miniDialog(isList ? `Downloaded ${downloaded} of ${all}` : 'Download complete')
-    return {status: 'success'}
+    return { status: 'success' }
 }
 
 document.querySelector('.switcher-menu-back').addEventListener('click', function () {
@@ -3198,6 +3198,7 @@ async function saveAlbum(el) {
     } else {
         el.classList.add('saved')
     }
+    console.log('asaassasasawqwqe')
     el.classList.add('disabled')
     let album = structuredClone(currentAlbum)
     fetch(`https://api.onvo.me/music/save`, {
@@ -3274,7 +3275,14 @@ async function processInBatches(list, maxActive = 20, timeout = 30000) {
         try {
             activeCount++;
             await downloadSong(track, true)
-                .then(() => console.log("Downloaded:", track.title, track.artist))
+                .then(data => {
+                    if (data.error) {
+                        console.error("Failed to download:", track.title, track.artist, err);
+                        failedQueue.push(track);
+                    } else {
+                        console.log("Downloaded:", track.title, track.artist)
+                    }
+                })
                 .catch((err) => {
                     console.error("Failed to download:", track.title, track.artist, err);
                     if (err && err.error) {

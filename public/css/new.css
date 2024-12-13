@@ -279,11 +279,6 @@
     background: none;
 }
 
-.player.body.no-transition {
-    border-top-right-radius: 25px;
-    border-top-left-radius: 25px;
-}
-
 .player.body.minimized {
     border-radius: 0 !important;
 }
@@ -974,8 +969,8 @@ text.swiper-slide.ar {
 
 .fullscreen .lyrics-wrapper-main section text {
     font-size: 30px;
-    line-height: 45px;
-    margin-bottom: 20px;
+    line-height: 42px;
+    margin-bottom: 18px;
 }
 
 .fullscreen .lyrics-wrapper-main section text.synced.selected {
@@ -2045,4 +2040,43 @@ span.top-switch-header {
 
 .player.minimized{
     border-radius: 0!important;
+}
+
+.android .blured.player .background-wave:before {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+.android .blured.player .background-wave span {
+    display: none;
+}
+
+.android .menu-bottom {
+    backdrop-filter: none;
+    background: #000;
+    -webkit-backdrop-filter: none;
+    border-top-right-radius: 30px;
+    border-top-left-radius: 30px;
+    height: 80px;
+}
+
+.android .body.minimized {
+    transform: translateY(-79px);
+}
+.searching .filter:before {
+    -webkit-mask-image: url(/assets/png-icons/close%20remove-8-1662452248.png);
+}
+.btns-album.save-album.saved:before {
+    -webkit-mask-image: url(/assets/png-icons/bookmark-7-1662808809.png) !important;
+    opacity: 1;
+}
+.player.live .bottom-live-control:after {
+    display: none;
+}
+
+.body.live .minimize-live {
+    right: 0;
+    left: unset;
+    margin-left: 0;
+    margin-right: 6%;
 }
