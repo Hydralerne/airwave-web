@@ -9,6 +9,7 @@
     background-image: url('/assets/discovery.png');
     background-position: center;
     background-size: cover;
+    background-color: rgb(151 151 151 / 35%);
 }
 
 .discovery-background:before {
@@ -494,7 +495,7 @@
     display: none !important;
 }
 
-.body.player:before {
+.body:before {
     content: '';
     position: absolute;
     width: 32px;
@@ -506,6 +507,7 @@
     margin: auto;
     margin-top: 55px;
     opacity: 0.25;
+    z-index: 9;
 }
 
 .close-player {
@@ -1352,11 +1354,13 @@ text.swiper-slide.ar {
     display: none !important;
 }
 
-.queue .flex-search-platforms {
+.flex-search-platforms {
     display: none;
 }
-
-.queue .search-container-songs {
+.input-text-search:after {
+    display: none;
+}
+.search-container-songs {
     height: calc(100% - 170px);
 }
 
@@ -1683,6 +1687,8 @@ span.top-switch-header {
     width: 100%;
     overflow-x: scroll;
     overflow-y: hidden;
+    z-index: 1;
+    position: relative;
 }
 
 .user-suggest:after {
@@ -2079,4 +2085,76 @@ span.top-switch-header {
     left: unset;
     margin-left: 0;
     margin-right: 6%;
+    z-index: 99;
+}
+
+.artist-back img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+}
+
+.card-back {
+    background-color: rgb(255 255 255 / 10%);
+}
+
+.page.top-view {
+    z-index: 999999;
+}
+
+.timeline {
+    width: 100%;
+    height: fit-content;
+    position: relative;
+}
+
+.loader-home {
+    right: 0;
+    left: 0;
+    margin: auto;
+    position: relative;
+    margin-bottom: -8px;
+}
+.ptr--ptr {
+    overflow: visible!important;
+}
+
+.timeline .libraries-container.downloads-tracks-container {
+    display: block;
+}
+
+.liberary.offline .recent-library {
+    display: none;
+}
+
+.liberary.offline .top-header-wave {
+    display: none;
+}
+
+.liberary.offline .generes-by-generes.lib-genres {
+    display: none;
+}
+.liberary.offline .banner-home.offline-banner {
+    margin-top: 25px;
+}
+
+.liberary.offline .profile-background.library-background {
+    display: none;
+}
+
+.liberary.offline .library-body {
+    margin-top: 0;
+}
+.liberary.page.offline {
+    transform: none!important;
+}
+
+
+.body.live.dragging .fixed-user-wave {
+    display: none
+}
+
+.body.live.dragging .bottom-live-control {
+    display: none
 }

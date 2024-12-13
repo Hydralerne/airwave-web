@@ -62,6 +62,9 @@ async function openProfile(id) {
             document.querySelector('.favorites').insertAdjacentHTML('afterbegin', '<div class="edit-favs" onclick="editFavs();"></div>')
         }
     }
+    if(isParty){
+        draggablePlayer.closeMenu()
+    }
 }
 
 

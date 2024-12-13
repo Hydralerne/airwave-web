@@ -84,10 +84,10 @@ async function resetPlayList(e) {
     doneloadList = false
     currentList = {}
     listOffset = 0
-    document.querySelector('.music-section').innerHTML = songs
+    document.querySelector('.music-section').innerHTML = e ? '' : songs
     document.querySelectorAll('.playlist-name section a').forEach(a => { a.innerText = '' })
-    document.querySelector('.playlists-page').className = `playlists-page page ${!e ? 'center' : ''} loading`
-    document.querySelector('.inset-playlist-posters-slider').innerHTML = slides
+    document.querySelector('.playlists-page').className = `playlists-page page top-view ${!e ? 'center' : ''} loading`
+    document.querySelector('.inset-playlist-posters-slider').innerHTML = e ? '' : slides
     await delay(50)
     if (e) {
         mvhot.destroy();
@@ -171,8 +171,20 @@ function resetLib() {
         document.querySelector('.recent-library').classList.remove('hidden')
         document.querySelector('.features-artists-lib').classList.remove('hidden')
 
-        document.querySelector('.library-body .inset-recently-played').innerHTML = recents
-        document.querySelector('.library-body .inset-playlists-slider-square').innerHTML = lists
+        document.querySelector('.library-body .recent-library').innerHTML = `<div class="favorites-head"">
+                <span>Recently played</span>
+            </div>
+            <div class="recently-played-container">
+                <div class="inset-recently-played library-recent">
+                ${recents}
+                </div>
+            </div>`
+        document.querySelector('.library-body .libraries-lists-container').innerHTML = `   
+        <div class="outset-playlists-slider-square">
+        <div class="inset-playlists-slider-square">
+            ${lists}
+        </div>
+    </div>`;
         document.querySelector('.library-body .inset-artists').innerHTML = artists
     } catch (e) {
         console.error(e)
@@ -183,15 +195,18 @@ function resetLib() {
 function resetArtist() {
     let loaderSongs = ''
     let artists = ''
-    let recents = ''
     for (i = 0; i < 10; i++) {
         loaderSongs += songLoaderEffect
         artists += artistLoaderLib
-        recents += recentLoader
     }
-    document.querySelector('.artist-popular').innerHTML = loaderSongs
-    document.querySelector('.inset-albums-popular').innerHTML = loaderSongs
-    document.querySelector('.similar-artist-artist').innerHTML = loaderSongs
+    document.querySelector('.artist-body').innerHTML = `
+    <div class="artist-popular container">${loaderSongs}</div>
+    <div class="artists-container">
+        <div class="inset-artists similar-artist-artist">
+        ${artists}
+        </div>
+    </div>
+    `
 }
 
 function loadProfile() {

@@ -1064,7 +1064,7 @@ const filterArtistData = (json,id) => {
         name: artist?.title?.runs?.[0]?.text,
         description: artist?.description?.runs?.[0]?.text,
         followers: artist?.subscriptionButton?.subscribeButtonRenderer?.subscriberCountText?.runs?.[0]?.text,
-        poster: image ? `${image}=w1500-h1500-p-l100-rj` : undefined,
+        poster: image ? `${image}=w1000-h1000-p-l100-rj` : undefined,
         images: artist?.thumbnail?.musicThumbnailRenderer?.thumbnail?.thumbnails,
         ...sections
     }

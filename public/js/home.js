@@ -247,21 +247,24 @@ async function performTracks(id, type, userid, offset = listOffset, limit = 25) 
 
     return { tracks, list };
 }
+let ongoingDownloadList
+
 async function openPlaylist(id, type, userid, public_id) {
     if (ongoingDownloadList && ongoingDownloadList !== currentList.id) {
         dialog('Wait for list', 'You are downloading other playlist, please wait untill downloading is complete')
         return
     }
     try {
-        await closePages()
+        setView(playlistsPage)
+        // await closePages()
         const parent = playlistsPage
         parent.classList.remove('hidden');
-        await delay(5)
+        await delay(50)
         resetPlayList()
         parent.classList.add('center');
         const { tracks, list } = await performTracks(id, type, userid)
 
-        parent.className = `playlists-page page center ${userid == 'downloads' ? 'downloaded' : ''}`
+        parent.className = `playlists-page page center top-view ${userid == 'downloads' ? 'downloaded' : ''}`
         parent.setAttribute('list-id', id)
         parent.setAttribute('list-api', type)
         document.querySelector('.playlist-name-header').innerText = list.name
@@ -279,7 +282,7 @@ async function openPlaylist(id, type, userid, public_id) {
 
         randomImages.forEach(random => {
             const posterDetails = filterPosterLarge(random.posterLarge, random.poster)
-            listPerview += `<span data-img="${random.poster?.url || random.poster}" style="background-image: url('${(random.poster?.url || random.poster)}')"></span>`;
+            listPerview += `<span data-img="${random.poster}" style="background-image: url('${userid == 'downloads' ? proxy(random.poster, true, true) : pI(random.poster)}')"></span>`;
             // backdropPerview += `<div class="playlist-poster" style="background-image: url(${(posterDetails.image)});"></div>`
         })
 
@@ -299,9 +302,10 @@ async function openPlaylist(id, type, userid, public_id) {
 
 
 async function closePlaylist() {
-    document.querySelector('.playlists-page').classList.remove('center');
-    await delay(200)
+    playlistsPage.classList.remove('center');
+    await delay(300)
     resetPlayList(true)
+    playlistsPage.classList.add('hidden')
 }
 
 async function checkListData() {
@@ -453,6 +457,10 @@ async function getArtist(id) {
     return data
 }
 
+function checkArtist() {
+
+}
+
 async function openArtist(id, api, el) {
     if (!el || !el?.closest('.artist-body')) {
         await closePages()
@@ -483,26 +491,62 @@ async function openArtist(id, api, el) {
         if (data.description) {
             document.querySelector('.bio-artist p').innerText = data.description
         }
-        document.querySelector('.artist-back').style.backgroundImage = `url('${pI(data.poster, true)}')`
+        document.querySelector('.artist-back').innerHTML = `<img src="${pI(data.poster, true)}">`
         document.querySelector('.artist-name span').innerText = data.name
         document.querySelector('.artist-follow').setAttribute('dataid', data.id)
 
-        let topData = printSongsRegular(data.songs.tracks)
-        document.querySelector('.artist-popular').innerHTML = `
-        ${topData.html}
-        <div class="bottom-rows-trending" onclick="openPlaylist(document.querySelector('.generes-section.selected').getAttribute('dataid'),'spotify')">
-            <span>Explore more</span>
+        let body = ''
+        if (data?.songs?.tracks?.length > 0) {
+            let topData = printSongsRegular(data?.songs?.tracks)
+            body += `
+        <div class="artist-categories container">
+            <span>Popular</span>
+        </div>
+        <div class="artist-popular container">
+            ${topData.html}
+            <div class="bottom-rows-trending" onclick="openPlaylist(document.querySelector('.generes-section.selected').getAttribute('dataid'),'spotify')">
+                <span>Explore more</span>
+            </div>
         </div>
         `
-
+        }
         try {
-            let albumsData = printAlbums(data.albums.data)
-            document.querySelector('.inset-albums-popular').innerHTML = albumsData
+            if (data?.albums?.data?.length > 0) {
+                let albumsData = printAlbums(data?.albums?.data)
+                body += `
+            <div class="artist-categories container">
+                <span>Albums</span>
+            </div>
+            <div class="albums-popular">
+                <div class="inset-albums-popular">
+                ${albumsData}
+                </div>
+            </div>
+            `
+            }
         } catch (e) {
             console.error(e)
         }
-        let artistData = artists(data.artists)
-        document.querySelector('.similar-artist-artist').innerHTML = artistData
+
+        try {
+            if (data?.artists?.length > 0) {
+                let artistData = artistsBody(data?.artists)
+                body += `
+        <div class="features-artists">
+            <div class="artist-categories container">
+                <span>Related artists</span>
+            </div>
+            <div class="artists-container">
+                <div class="inset-artists similar-artist-artist">
+                ${artistData}
+                </div>
+            </div>
+        </div>
+        `
+            }
+        } catch (e) { }
+        document.querySelector('.artist-body').innerHTML = body
+        checkArtist(id, api)
     } catch (e) {
         page.classList.remove('center')
         await delay(200)
@@ -564,7 +608,7 @@ async function createWelcome() {
 
 async function importPlaylist() {
     document.body.classList.add('importing-list')
-    draggableMusic.closeMenu()
+    draggableMusic?.closeMenu()
     await delay(200)
     const html = await getImportings(true)
     document.querySelector('.menu-bottom').insertAdjacentHTML('beforebegin', html)
@@ -674,7 +718,7 @@ async function getImportings(e) {
         <div class="links-imports-section container">
             <div class="link-import-insert"><input type="text" onpaste="pasteList(this,event)" oninput="pasteList(this,event)" placeholder="Insert your playlist link"></div>
             ${e ? '' : `<div class="link-import-submit">
-                <section class="import-section-click" onclick="createWelcome(this)"><span>Start explore Airwave</span></section>
+                <section class="import-section-click" onclick="initializeAccount(this)"><span>Start explore Airwave</span></section>
             </div>`}
 
         </div>
@@ -771,8 +815,8 @@ async function importList(el) {
 
 
 function finishLoadAccount(data) {
-    document.querySelector('.creating-page').remove()
-    document.querySelector('.importing-page').remove()
+    document.querySelector('.creating-page')?.remove()
+    document.querySelector('.importing-page')?.remove()
     document.body.removeAttribute('class')
 }
 async function initializeAccount(el) {
@@ -970,15 +1014,15 @@ async function printHome(data) {
 
     const recent = data?.user?.profile?.recently_played
     if (recent?.length > 0) {
-        const recentHTML = scolledSongs(recent || [], true)
-        document.querySelector('.outset-recently-played').innerHTML = `
-            <div class="head-tag container"><span>Recently played</span><a></a></div>
-            <div class="recently-played-container">
-                <div class="inset-recently-played home-recent">${recentHTML}</div>
-            </div>
-        `
+        // const recentHTML = scolledSongs(recent || [], true)
+        // document.querySelector('.recent-library').innerHTML = `
+        //     <div class="head-tag container"><span>Recently played</span><a></a></div>
+        //     <div class="recently-played-container">
+        //         <div class="inset-recently-played home-recent">${recentHTML}</div>
+        //     </div>
+        // `
     } else {
-        document.querySelector('.outset-recently-played').innerHTML = ''
+        // document.querySelector('.recent-library').innerHTML = ''
     }
 
     if (document.querySelector('.generes-section.selected').classList.contains('trending')) {
@@ -1054,10 +1098,10 @@ function printLiveCard(live) {
 
 function printLives(data) {
     let html = ''
-    if (!data?.home?.lives || data?.home?.lives?.length == 0) {
+    if (!data || data?.length == 0) {
         return
     }
-    data?.home?.lives.forEach(live => {
+    data?.forEach(live => {
         try {
             html += printLiveCard(live);
         } catch (e) {
@@ -1147,7 +1191,7 @@ async function printCache() {
         live += liveCardLoad
         songs += songLoaderEffect
     }
-    document.querySelector('.outset-recently-played').innerHTML = `
+    document.querySelector('.recent-library').innerHTML = `
         <div class="head-tag container"><span>Recently played</span><a></a></div>
         <div class="recently-played-container">
             <div class="inset-recently-played home-recent">${songs}</div>
@@ -1196,7 +1240,6 @@ getHome().then(async data => {
     } catch (e) { }
 
     try {
-
         if (data?.socket?.id && data.user?.status == 'signed') {
             connectWebSocket(data.socket.id, data.socket.token, data?.home?.live?.channel_id);
         }
@@ -1208,7 +1251,7 @@ getHome().then(async data => {
 
     // }
     try {
-        printLives(data)
+        printLives(data?.home?.lives)
     } catch (e) { }
     localStorage.setItem('plus', JSON.stringify(data.plus))
     if (data.plus?.status == 'active') {
@@ -1460,6 +1503,9 @@ history.pushState({ page: 'home' }, null)
 
 document.querySelectorAll('.button-page').forEach(btn => {
     btn.addEventListener('click', function () {
+        if (isOffline) {
+            return miniDialog('You are offline')
+        }
         if (this.classList.contains('selected')) {
             if (this.classList.contains('home-flex') && !document.querySelector('.page.center')) {
                 window.scrollTo({
@@ -1496,7 +1542,8 @@ async function closePages() {
         }
     })
     document.body.classList.remove('hideoverflow')
-    await delay(200);
+    await delay(300);
+    document.querySelector('.top-view')?.classList.remove('top-view')
     return
 }
 
@@ -1677,7 +1724,14 @@ async function printLibrary(data) {
 
     if (data.recently_played?.length > 0) {
         let recent = scolledSongs(data.recently_played)
-        document.querySelector('.library-body .library-recent').innerHTML = recent
+        document.querySelector('.library-body .recent-library').innerHTML = `<div class="favorites-head"">
+                <span>Recently played</span>
+            </div>
+            <div class="recently-played-container">
+                <div class="inset-recently-played library-recent">
+                ${recent}
+                </div>
+            </div>`
     }
 
     if (data.following?.length > 0) {
@@ -1687,7 +1741,10 @@ async function printLibrary(data) {
 }
 
 document.querySelector('.button-page.library-flex').addEventListener('click', async function () {
-    await closePages()
+    if (isOffline) {
+        return miniDialog('You are offline')
+    }
+    closePages()
     showLibrary()
 })
 
@@ -1879,6 +1936,9 @@ function createList() {
 }
 
 document.querySelector('.button-page.profile-flex').addEventListener('click', async function () {
+    if (isOffline) {
+        return miniDialog('You are offline')
+    }
     await closePages()
     const profile = document.querySelector('.profile')
     profile.classList.add('center')
@@ -1996,7 +2056,7 @@ function printQoute(qoute) {
 }
 function printMusic(musicraw) {
     if (musicraw) {
-        return '<div trackurl="' + musicraw.url + '" class="post-music audio-element textarea-music-element"></audio><div class="inner-post-music song" trackid="' + musicraw.id + '" ><div class="post-music-image song-poster" data-poster="' + (musicraw.img) + '" data-poster-large="' + (musicraw.bimg) + '" style="background-image: url(' + (musicraw.img) + ');"></div><div class="info-music-post artist-title" onclick="playTrack(this)"><span>' + musicraw.nm + '</span><a>' + musicraw.art + '</a></div><div class="play-music" onclick="srswAudio($(this));"></div></div></div>';
+        return '<div trackurl="' + musicraw.url + '" class="post-music audio-element textarea-music-element"></audio><div class="inner-post-music song" trackid="' + musicraw.id + '"><div class="post-music-image song-poster" data-poster="' + (musicraw.img) + '" data-poster-large="' + (musicraw.bimg) + '" style="background-image: url(' + (musicraw.img) + ');"></div><div class="info-music-post artist-title" onclick="playTrack(this)"><span>' + musicraw.nm + '</span><a>' + musicraw.art + '</a></div><div class="play-music" onclick="srswAudio($(this));"></div></div></div>';
     } else {
         return '';
     }
@@ -2160,11 +2220,17 @@ async function showDiscovery() {
 
 }
 document.querySelector('.button-page.search-flex')?.addEventListener('click', async function () {
-    await closePages()
+    if (isOffline) {
+        return miniDialog('You are offline')
+    }
+    closePages()
     showDiscovery()
 });
 document.querySelector('.button-page.live-flex')?.addEventListener('click', async function () {
-    await closePages()
+    if (isOffline) {
+        return miniDialog('You are offline')
+    }
+    closePages()
     if (liveBody.classList.contains('live')) {
         showThePlayer();
         return
@@ -2201,6 +2267,7 @@ async function createLive(el) {
             body: JSON.stringify({ name, private })
         })
         const data = await response.json()
+        console.log(data)
         if (data.error) {
             if (data.code) {
                 eval(data.code)
@@ -2357,7 +2424,7 @@ async function showMenu(parent, e) {
     const isExist = await checkObjectExists(rawSongObj.id, 'downloads')
 
     try {
-        const html = printSong(rawSongObj);
+        const html = printSong(rawSongObj, isOffline, isOffline);
         document.querySelector('.switcher-potintial').innerHTML = html
     } catch (e) {
         console.error(e)
@@ -2473,13 +2540,15 @@ async function sendToUser(el) {
 }
 
 document.querySelector('.sending-to-friend')?.addEventListener('click', async function () {
-    sendMusicToFriend()
+    draggableSong.closeMenu()
+    await delay(300)
+    sendMusicMsg(lastSelected)
     return
 })
 
 async function sendMusicToFriend() {
     draggableSong.closeMenu()
-    await delay(200)
+    await delay(300)
     musicStream.classList.remove('hidden');
     musicStream.classList.add('sending');
     musicStream.setAttribute('sdir', 'msg');
@@ -2524,10 +2593,18 @@ async function openPodcast(el) {
     document.querySelector('.album-wrapper').innerHTML = html
 }
 
+function setView(page, cls) {
+    document.querySelector('.top-view')?.classList.remove('top-view')
+    if (page) {
+        page.classList.add('top-view')
+        return
+    }
+    document.querySelector(cls).classList.add('top-view')
+}
 
 async function openAlbum(id) {
-    await closePages()
     const parent = document.querySelector('.album-page')
+    setView(parent)
     parent.classList.remove('hidden', 'podcast')
     await delay(50)
     parent.classList.add('center')
@@ -2550,24 +2627,28 @@ async function printAlbum(data, parent) {
     let html = ''
     data.tracks.forEach((song, index) => {
         html += `
-        <div class="album-song" index="${index}" onclick="openSongAlbum(this)" trackid="${song.id}">
-            <div class="album-song-title">
+        <div class="album-song" index="${index}" trackid="${song.id}">
+            <div class="album-song-title" onclick="openSongAlbum(this)">
                 <span>${song.title}</span>
                 <section>
                     <a>${song.artist}</a>
                     <a>${formatTime(song.duration / 1000)}</a>
                 </section>
             </div>
-            <div class="album-song-more"></div>
+            <div class="album-song-more" onclick="openSongAlbum(this,true)"></div>
         </div>
         `
     })
     document.querySelector('.album-wrapper').innerHTML = html
 }
 
-function openSongAlbum(el) {
-    const index = parseInt(el.getAttribute('index'))
+function openSongAlbum(el, e) {
+    const index = parseInt(el.closest('.album-song').getAttribute('index'))
     const track = currentAlbum.tracks[index]
+    if (e) {
+        showMenu(track)
+        return
+    }
     playTrack(track)
 }
 
@@ -2734,9 +2815,13 @@ async function showPremiumPage() {
 }
 
 document.querySelector('.view-album-ssc')?.addEventListener('click', async function () {
+
     draggableSong?.closeMenu();
     await closePages()
     draggablePlayer?.closeMenu()
+    if (isOffline) {
+        return miniDialog('You are offline')
+    }
     const data = await getAlbum(lastSelected.albumID)
     printAlbum(data)
 })
@@ -2753,6 +2838,9 @@ document.querySelector('.download-ssc')?.addEventListener('click', function () {
     }
 })
 document.querySelector('.live-ssc')?.addEventListener('click', function () {
+    if (isOffline) {
+        return miniDialog('You are offline')
+    }
     if (liveBody.classList.contains('body')) {
         startLive(lastSelected)
         return
@@ -2862,6 +2950,10 @@ function getApiCut(api) {
 }
 
 document.querySelector('.share-player')?.addEventListener('click', async function () {
+    if (liveBody.classList.contains('fullscreen')) {
+        openLyrics(currentSong)
+        return
+    }
     draggableSong?.closeMenu();
     await delay(200)
     share(`https://oave.me/${getApiCut(currentSong.api)}/${currentSong.id}`, `Listen to ${currentSong.title} on Airwave`)
@@ -2873,6 +2965,9 @@ document.querySelector('.share-ssc')?.addEventListener('click', async function (
 })
 document.querySelector('.artist-profile-view')?.addEventListener('click', async function () {
     draggableSong?.closeMenu();
+    if (isOffline) {
+        return miniDialog('You are offline')
+    }
     await delay(200)
     if (lastSelected.api !== 'youtube') {
         dialog('Uavilable for now', 'Artist profile for this song is not avilable for now, will be avilable soon')
@@ -3101,37 +3196,22 @@ async function goOffline(e) {
         <div class="inner-banner-home">
             <div class="live-radio-descriotion">
                 <span>You are offline</span>
-                <p>Start listen with your freinds in same time in live party</p>
+                <p>Start listeninig with favourite tracks offline without limits</p>
             </div>
             <div class="join-now" onclick="document.querySelector('.library-flex').click()"><span>See downloads</span></div>
         </div>
     </div>`;
-    let mini = ''
     const count = await getObjectCount('downloads');
     if (count > 0) {
-        downloaded = await getAllObjects('downloads')
-        if (count < 10) {
-            const { html } = printSongsRegular(downloaded, { limit: 100, offset: 0, proxy: true, download: true });
-            mini = `
-                <div class="most-terinding-hits home-section">
-                    <div class="head-tag container"><span>Your downloads</span></div>
-                    <div class="trendings-inset-hits main-inset-hits">${html}</div>
-                </div>
-            `
-        } else {
-            let miniSongs = printMiniSongs(downloaded, true)
-            mini = `< div class="home-section mini-songs-new" >
-                <div class="head-tag container"><span>Leatest releases</span><a></a></div><div class="newest-chart">
-                    <div class="grid-shot-set">
-                        ${miniSongs}
-                    </div>
-                </div>
-            </div > `
-        }
-        document.querySelector('.timeline').innerHTML = banner + mini
-    } else {
-        document.querySelector('.going-live').innerHTML = banner
-        document.querySelector('.home-section').remove()
+        const lib = document.querySelector('.liberary')
+        lib.classList.add('center', 'offline')
+        lib.classList.remove('hidden')
+        lib.setAttribute('action', 'downloads')
+        const html = document.querySelector('.home-header').outerHTML
+        lib.insertAdjacentHTML('afterbegin', html + banner)
+
+        document.querySelector('.home-header').remove()
+        runReformLib('downloads')
     }
     document.body.classList.add('offline')
     document.querySelector('.loadermain')?.remove()
@@ -3159,31 +3239,49 @@ document.querySelector('.input-search input').addEventListener('input', function
     }, 500)
 })
 
-// let globalResolve;
-// var arrowicon = '<div class="refresh-arrow"></div>';
-// var roller = '<div class="roller-refresh"><div class="lds-roller-main"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>';
-// var homerefresh = PullToRefresh.init({
-//     mainElement: '.timeline',
-//     triggerElement: '.timeline',
-//     onRefresh: function (cb) {
-//         globalResolve = cb;
-//         console.log('refreshed')
-//     },
-//     shouldPullToRefresh: function () {
-//         return true;
-//     },
-//     iconArrow: arrowicon,
-//     iconRefreshing: roller,
-//     distThreshold: 50,
-//     resistanceFunction: t => Math.min(1, t / 2)
-// });
+async function getLives() {
+    try {
+        const response = await fetch('https://api.onvo.me/music/lives', {
+            headers: {
+                Authorization: `Bearer ${await getToken()}`
+            }
+        })
+        const data = await response.json()
+        printLives(data)
+        finishPullToRefresh()
+    } catch (e) {
+        finishPullToRefresh()
+        console.log(e)
+        miniDialog('Error refreshing')
+    }
+}
 
-// function finishPullToRefresh() {
-//     if (globalResolve) {
-//         globalResolve();
-//         globalResolve = null;
-//     }
-// }
+let globalResolve;
+var arrowicon = '<div class="refresh-arrow"></div>';
+// var roller = '<div class="roller-refresh"><div class="lds-roller-main"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>';
+var homerefresh = PullToRefresh.init({
+    mainElement: '.timeline',
+    triggerElement: '.going-live',
+    onRefresh: function (cb) {
+        globalResolve = cb;
+        getLives()
+        // finishPullToRefresh()
+    },
+    shouldPullToRefresh: function () {
+        return window.scrollY < 50;
+    },
+    iconArrow: arrowicon,
+    iconRefreshing: '<div class="loader-6 loader-home"><span></span></div>',
+    distThreshold: 50,
+    resistanceFunction: t => Math.min(1, t / 2)
+});
+
+function finishPullToRefresh() {
+    if (globalResolve) {
+        globalResolve();
+        globalResolve = null;
+    }
+}
 
 
 
@@ -3198,7 +3296,6 @@ async function saveAlbum(el) {
     } else {
         el.classList.add('saved')
     }
-    console.log('asaassasasawqwqe')
     el.classList.add('disabled')
     let album = structuredClone(currentAlbum)
     fetch(`https://api.onvo.me/music/save`, {
@@ -3347,7 +3444,6 @@ async function processInBatchesas(list, batchSize = 20) {
 }
 
 let stopDownloading = false
-let ongoingDownloadList
 async function downloadList(el) {
     if (el.classList.contains('loading')) {
         stopDownloadList(el)
@@ -3508,8 +3604,7 @@ function printArtistsFromAss(data) {
             posterLarge: artist.images?.[0]?.url.replace('w540-h225-p-l90-rj', 'w300-h300-p-l90-rj')
         })
     })
-    console.log(artistsData)
-    return artists(artistsData)
+    return artistsBody(artistsData, false)
 }
 async function nextHome() {
     const data = await getMessagesHome()

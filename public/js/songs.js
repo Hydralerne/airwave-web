@@ -133,12 +133,12 @@ function printLiveSong(data) {
     return html
 }
 
-function printSong(song, e) {
+function printSong(song, e, c) {
     const posterDetails = filterPosterLarge(song.posterLarge, song.poster);
     return `
                 <div class="music-component song ${currentSong?.id == song.id ? 'running' : ''}" duration="${song.duration}" ${song.album ? `album="${encodeURIComponent(song.album)}"` : ''} ${song.kind == 'album' ? 'kind="album"' : ''} ${song.artistID ? `artist-id="${song.artistID}" ` : ''}${song.albumID ? `album-id="${song.albumID}"` : ''} trackid="${song.id}" api="${song.api}">
                     <div class="arrange"></div>
-                    <div class="song-poster" onclick="playTrack(this)" data-poster="${song.poster?.url || song.poster}" data-size-large="${posterDetails.size}" data-poster-large="${posterDetails.image}" style="background-image: url('${pI(song.poster?.url || song.poster, e)}')"></div>
+                    <div class="song-poster" onclick="playTrack(this)" data-poster="${song.poster?.url || song.poster}" data-size-large="${posterDetails.size}" data-poster-large="${posterDetails.image}" style="background-image: url('${c ? proxy(song.poster, e, c) : pI(song.poster, e)}')"></div>
                     <div class="artist-title audio-control" onclick="playTrack(this)" protocol="${song.audio?.protocol}" data-audio="${song.audio?.url}">
                         <span>${song.title}</span>
                         <a>${song.artist}</a>

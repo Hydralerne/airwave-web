@@ -1015,6 +1015,9 @@ function printCopyrights(data) {
 }
 
 async function checkTrackData() {
+    if (isOffline) {
+        return
+    }
     try {
         if (!currentSong.posterLarge || currentSong.posterLarge == 'undefined' || !currentSong.album || currentSong.album == 'undefined' || !currentSong.poster || currentSong.posterLarge == 'undefined') {
             let trackData
@@ -1282,7 +1285,7 @@ async function playTrack(el, e) {
         showPlayer();
     }
 
-    if (currentSong.kind == 'album') {
+    if (currentSong.kind == 'album' && currentSong.api == 'apple') {
         currentSong = await getAlbumData(id, true);
         let albumIndex = queueTracks.findIndex(item => item.id === id);
         if (!queueTracks.includes(currentSong)) {
@@ -1300,8 +1303,6 @@ async function playTrack(el, e) {
         return
     }
 
-
-    console.log('aaaaaaaaaaaaaaaaaaa', handler.source)
     lyricsInitialize = false
 
     playSource(handler.source);
@@ -1451,7 +1452,7 @@ function playerLoaded() {
 let safeMode = false
 
 function initializeYoutube(id, e) {
-    if (ytInitialized || isParty || !isInline()) {
+    if (ytInitialized || isParty || !isInline() || isOffline) {
         return
     }
     try {
@@ -1681,6 +1682,9 @@ async function loadNative(id, e, d) {
 }
 
 async function prepareNext(next) {
+    if (isOffline) {
+        return
+    }
     if (currentSong.api == 'song' || currentSong.api == 'soundcloud') {
         return
     }
@@ -1720,6 +1724,9 @@ async function getYTcode(title, artist, id) {
 let currentPlaying;
 
 async function updatePlaying(song) {
+    if (isOffline) {
+        return
+    }
     let id = song.id
     if (currentPlaying == song.id) {
         return
@@ -1848,7 +1855,8 @@ async function removePlayer() {
     parent.classList.add('hidden')
 }
 async function showPlayer(live) {
-    const parent = document.querySelector('.body')
+    const parent = liveBody
+
     if (live) {
         parent.classList.add(live, 'live')
     }
@@ -1882,6 +1890,9 @@ async function showPlayer(live) {
         });
     } else {
         draggablePlayer.update()
+    }
+    if (live || isParty) {
+        draggablePlayer?.addBlock('.scroller-container')
     }
 }
 
@@ -2053,6 +2064,7 @@ async function sendMusicMsg(json) {
     await reflexReply()
     const html = printSong(json);
     document.querySelector('.song-potintial-send').innerHTML = html
+    document.querySelector('.body-replyer-switching').setAttribute('dir','reply')
 }
 
 
@@ -2097,7 +2109,7 @@ async function replyPage(el) {
     const bg = post.querySelector('.pppi').style.backgroundImage?.replace('"', '')?.replace('"', '')
     document.querySelector('.song-potintial-send').innerHTML = html
     document.querySelector('.song-potintial-send .song').classList.add('music-component')
-    document.querySelector('.song-potintial-send .song').insertAdjacentHTML('beforeend', `<div class="user-whom-sender" style="background-image: ${(bg)}" ></div>`)
+    document.querySelector('.song-potintial-send .song').insertAdjacentHTML('beforeend', `<div class="user-whom-sender" style="background-image: ${(bg)}"></div>`)
     document.querySelector('.body-replyer-switching').setAttribute('dir', 'reply')
     document.querySelector('.button-negrisco.main span').innerText = 'Reply message'
     document.querySelector('.button-negrisco.main').setAttribute('onclick', `replyRequest(this,'${post.getAttribute('dataid')}')`)
@@ -2508,10 +2520,10 @@ async function search(q, e, dir) {
     document.querySelector(e ? '.search-result' : '.inset-search-songs').innerHTML = html
 }
 
-function artists(data) {
+function artistsBody(data, e) {
     let html = ''
     data.forEach(artist => {
-        html += `<div class="artist-element" data-img="${artist.posterLarge}" dataid="${artist.id}" onclick="openArtist(this.getAttribute('dataid'),'youtube',this)" dataid="${artist.id}"><span style="background-image: url('${pI(artist.posterLarge, true)}')"></span><a>${artist.name}</a><p>${artist.followers}</p></div>`
+        html += `<div class="artist-element" data-img="${artist.posterLarge}" dataid="${artist.id}" onclick="openArtist(this.getAttribute('dataid'),'youtube',this)" dataid="${artist.id}"><span style="background-image: url('${e ? pI(artist.posterLarge, true) : artist.posterLarge}')"></span><a>${artist.name}</a><p>${artist.followers}</p></div>`
     })
     return html
 }
@@ -2730,6 +2742,9 @@ let relatedGlobal = {}
 
 
 async function getRelated(e) {
+    if (isOffline) {
+        return {}
+    }
     return new Promise(async (resolve) => {
         if (relatedGlobal.id == currentSong.id) {
             resolve(relatedGlobal)
@@ -2803,8 +2818,23 @@ async function parseRelated(e = 'main') {
         loader += songLoaderEffect
     }
     relatedParent.innerHTML = loader
-    let data = await getRelated(true)
-    let queue = e == 'main' ? (data?.list || data?.related?.tracks) : data?.related?.tracks
+    let data = {}
+    if (!isOffline) {
+        data = await getRelated(true)
+    }
+    let queue = [];
+    if (!isOffline) {
+        queue = e == 'main' ? (data?.list || data?.related?.tracks) : data?.related?.tracks
+    } else if (queueTracks.length <= 1) {
+        const songsRaw = await getAllObjects('downloads')
+        const songs = songsRaw.filter(song => { song.poster && song.posterLarge })
+        if (songs.length > 1) {
+            queueTracks = songs
+            queue = songs
+        }
+    } else {
+        queue = queueTracks
+    }
     let helper = e == 'main' ? `
     <div class="container-adding-queue"><div class="add-to-queue" onclick="sendSong('queue')"><span>Add to queue</span></div><div class="clear-queue" onclick="clearQueue()"><span>Clear queue</span></div></div>
     ` : ''
@@ -2819,7 +2849,7 @@ async function parseRelated(e = 'main') {
         queue.forEach(song => {
             try {
                 if (e == 'main') {
-                    html += printSong(song, true)
+                    html += printSong(song, true, true)
                 } else if (e == 'related') {
                     html += printSongRegular(song, true, true)
                 }
@@ -2960,7 +2990,7 @@ function joinParty(id) {
         channel: id
     })
     const fireIt = async () => {
-        const parent = document.querySelector('.body')
+        const parent = liveBody
         parent.setAttribute('dataid', id)
         showPlayer(party.owner == localStorage.getItem('userid') ? 'owner' : 'member')
         await closePages()
@@ -3346,6 +3376,9 @@ async function handleIncomingVideoStatus(data) {
 const musicStream = document.querySelector('.music-stream-search');
 
 function sendSong(e) {
+    if (isOffline) {
+        return miniDialog('You are offline')
+    }
     document.body.classList.remove('searching')
     document.querySelector('.flex-search-platforms').scrollLeft = 0
     document.querySelector('.inset-search-songs').innerHTML = ''
@@ -3700,7 +3733,11 @@ async function selectLyricsShare(el) {
 
 async function openLyrics(song) {
     resetLyricsCard(true)
-    document.querySelector('.lyrics-page').classList.add('center', 'selecting')
+    closeDiscovery()
+    const parent = document.querySelector('.lyrics-page')
+    parent.classList.remove('hidden')
+    await delay(50)
+    parent.classList.add('center', 'selecting')
     const loader = loadingLyrics(true)
     document.querySelector('.lyrics-outer-selecting').innerHTML = `<div class="lyrics-loading-lyrics-container">${loader}</div>`
     document.querySelectorAll('.lyrics-page .wave-back-component').forEach(el => {
@@ -3716,6 +3753,7 @@ async function openLyrics(song) {
         lyricsData = await fetchLyrics(song)
     }
     let html = noLyrics(true)
+    console.log(lyricsData)
     try {
         html = renderLyrics(lyricsData)
     } catch (e) {
@@ -3752,7 +3790,7 @@ async function getLyrics(track = currentSong, youtube = currentSong.yt) {
     try {
         if (isLocal) {
             data = await getObject(track.id, 'lyrics')
-        } else {
+        } else if (!isOffline) {
             data = await fetchLyrics(track, youtube);
         }
     } catch (e) {
@@ -4132,7 +4170,7 @@ async function showLyrics() {
     liveBody.classList.add('resizing')
     if (!liveBody.classList.contains('live')) {
         await delay(20)
-    }else {
+    } else {
         liveBody.classList.add('player')
     }
     liveBody.classList.add('fullscreen')
@@ -4175,7 +4213,7 @@ async function parseLyrics(perview, data = jsonLyrics, api = jsonLyrics.api) {
 }
 
 async function closeLyrics() {
-    if(liveBody.classList.contains('live')){
+    if (liveBody.classList.contains('live')) {
         liveBody.classList.remove('player')
         liveBody.classList.remove('resizing')
     }
@@ -4374,7 +4412,7 @@ class DraggableMenu {
 
     onTouchStart(evt) {
         if (this.blockClass) {
-            if (evt.target.classList.contains(this.blockClass)) {
+            if (evt.target.closest(this.blockClass)) {
                 return
             }
         }
