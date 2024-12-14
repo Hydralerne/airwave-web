@@ -1134,6 +1134,7 @@ function liveMenu(el) {
 }
 
 let isPlus = () => {
+    return true
     try {
         if (localStorage.getItem('plus')) {
             let data = JSON.parse(localStorage.getItem('plus'))
@@ -1443,10 +1444,10 @@ document.querySelector('.liberary')?.addEventListener('scroll', async function (
 
 document.querySelectorAll('.libgnre-section').forEach(lib => {
     lib.addEventListener('click', function () {
+        clearReformLib()
         if (this.classList.contains('selected')) {
             document.querySelector('.liberary').removeAttribute('action')
             this.classList.remove('selected')
-            clearReformLib()
             return
         }
         document.querySelectorAll('.libgnre-section').forEach(el => { el.classList.remove('selected') });
@@ -3061,8 +3062,12 @@ async function downloadSong(song = lastSelected, isList) {
         return { error: json.error }
     }
     // coreSocket.send(JSON.stringify({ ct: 'download', trackid: song.id, id: YTCode, url: data.audio || data.url }))
-    fetch(proxy(song.posterLarge, true, true))
-    fetch(proxy(song.poster, true, true))
+    if(song.posterLarge){
+        fetch(proxy(song.posterLarge, true, true))
+    }
+    if(song.poster){
+        fetch(proxy(song.poster, true, true))
+    }
     songs.forEach(song => { song.querySelector('.loader-mini').remove() })
 
     delete downloading[song.id].source
@@ -3074,10 +3079,14 @@ async function downloadSong(song = lastSelected, isList) {
     const lyrics = await fetchLyrics(downloading[song.id], downloading[song.id].yt)
     await setObject(song.id, lyrics, 'lyrics')
     delete downloading[song.id]
-    currentList.tracks.filter(track => track.id == song.id)[0].downloaded = true
-    const all = currentList.tracks.length
-    const downloaded = currentList.tracks.filter(track => track.downloaded == true).length
-    miniDialog(isList ? `Downloaded ${downloaded} of ${all}` : 'Download complete')
+    if(isList){
+        currentList.tracks.filter(track => track.id == song.id)[0].downloaded = true
+        const all = currentList.tracks.length
+        const downloaded = currentList.tracks.filter(track => track.downloaded == true).length
+        iniDialog(`Downloaded ${downloaded} of ${all}`)
+    }else {
+        miniDialog('Download complete')
+    }
     return { status: 'success' }
 }
 
@@ -3422,7 +3431,7 @@ async function processInBatches(list, maxActive = 20, timeout = 30000) {
     console.log("All downloads completed, including retries.");
 }
 
-async function processInBatchesas(list, batchSize = 20) {
+async function processInBatchesas(list, batchSize = 10) {
     for (let i = 0; i < list.tracks.length; i += batchSize) {
         if (stopDownloading) {
             break;
@@ -3458,6 +3467,11 @@ async function downloadList(el) {
     el.classList.add('loading')
     el.innerHTML = '<div class="loader-3 loader-list"><a></a><span></span></div>'
     await loadFullList()
+    if(window.webkit){
+        await playTrack(currentList.tracks[0])
+    dialog('Download in Progress', 
+        'For a smooth experience, we kindly ask that you keep track of the music playing while the playlist is being downloaded. Due to iOS restrictions, closing the app during this process may interrupt the download. Thank you for your understanding!');
+    }
     if (currentList?.owner?.image) {
         fetch(proxy(currentList?.owner?.image, true, true))
     }

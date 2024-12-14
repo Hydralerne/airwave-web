@@ -7,6 +7,8 @@ const fs = require('fs');
 // Connect to WebSocket server
 let { WebSocketServer } = WebSocket
 
+const agent = new https.Agent({ keepAlive: true });
+
 let fetch;
 let socket = {};
 
@@ -61,8 +63,13 @@ const downloadFile = (url, outputPath) => {
 
 const parseM3U8 = async (m3u8Url) => {
     return new Promise((resolve, reject) => {
-
-        https.get(m3u8Url, (response) => {
+        const requestOptions = {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36',
+            },
+            agent,
+        };
+        https.get(m3u8Url, requestOptions, (response) => {
             let data = '';
 
             response.on('data', (chunk) => {
@@ -114,23 +121,16 @@ const downloadHLS = async (m3u8Url, trackid, outputPath) => {
         console.error('Error downloading HLS stream:', err);
     }
 };
-
-const isHLSStream = (url) => {
-    return new Promise((resolve, reject) => {
-        https.get(url, (response) => {
-            const contentType = response.headers['content-type'];
-            if (contentType && (contentType.includes('application/vnd.apple.mpegurl') || contentType.includes('audio/mpegurl'))) {
-                resolve(true);
-            } else {
-                resolve(false);
-            }
-        }).on('error', (err) => {
-            reject(err);
-        });
-    });
+const isHLSStream = async (url) => {
+    try {
+        const response = await fetch(url, { method: 'HEAD' });
+        const contentType = response.headers.get('content-type');
+        return contentType && (contentType.includes('application/vnd.apple.mpegurl') || contentType.includes('audio/mpegurl'));
+    } catch (error) {
+        console.error('Error checking HLS stream:', error);
+        return false;
+    }
 };
-
-
 
 const getFileNameFromHeaders = (headers, url) => {
     let fileName;
@@ -156,12 +156,15 @@ const getFileNameFromHeaders = (headers, url) => {
 
     return fileName;
 };
+
 const downloadChunk = (url, start, end, index) => {
     return new Promise((resolve, reject) => {
         const options = {
             headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36',
                 'Range': `bytes=${start}-${end}`,
             },
+            agent,
         };
 
         https.get(url, options, (response) => {
@@ -180,9 +183,16 @@ const downloadChunk = (url, start, end, index) => {
     });
 };
 
-const downloadParallel = async (url, trackid, outputPath, numChunks = 15) => {
+const downloadParallel = async (url, trackid, outputPath, numChunks = 10) => {
+    const requestOptions = {
+        headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36',
+        },
+        agent,
+    };
+    
     return new Promise((resolve, reject) => {
-        https.get(url, (response) => {
+        https.get(url, requestOptions, (response) => {
             const totalSize = parseInt(response.headers['content-length'], 10);
             const chunkSize = Math.ceil(totalSize / numChunks);
             const contentType = response.headers['content-type'];
@@ -271,7 +281,6 @@ const urlToFilename = (urlString) => {
     }
 };
 
-const agent = new https.Agent({ keepAlive: true });
 
 const proxyImages = (req, res, next) => {
     const imageUrl = req.query.url;
@@ -296,7 +305,7 @@ const proxyImages = (req, res, next) => {
         headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36',
         },
-        agent, // Reuse connections with the keep-alive agent
+        agent,
     };
 
     https.get(imageUrl, requestOptions, (proxyRes) => {
