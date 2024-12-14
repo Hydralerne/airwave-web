@@ -3520,12 +3520,14 @@ async function getYTHome() {
     let data = getJson('ythome', true)
     if (data?.picks?.length > 2) {
         printYTHome(data)
+        interface('loaded')
     } else {
         const response = await fetch('/yt-music/home')
         data = await response.json()
         if (data.picks?.length > 2) {
             setJson(data, 'ythome', (1000 * 60 * 30))
         }
+        interface('loaded')
     }
     printYTHome(data)
     nextHome(data)

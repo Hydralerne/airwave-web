@@ -336,6 +336,9 @@ function interface(type, data, arr = {}) {
                     url: arr.header
                 });
                 break;
+            case 'loaded': 
+                window.webkit.messageHandlers.loaded.postMessage('a')
+            break
             case 'web':
                 if (window.webkit) {
                     window.webkit.messageHandlers.web.postMessage(data);
