@@ -271,30 +271,32 @@ const urlToFilename = (urlString) => {
     }
 };
 
+const agent = new https.Agent({ keepAlive: true });
+
 const proxyImages = (req, res, next) => {
     const imageUrl = req.query.url;
-    const cache = req.query.cache
+    const cache = req.query.cache;
+
     if (!imageUrl) {
         return res.status(400).send('URL query parameter is required');
     }
 
     const filename = urlToFilename(imageUrl);
-    const filePath = req.query.download ? path.join(DOWNLOADS_IMAGES, filename) : path.join(IMAGES_DIR, filename);
+    const filePath = path.join(IMAGES_DIR, filename);
 
-    if (cache) {
-        if (fs.existsSync(filePath)) {
-            return res.sendFile(filePath, (err) => {
-                if (err) {
-                    return res.status(500).send('Error retrieving the cached image');
-                }
-            });
-        }
+    if (cache && fs.existsSync(filePath)) {
+        return res.sendFile(filePath, (err) => {
+            if (err) {
+                return res.status(500).send('Error retrieving the cached image');
+            }
+        });
     }
 
     const requestOptions = {
         headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36',
-        }
+        },
+        agent, // Reuse connections with the keep-alive agent
     };
 
     https.get(imageUrl, requestOptions, (proxyRes) => {
@@ -307,23 +309,17 @@ const proxyImages = (req, res, next) => {
             proxyRes.pipe(fileStream);
 
             fileStream.on('finish', () => {
-                fileStream.close(() => {
-                    // console.log(`Image saved locally as: ${filename}`);
-                });
+                fileStream.close();
             });
 
             fileStream.on('error', (err) => {
-                fs.unlink(filePath, () => { });
-                // console.error('Error saving the image:', err);
+                fs.unlink(filePath, () => {});
             });
         }
     }).on('error', (err) => {
-        res.send(err.message)
-        // console.error('Error proxying the image:', err);
-        // return res.send('Error proxying the image');
+        res.status(500).send(err.message);
     });
 };
-
 
 let proxyWS;
 let wssGlobal = {};

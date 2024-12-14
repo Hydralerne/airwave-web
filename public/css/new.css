@@ -2085,7 +2085,7 @@ span.top-switch-header {
     left: unset;
     margin-left: 0;
     margin-right: 6%;
-    z-index: 99;
+    z-index: 99999;
 }
 
 .artist-back img {

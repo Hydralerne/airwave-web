@@ -614,7 +614,7 @@ function playNext(e) {
     }
 
     document.querySelector('.play-pause').classList.remove('played')
-    if (((globalNext.id && !e && globalNext.id !== currentSong.id) || isShuffle()) && currentSong.api !== 'soundcloud') {
+    if (((globalNext.id && !e && globalNext.id !== currentSong.id) || isShuffle() && globalNext.id) && currentSong.api !== 'soundcloud') {
         playTrack(globalNext)
         // globalNext = {}
     } else {
@@ -1843,7 +1843,7 @@ async function showThePlayer() {
     if (isOffline) {
         return
     }
-    // initializeYoutube(currentSong.yt)
+    initializeYoutube(currentSong.yt)
 }
 
 let draggablePlayer
@@ -2509,7 +2509,7 @@ async function search(q, e, dir) {
 
     let html = ''
     if (dir == 'artists') {
-        html = `<div class="artists-search-container">${artists(data)}</div>`
+        html = `<div class="artists-search-container">${artistsBody(data)}</div>`
     } else if (dir == 'users') {
         html = printUsers(data);
     } else if (dir == 'podcasts') {
@@ -2523,7 +2523,7 @@ async function search(q, e, dir) {
 function artistsBody(data, e) {
     let html = ''
     data.forEach(artist => {
-        html += `<div class="artist-element" data-img="${artist.posterLarge}" dataid="${artist.id}" onclick="openArtist(this.getAttribute('dataid'),'youtube',this)" dataid="${artist.id}"><span style="background-image: url('${e ? pI(artist.posterLarge, true) : artist.posterLarge}')"></span><a>${artist.name}</a><p>${artist.followers}</p></div>`
+        html += `<div class="artist-element" data-img="${artist.posterLarge}" dataid="${artist.id}" onclick="openArtist(this.getAttribute('dataid'),'youtube',this)" dataid="${artist.id}"><span style="background-image: url('${pI(artist.posterLarge, true)}')"></span><a>${artist.name}</a><p>${artist.followers}</p></div>`
     })
     return html
 }

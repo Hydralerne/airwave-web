@@ -3587,7 +3587,9 @@ async function getArtistsShuffle(data) {
     });
 
     await Promise.all(fetchPromises);
-    setJson(artists, 'artists', (1000 * 60 * 30))
+    if(artists.length > 0){
+        setJson(artists, 'artists', (1000 * 60 * 30))
+    }
     return artists;
 }
 
