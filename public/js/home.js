@@ -3266,6 +3266,7 @@ async function getLives() {
 }
 
 let globalResolve;
+const lives = document.querySelector('.going-live')
 var arrowicon = '<div class="refresh-arrow"></div>';
 // var roller = '<div class="roller-refresh"><div class="lds-roller-main"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>';
 var homerefresh = PullToRefresh.init({
@@ -3277,7 +3278,7 @@ var homerefresh = PullToRefresh.init({
         // finishPullToRefresh()
     },
     shouldPullToRefresh: function () {
-        return window.scrollY < 50;
+        return window.scrollY < 50 && lives.scrollLeft < 50;
     },
     iconArrow: arrowicon,
     iconRefreshing: '<div class="loader-6 loader-home"><span></span></div>',
