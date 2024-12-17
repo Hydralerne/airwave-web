@@ -2158,3 +2158,9 @@ span.top-switch-header {
 .body.live.dragging .bottom-live-control {
     display: none
 }
+.related-queue {
+    max-width: 500px;
+}
+.related-back {
+    left: 0;
+}

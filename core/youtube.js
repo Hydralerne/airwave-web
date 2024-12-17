@@ -821,10 +821,10 @@ const requestBrowse = async (id) => {
     return data
 }
 
-const getLyrics = async (param, id) => {
+const getLyrics = async (param, id, isNative) => {
     const [data, subtitles] = await Promise.all([
         requestBrowse(param),
-        getNativeSubtitles(id)
+        isNative ? getNativeSubtitles(id) : {}
     ])
     const lyricsRaw = data?.contents
         ?.sectionListRenderer
@@ -837,7 +837,7 @@ const getLyrics = async (param, id) => {
         ?.text
 
     const lyrics = {
-        lines: lyricsRaw?.split("\n")?.map(line => line.replace("\r", '')).filter(line => line !== ''),
+        lines: lyricsRaw?.split("\n")?.map(line => line.replace("\r", '')).filter(line => line !== '').map(line => line = { text: line }),
         synced: subtitles
     }
 
@@ -1054,7 +1054,7 @@ const filterArtistSections = (json) => {
     return data
 }
 
-const filterArtistData = (json,id) => {
+const filterArtistData = (json, id) => {
     const artist = json.header.musicImmersiveHeaderRenderer
     const sections = filterArtistSections(json);
     const image = artist?.thumbnail?.musicThumbnailRenderer?.thumbnail?.thumbnails?.[0]?.url?.split('=w')?.[0]
@@ -1077,7 +1077,7 @@ const filterArtistData = (json,id) => {
 const getArtist = async (req, res) => {
     try {
         const data = await requestBrowse(req.query.id);
-        const json = filterArtistData(data,req.query.id)
+        const json = filterArtistData(data, req.query.id)
         res.json(json)
     } catch (e) {
         console.error(e)
@@ -1417,10 +1417,10 @@ const filterExplore = (data) => {
         ?.tabRenderer
         ?.content
         ?.sectionListRenderer
-        let body = {}
+    let body = {}
     sections.contents.forEach(section => {
         try {
-            if(section.musicCarouselShelfRenderer?.header.musicCarouselShelfBasicHeaderRenderer.title.runs[0].navigationEndpoint.browseEndpoint.browseId == 'FEmusic_new_releases_albums'){
+            if (section.musicCarouselShelfRenderer?.header.musicCarouselShelfBasicHeaderRenderer.title.runs[0].navigationEndpoint.browseEndpoint.browseId == 'FEmusic_new_releases_albums') {
                 body.singles = filterAlbums(section.musicCarouselShelfRenderer).data
             }
         } catch (e) {

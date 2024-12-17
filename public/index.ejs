@@ -20,31 +20,31 @@
 
             function log(data) {
                 console.log(data)
-                fetch("/log-error", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(data),
-                });
+                // fetch("/log-error", {
+                //     method: "POST",
+                //     headers: {
+                //         "Content-Type": "application/json",
+                //     },
+                //     body: JSON.stringify(data),
+                // });
             }
 
             if (window.webkit) {
-                window.onerror = function (message, source, lineno, colno, error) {
-                    // Log the error details
+                // window.onerror = function (message, source, lineno, colno, error) {
+                //     // Log the error details
 
-                    log({
-                        message: message,
-                        source: source,
-                        lineno: lineno,
-                        colno: colno,
-                        error: error ? error.stack : null,
-                    })
+                //     log({
+                //         message: message,
+                //         source: source,
+                //         lineno: lineno,
+                //         colno: colno,
+                //         error: error ? error.stack : null,
+                //     })
 
 
-                    // Return true to prevent the error from propagating further
-                    return true;
-                };
+                //     // Return true to prevent the error from propagating further
+                //     return true;
+                // };
             }
         </script>
         <script src="/js/header.js?asdasd"></script>
@@ -113,6 +113,8 @@
                                 <script type="application/javascript" src="/js/home.js?ASdadasdsfd"></script>
                                 <script type="application/javascript" src="/js/profile.js?ASassdfddad"></script>
                                 <script type="application/javascript" src="/js/plus.js?Sadasdsdfas"></script>
+                                <script type="application/javascript" src="/js/navigation.js"></script>
+
                                 <% } %>
                                     <script>
                                         try {

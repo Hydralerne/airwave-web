@@ -1516,6 +1516,7 @@ document.querySelectorAll('.button-page').forEach(btn => {
             }
             return
         }
+        history.pushState({ page: 'page' }, null)
         if (this.classList.contains('inbox-flex')) {
             document.body.classList.add('messaging')
         } else {
@@ -2395,6 +2396,8 @@ let lastSelected = {}
 async function showMenu(parent, e) {
     document.querySelector('.switcher-menu').classList.remove('hidden');
     const back = document.querySelector('.switcher-menu-body')
+    history.pushState({ page: 'song' }, null)
+    currentPage = 'song'
     setTimeout(() => {
         back.classList.add('center-flex');
         if (!draggableSong) {
@@ -2890,6 +2893,8 @@ document.querySelector('.input-search input')?.addEventListener('blur', function
     this.closest('.input-search section').classList.remove('focused')
 });
 async function showMainMenu() {
+    currentPage = 'menu'
+    history.pushState({ page: 'menu' }, null)
     let html = `
         <div class="mobile-menu">
             <div class="watch-list-back" onclick="closeMenuMobile(this)"></div>
@@ -3062,10 +3067,10 @@ async function downloadSong(song = lastSelected, isList) {
         return { error: json.error }
     }
     // coreSocket.send(JSON.stringify({ ct: 'download', trackid: song.id, id: YTCode, url: data.audio || data.url }))
-    if(song.posterLarge){
+    if (song.posterLarge) {
         fetch(proxy(song.posterLarge, true, true))
     }
-    if(song.poster){
+    if (song.poster) {
         fetch(proxy(song.poster, true, true))
     }
     songs.forEach(song => { song.querySelector('.loader-mini').remove() })
@@ -3079,12 +3084,12 @@ async function downloadSong(song = lastSelected, isList) {
     const lyrics = await fetchLyrics(downloading[song.id], downloading[song.id].yt)
     await setObject(song.id, lyrics, 'lyrics')
     delete downloading[song.id]
-    if(isList){
+    if (isList) {
         currentList.tracks.filter(track => track.id == song.id)[0].downloaded = true
         const all = currentList.tracks.length
         const downloaded = currentList.tracks.filter(track => track.downloaded == true).length
         iniDialog(`Downloaded ${downloaded} of ${all}`)
-    }else {
+    } else {
         miniDialog('Download complete')
     }
     return { status: 'success' }
@@ -3468,10 +3473,10 @@ async function downloadList(el) {
     el.classList.add('loading')
     el.innerHTML = '<div class="loader-3 loader-list"><a></a><span></span></div>'
     await loadFullList()
-    if(window.webkit){
+    if (window.webkit) {
         await playTrack(currentList.tracks[0])
-    dialog('Download in Progress', 
-        'For a smooth experience, we kindly ask that you keep track of the music playing while the playlist is being downloaded. Due to iOS restrictions, closing the app during this process may interrupt the download. Thank you for your understanding!');
+        dialog('Download in Progress',
+            'For a smooth experience, we kindly ask that you keep track of the music playing while the playlist is being downloaded. Due to iOS restrictions, closing the app during this process may interrupt the download. Thank you for your understanding!');
     }
     if (currentList?.owner?.image) {
         fetch(proxy(currentList?.owner?.image, true, true))
@@ -3604,7 +3609,7 @@ async function getArtistsShuffle(data) {
     });
 
     await Promise.all(fetchPromises);
-    if(artists.length > 0){
+    if (artists.length > 0) {
         setJson(artists, 'artists', (1000 * 60 * 30))
     }
     return artists;

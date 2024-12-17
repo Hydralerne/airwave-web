@@ -607,17 +607,6 @@ function fadeColor(hex, fadeAmount) {
     return `#${r}${g}${b}`;
 }
 
-window.addEventListener('popstate', function (event) {
-    if (event.state.page == 'home') {
-        document.querySelectorAll('.page.center').forEach(page => {
-            if (page.classList.contains('player')) {
-                minimizePlayer(page)
-            } else {
-                page.classList.remove('center')
-            }
-        })
-    }
-});
 
 async function ajaxTokenSpotify(e) {
     return new Promise((resolve, reject) => {
