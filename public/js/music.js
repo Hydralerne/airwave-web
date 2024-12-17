@@ -1265,7 +1265,7 @@ async function playTrack(el, e) {
         currentPage = 'player'
     }
 
-    currentSong = structuredClone(rawSongObj)
+    currentSong = {...rawSongObj}
 
     let handler
 

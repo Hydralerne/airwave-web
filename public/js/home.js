@@ -1816,7 +1816,7 @@ document.querySelector('.save-playlist')?.addEventListener('click', async functi
             return
         }
     })
-    const list = structuredClone(currentList);
+    const list = {...currentList};
     delete list['tracks'];
 
     const paylod = {
@@ -3312,7 +3312,7 @@ async function saveAlbum(el) {
         el.classList.add('saved')
     }
     el.classList.add('disabled')
-    let album = structuredClone(currentAlbum)
+    let album = {...currentAlbum}
     fetch(`https://api.onvo.me/music/save`, {
         method: 'POST',
         headers: {
