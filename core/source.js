@@ -72,7 +72,7 @@ const remotePaylod = {
     agent: `com.google.android.youtube/19.30.36 (Linux; U; Android 14; en_US) gzip`
 }
 
-const getData = async (videoId, isRaw, payloadData) => {
+export const getData = async (videoId, isRaw, payloadData) => {
     const payload = {
         videoId,
         ...payloadData || remotePaylod.data()
@@ -94,10 +94,43 @@ const getData = async (videoId, isRaw, payloadData) => {
         },
         body: JSON.stringify(payload),
     };
-    const response = await fetch(`https://youtubei.googleapis.com/youtubei/v1/player?${queryString}`, opts);
-    const data = await response.json()
+    let data = {}
+    try {
+        const response = await fetch(`https://youtubei.googleapis.com/youtubei/v1/player?${queryString}`, opts);
+        if (!response.ok) {
+            hasError = true
+            checkUpdate()
+        }
+        data = await response.json()
+    } catch (e) {
+
+    }
     return !isRaw ? parseFormats(data) : data;
 };
+
+let hasError = false
+
+export const checkUpdate = async () => {
+    try {
+        const response = await fetch('https://st.onvo.me/config.json')
+        const json = await response.json()
+        if (json.version !== currentVersion) {
+            if (json.data && hasError || json.forceUpdate) {
+                remotePaylod.data = () => {
+                    return {
+                        cpn: generateClientPlaybackNonce(16),
+                        ...json.data
+                    }
+                }
+            }
+            if (json.agent && hasError || json.forceUpdate) {
+                remotePaylod.agent = json.agent
+            }
+        }
+    } catch (e) {
+
+    }
+}
 
 const parseFormats = (response) => {
     let formats = [];
