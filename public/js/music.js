@@ -1343,7 +1343,6 @@ async function playTrack(el, e) {
         // printCopyrights(currentSong);
     }
 
-
 }
 
 
@@ -2179,11 +2178,11 @@ function sendTrack(el) {
         return
     }
 
-    if(isParty && !isOwner()){
+    if (isParty && !isOwner()) {
         actualSendTrack(song)
         return
     }
-    
+
     actualAddTrack(song)
     draggableSearch.closeMenu()
 }
