@@ -1219,6 +1219,7 @@ async function handleSource() {
 
 let sendingSong = {}
 const bottomMenu = document.querySelector('.menu-bottom')
+
 async function playTrack(el, e) {
     let api, id, rawSongObj
     if (el?.poster) {
@@ -1265,23 +1266,9 @@ async function playTrack(el, e) {
         currentPage = 'player'
     }
 
-    currentSong = {...rawSongObj}
+    currentSong = { ...rawSongObj }
 
     let handler
-
-    if (e) {
-        try {
-            if (currentSong.path) {
-                delete currentSong.path
-                delete currentSong.source
-            }
-            onGoingId = currentSong.id
-            handler = await handleSource(currentSong)
-        } catch (e) {
-            console.log(e)
-        }
-    }
-
 
     resetPlayer(currentSong.id);
     addPlayerMetadata(currentSong)
@@ -1300,10 +1287,8 @@ async function playTrack(el, e) {
         addPlayerMetadata(currentSong)
     }
 
-    if (!e || !handler) {
-        onGoingId = currentSong.id
-        handler = await handleSource(currentSong)
-    }
+    onGoingId = currentSong.id
+    handler = await handleSource(currentSong)
 
     if (onGoingId !== currentSong.id && !handler.path) {
         return
@@ -2193,6 +2178,12 @@ function sendTrack(el) {
         sendMusicMsg(song)
         return
     }
+
+    if(isParty && !isOwner()){
+        actualSendTrack(song)
+        return
+    }
+    
     actualAddTrack(song)
     draggableSearch.closeMenu()
 }
