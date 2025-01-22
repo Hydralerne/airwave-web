@@ -15,9 +15,9 @@ const bodyParser = require('body-parser');
 const soundcloud = require(path.join(__dirname, 'core', 'soundcloud.js'));
 const core = require(path.join(__dirname, 'core', 'handler.js'));
 const spotify = require(path.join(__dirname, 'core', 'spotify.js'));
-const ytdlp = require(path.join(__dirname, 'core', 'source', 'youtube.js'));
 const { cloneRepo, createWebSocket, proxyImages, downloadHandler, removeImages, proxyRequest } = require(path.join(__dirname, 'core', 'proxy.js'));
 const youtube = require(path.join(__dirname, 'core', 'youtube.js'));
+const source = require(path.join(__dirname, 'core', 'source.js'));
 const { getTracksData } = require(path.join(__dirname, 'core', 'tracks.js'));
 const remotePathDir = path.join(process.argv[2], 'remote');
 const remotePath = path.join(remotePathDir, 'airwave-remote', 'main.js');
@@ -348,8 +348,9 @@ app.get('/get-source', async (req, res) => {
         if (!req.query.id) {
             return res.json({ error: 'missing_paramater' })
         }
-        const data = await ytdlp.getSourceURL(req.query.id)
-        res.json(data)
+        const formats = await source.getData(req.query.id)
+        const data = source.filter(formats, 'bestaudio')
+        res.json({ url: data.url })
     } catch (e) {
         res.json({ error: e.message })
     }

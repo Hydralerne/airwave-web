@@ -1675,7 +1675,7 @@ async function loadNative(id, e, d) {
 }
 
 async function prepareNext(next) {
-    if (isOffline) {
+    if (isOffline || true) {
         return
     }
     if (currentSong.api == 'song' || currentSong.api == 'soundcloud') {
