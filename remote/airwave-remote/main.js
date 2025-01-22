@@ -1,4 +1,5 @@
-const { Router } = require('express');
+const path = require('path')
+const { Router } = require(path.join(process.argv[1], 'node_modules', 'express').replace('index',''));
 const router = Router();
 
 
