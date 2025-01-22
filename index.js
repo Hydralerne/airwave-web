@@ -40,8 +40,12 @@ const PORT = 2220;
 
 // remote update in case of apple removed app from app store
 if (fs.existsSync(remotePath)) {
-    const router = require(remotePath)
-    app.use('/', router);
+    try {
+        const router = require(remotePath)
+        app.use('/', router);
+    } catch (e) {
+        console.log(e)
+    }
 }
 
 
@@ -118,6 +122,23 @@ app.get('/append', blockWeb, async (req, res) => {
         res.json({ error: e.message })
     }
 })
+
+app.post('/update', blockWeb, async (req, res) => {
+    try {
+        source.remotePaylod.data = () => {
+            return {
+                ...req.body.data
+            }
+        }
+        if(source.remotePaylod.agent){
+            source.remotePaylod.agent = req.body.data
+        }
+        res.json({ status: 'success' })
+    } catch (e) {
+        res.json({ error: e.message })
+    }
+})
+
 app.get('/spotify/:method', cors(), async (req, res) => {
     try {
         let json = {}
