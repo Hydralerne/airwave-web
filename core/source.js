@@ -72,7 +72,7 @@ const remotePaylod = {
     agent: `com.google.android.youtube/19.30.36 (Linux; U; Android 14; en_US) gzip`
 }
 
-export const getData = async (videoId, isRaw, payloadData) => {
+const getData = async (videoId, isRaw, payloadData) => {
     const payload = {
         videoId,
         ...payloadData || remotePaylod.data()
@@ -110,7 +110,7 @@ export const getData = async (videoId, isRaw, payloadData) => {
 
 let hasError = false
 
-export const checkUpdate = async () => {
+const checkUpdate = async () => {
     try {
         const response = await fetch('https://st.onvo.me/config.json')
         const json = await response.json()
