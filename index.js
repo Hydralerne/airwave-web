@@ -373,11 +373,11 @@ app.get('/get-source', async (req, res) => {
             return res.json({ error: 'missing_paramater' })
         }
 
-        const formats = await ytapi.getData(req.query.id)
+        const data = await ytapi.getData(req.query.id)
         // const data = source.filter(formats, 'bestaudio')
-        const info = ytapi.filter(formats, 'bestaudio')
+        const info = ytapi.filter(data.formats, 'bestaudio')
         // const data = formats[0]
-        res.json(info)
+        res.json(data.fallback ? data.formats[0] : info)
     } catch (e) {
         res.json({ error: e.message })
     }
