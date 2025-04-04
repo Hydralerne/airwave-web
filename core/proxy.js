@@ -190,7 +190,7 @@ const downloadParallel = async (url, trackid, outputPath, numChunks = 10) => {
         },
         agent,
     };
-    
+
     return new Promise((resolve, reject) => {
         https.get(url, requestOptions, (response) => {
             const totalSize = parseInt(response.headers['content-length'], 10);
@@ -322,7 +322,7 @@ const proxyImages = (req, res, next) => {
             });
 
             fileStream.on('error', (err) => {
-                fs.unlink(filePath, () => {});
+                fs.unlink(filePath, () => { });
             });
         }
     }).on('error', (err) => {
@@ -585,12 +585,10 @@ async function cloneRepo(repoUrl, targetDir, onProgress) {
 
 const proxyRequest = (req, res) => {
     try {
-        const downloadUrl = req.query.url
+        const downloadUrl = decodeURIComponent(req.query.url)
         const protocol = downloadUrl.startsWith('https') ? https : http;
         const options = {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36',
-            }
+            
         };
         if (req.headers['range']) {
             options.headers['Range'] = req.headers['range'];

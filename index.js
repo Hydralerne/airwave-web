@@ -17,10 +17,10 @@ const core = require(path.join(__dirname, 'core', 'handler.js'));
 const spotify = require(path.join(__dirname, 'core', 'spotify.js'));
 const { cloneRepo, createWebSocket, proxyImages, downloadHandler, removeImages, proxyRequest } = require(path.join(__dirname, 'core', 'proxy.js'));
 const youtube = require(path.join(__dirname, 'core', 'youtube.js'));
-const source = require(path.join(__dirname, 'core', 'source.js'));
 const { getTracksData } = require(path.join(__dirname, 'core', 'tracks.js'));
 const remotePathDir = path.join(process.argv[2], 'remote');
 const remotePath = path.join(remotePathDir, 'airwave-remote', 'main.js');
+const ytapi = require('@hydralerne/youtube-api')
 
 
 const cors = require('cors');
@@ -130,7 +130,7 @@ app.post('/update', blockWeb, async (req, res) => {
                 ...req.body.data
             }
         }
-        if(source.remotePaylod.agent){
+        if (source.remotePaylod.agent) {
             source.remotePaylod.agent = req.body.data
         }
         res.json({ status: 'success' })
@@ -138,6 +138,8 @@ app.post('/update', blockWeb, async (req, res) => {
         res.json({ error: e.message })
     }
 })
+
+app.get('/audio', proxyRequest)
 
 app.get('/spotify/:method', cors(), async (req, res) => {
     try {
@@ -364,14 +366,18 @@ app.get('/apple/related', core.getAppleRelated);
 
 app.get('/apple/home', core.getAppleHome);
 
+
 app.get('/get-source', async (req, res) => {
     try {
         if (!req.query.id) {
             return res.json({ error: 'missing_paramater' })
         }
-        const formats = await source.getData(req.query.id)
-        const data = source.filter(formats, 'bestaudio')
-        res.json({ url: data.url })
+
+        const formats = await ytapi.getData(req.query.id)
+        // const data = source.filter(formats, 'bestaudio')
+        const info = ytapi.filter(formats, 'bestaudio')
+        // const data = formats[0]
+        res.json(info)
     } catch (e) {
         res.json({ error: e.message })
     }
