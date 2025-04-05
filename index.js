@@ -366,7 +366,7 @@ app.get('/apple/related', core.getAppleRelated);
 
 app.get('/apple/home', core.getAppleHome);
 
-ytapi.initilize()
+ytapi.initialize()
 
 app.get('/get-source', async (req, res) => {
     try {
