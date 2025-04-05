@@ -366,6 +366,7 @@ app.get('/apple/related', core.getAppleRelated);
 
 app.get('/apple/home', core.getAppleHome);
 
+ytapi.initilize()
 
 app.get('/get-source', async (req, res) => {
     try {
@@ -373,11 +374,9 @@ app.get('/get-source', async (req, res) => {
             return res.json({ error: 'missing_paramater' })
         }
 
-        const data = await ytapi.getData(req.query.id)
-        // const data = source.filter(formats, 'bestaudio')
-        const info = ytapi.filter(data.formats, 'bestaudio')
-        // const data = formats[0]
-        res.json(data.fallback ? data.formats[0] : info)
+        const data = await ytapi.getInfo(req.query.id)
+        const format = ytapi.filter(data.formats, 'bestaudio')
+        res.json(format)
     } catch (e) {
         res.json({ error: e.message })
     }

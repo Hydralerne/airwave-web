@@ -10,8 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@distube/ytdl-core": "^4.16.6",
-    "@hydralerne/youtube-api": "^1.0.4",
+    "@hydralerne/youtube-api": "^1.0.9",
     "body-parser": "^1.20.2",
     "cheerio": "^1.0.0-rc.12",
     "cors": "^2.8.5",
